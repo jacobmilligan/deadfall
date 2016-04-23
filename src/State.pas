@@ -12,16 +12,20 @@
 unit State;
 
 interface
-	uses Map;
+	uses sgTypes, Map;
 
 	type
 		//
 		// All possible gamestates are set as an enum, used in choosing
 		// which state to switch to
 		//
-		GameState = (TitleState, MapState, MenuState, QuitState);
+		GameState = (TitleState, LevelState, MenuState, QuitState);
 
 		StateManager = ^TStateManager;
+
+		EntityStats = record
+			HP: Integer;
+		end;
 
 		GameCore = record
 			//
@@ -30,6 +34,8 @@ interface
 			active: Boolean;
 
 			deltaTime: Double;
+
+			playerStats: EntityStats;
 
 			stateManager: StateManager;
 		end;
@@ -80,7 +86,7 @@ implementation
 	begin
 		case newState of
 			TitleState: TitleInit(newActiveState);
-			MapState: MapInit(newActiveState);
+			LevelState: LevelInit(newActiveState);
 			else 
 				WriteLn('Invalid state');
 		end;

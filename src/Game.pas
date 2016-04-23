@@ -31,9 +31,19 @@ interface
 	//
 	procedure GameDraw(var core: GameCore);
 
+	procedure LoadResources();
+
 
 implementation
 	uses Swingame;
+
+	procedure LoadResources();
+	begin
+		LoadBitmapNamed('water', 'water.png');
+		LoadBitmapNamed('dirt', 'dirt.png');
+		LoadBitmapNamed('grass', 'grass.png');
+		LoadBitmapNamed('sand', 'sand.png');
+	end;
 
 	procedure GameInit(caption: String; x, y: Integer; var core: GameCore);
 	begin
@@ -44,12 +54,11 @@ implementation
 
 		SetLength(core.stateManager^.states, 0);
 
-		StateChange(core.stateManager, MapState);
+		StateChange(core.stateManager, LevelState);
 	end;
 
 	procedure GameUpdate(var core: GameCore);
 	begin
-		core.deltaTime := GetTicks();
 
 		ProcessEvents();
 
@@ -68,9 +77,8 @@ implementation
 	begin
 		ClearScreen(ColorBlack);
 		core.stateManager^.states[High(core.stateManager^.states)].Draw(core);
-		RefreshScreen(60);
 
-		core.deltaTime := (GetTicks() - core.deltaTime);
+		WriteLn(core.deltaTime:0:4);
 	end;
 
 

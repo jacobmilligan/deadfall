@@ -18,40 +18,105 @@ interface
 	// Initializes the playing map state, intializes using 
 	// a new active state
 	//
-	procedure MapInit(var newState: ActiveState);
+	procedure LevelInit(var newState: ActiveState);
 
-	procedure MapHandleInput(var manager: GameCore);
+	procedure LevelHandleInput(var core: GameCore);
 
-	procedure MapUpdate(var manager: GameCore);
+	procedure LevelUpdate(var core: GameCore);
 
-	procedure MapDraw(var manager: GameCore);
+	procedure LevelDraw(var core: GameCore);
 
 
 implementation
-	uses Map;
+	uses Map, SwinGame, Math;
 
-	procedure MapInit(var newState: ActiveState);
+	procedure LevelInit(var newState: ActiveState);
 	begin
-		newState.HandleInput := @MapHandleInput;
-		newState.Update := @MapUpdate;
-		newState.Draw := @MapDraw;
+		newState.HandleInput := @LevelHandleInput;
+		newState.Update := @LevelUpdate;
+		newState.Draw := @LevelDraw;
 
-		newState.currentMap := GenerateNewMap(513);
+		newState.currentMap := GenerateNewMap(1025);
+		newState.currentMap.player := CreateSprite(LoadBitmapNamed('dirt', 'dirt.png'));
+		SpriteSetX(newState.currentMap.player, 10);
+		SpriteSetY(newState.currentMap.player, 10);
+
+		MoveCameraTo(100, 100);
 	end;
 
-	procedure MapHandleInput(var manager: GameCore);
+	procedure LevelHandleInput(var core: GameCore);
+	const
+		SPEED = 10;
+	var
+		map: MapPtr;
+		velocity: Vector; 
 	begin
+		map := @core.stateManager^.states[High(core.stateManager^.states)].currentMap;
 		
+		velocity.x := 0;
+		velocity.y := 0;
+
+		if KeyDown(RightKey) then 
+		begin
+			velocity.x += (10 * core.deltaTime) * SPEED;
+		end;
+		if KeyDown(LeftKey) then 
+		begin
+			velocity.x -= (10 * core.deltaTime) * SPEED;
+		end;
+		if KeyDown(UpKey) then 
+		begin
+			velocity.y -= (10 * core.deltaTime) * SPEED;
+		end;
+		if KeyDown(DownKey) then 
+		begin
+			velocity.y += (10 * core.deltaTime) * SPEED;
+		end;
+
+		SpriteSetDX(map^.player, velocity.x);
+		SpriteSetDY(map^.player, velocity.y);
+
+		MoveSprite(map^.player);
 	end;
 
-	procedure MapUpdate(var manager: GameCore);
+	procedure LevelUpdate(var core: GameCore);
 	begin
-		
+		CenterCameraOn(core.stateManager^.states[High(core.stateManager^.states)].currentMap.player, 0, 0);
 	end;
 
-	procedure MapDraw(var manager: GameCore);
+	procedure LevelDraw(var core: GameCore);
+	var
+		x, y: Integer;
+		tileScreenWidth, tileScreenHeight: Integer;
+		map: MapPtr;  
+	const
+		X_TEST = 100;
+		Y_TEST = 100;
 	begin
-		
+		map := @core.stateManager^.states[High(core.stateManager^.states)].currentMap;
+		tileScreenWidth := Round(ScreenWidth() / 32);
+		tileScreenHeight := Round(ScreenHeight() / 32);
+
+		x := Round(CameraPos.x / 32);
+		y := Round(CameraPos.y / 32);
+
+		for x := Round(CameraPos.x / 32) - 1 to Round( (CameraPos.x / 32) + tileScreenWidth ) do
+		begin
+			if ( x >= 0 ) and ( x < Length(map^.tiles) ) then
+			begin
+				for y := Round(CameraPos.y / 32) - 1 to Round((CameraPos.y / 32) + tileScreenHeight) do
+				begin
+					if ( y >= 0 ) and ( y < Length(map^.tiles) ) then
+					begin
+						DrawBitmap(map^.tiles[x, y].bmp, x * 32, y * 32);
+					end;
+				end;
+			end;
+		end;
+
+		DrawSprite(map^.player);
+		RefreshScreen(60);
+
 	end;
 
 end.

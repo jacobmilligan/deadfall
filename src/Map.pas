@@ -20,7 +20,7 @@ interface
 		// Valid tile types for building maps with.
 		// Used as a terrain flag for different logic.
 		//
-		TileType = (Water, Dirt, Grass, Stone, Wall);
+		TileType = (Water, Sand, Dirt, Grass, Stone, Wall);
 
 		// Each tile has a terrain flag, elevation and bitmap
 		Tile = record
@@ -41,7 +41,10 @@ interface
 		//
 		MapData = record
 			tiles: TileGrid;
+			player: Sprite;
 		end;
+
+		MapPtr = ^MapData;
 
 	//
 	// Takes a new 2D tile grid, sets the size to the passed in
@@ -53,7 +56,7 @@ interface
 
 
 implementation
-	uses SwinGame;
+	uses SwinGame, Game;
 	
 	procedure PrintGrid(var grid: TileGrid);
 	var
@@ -77,16 +80,20 @@ implementation
 	// (for details, see: Computer Rendering of Stochastic Models - Alain Fournier et. al.).
 	// This heightmap data gets used later on to generate terrain realistically
 	//
-	procedure GetHeightMap(var map: MapData; maxHeight: Integer);
+	procedure GetHeightMap(var map: MapData; maxHeight, smoothAmt: Integer);
 	var
 		x, y: Integer;
 		midpointVal: Double;
-		nextStep: Integer;
-		cornerCount: Integer;
+		nextStep, cornerCount: Integer;
 		loadingStr: String;
 	begin
 		loadingStr := 'Generating height map.';
 		ClearScreen(ColorBlack);
+
+		if smoothAmt < 1 then
+		begin
+			smoothAmt := 1;
+		end;
 
 		x := 0;
 		y := 0;
@@ -151,7 +158,7 @@ implementation
 								 + map.tiles[x - nextStep, y + nextStep].elevation
 								 + map.tiles[x + nextStep, y - nextStep].elevation
 								 + map.tiles[x + nextStep, y + nextStep].elevation;
-					map.tiles[x, y].elevation := Round( (midpointVal / 4) + Random(maxHeight) );
+					map.tiles[x, y].elevation := Round( (midpointVal / 4) + Random(maxHeight) ) - smoothAmt;
 					y += 2 * nextStep;
 				end;
 
@@ -207,7 +214,7 @@ implementation
 					//
 					if cornerCount > 0 then
 					begin
-						map.tiles[x, y].elevation := Round( (midpointVal / cornerCount) + Random(maxHeight) );
+						map.tiles[x, y].elevation := Round( (midpointVal / cornerCount) + Random(maxHeight) ) - smoothAmt;
 					end;
 
 					y += 2 * nextStep;
@@ -217,6 +224,7 @@ implementation
 			end;
 
 			nextStep := Round(nextStep / 2); // Make the next space smaller
+			smoothAmt := Round(smoothAmt / 2);
 
 			DrawText(loadingStr, ColorWhite, 300, 200);
 			loadingStr += '.';
@@ -224,9 +232,89 @@ implementation
 		end;
 	end;
 
-	procedure GenerateTerrain(var map: MapData);
+	function SmoothElevationChange(var tiles: TileGrid; x, y, min, max: Integer): Boolean;
+	var
+		i, j, smoothPoints: Integer;
 	begin
-		
+		result := false;
+
+		for i := x - 1 to x + 1 do
+		begin
+			for j := y - 1 to y + 1 do
+			begin
+				
+				if ( tiles[x, y].elevation >= min ) and ( tiles[x, y].elevation <= max ) then
+				begin
+					smoothPoints += 1;
+				end;
+
+			end;
+		end;
+
+		if smoothPoints > 4 then
+		begin
+			result := true;
+		end;
+	end;
+
+	procedure GenerateTerrain(var map: MapData);
+	var
+		x, y: Integer;
+	begin
+		LoadResources();
+		for x := 0 to High(map.tiles) do
+		begin
+			for y := 0 to High(map.tiles) do
+			begin
+				
+				if ( map.tiles[x, y].elevation >= 0 ) and ( map.tiles[x, y].elevation < 900 ) then 
+				begin
+					
+					if SmoothElevationChange(map.tiles, x, y, 0, 900) then
+					begin
+						map.tiles[x, y].flag := Water;
+						map.tiles[x, y].bmp := BitmapNamed('water');
+					end
+					else
+					begin
+						map.tiles[x, y].flag := Sand;
+						map.tiles[x, y].bmp := BitmapNamed('sand');
+					end;
+
+				end
+				else if ( map.tiles[x, y].elevation >= 900 ) and ( map.tiles[x, y].elevation < 950 ) then
+				begin
+					map.tiles[x, y].flag := Sand;
+					map.tiles[x, y].bmp := BitmapNamed('sand');
+
+					if SmoothElevationChange(map.tiles, x, y, 900, 950) then
+					begin
+						map.tiles[x, y].flag := Sand;
+						map.tiles[x, y].bmp := BitmapNamed('sand');
+					end
+					else
+					begin
+						map.tiles[x, y].flag := Dirt;
+						map.tiles[x, y].bmp := BitmapNamed('dirt');
+					end;
+				end
+				else
+				begin
+
+					if (Random(10) > 9) then 
+					begin
+						map.tiles[x, y].flag := Dirt;
+						map.tiles[x, y].bmp := BitmapNamed('dirt');
+					end
+					else 
+					begin
+						map.tiles[x, y].flag := Grass;
+						map.tiles[x, y].bmp := BitmapNamed('grass');
+					end;
+				end;
+
+			end;
+		end;
 	end;
 
 	procedure SetGridLength(var tiles: TileGrid; size: Integer);
@@ -257,13 +345,14 @@ implementation
 		if ( (size - 1) mod 2 = 0 ) then 
 		begin
 			SetGridLength(newMap.tiles, size);
-			GetHeightMap(newMap, 1024);
+			GetHeightMap(newMap, 300, 300);
 			GenerateTerrain(newMap);
 		end
 		else 
 		begin
 			WriteLn('Deadfall error: Cannot initialize map with size ', size, '! Map must be of size 2^n + 1.');
 		end;
+		result := newMap;
 
 	end;
 
