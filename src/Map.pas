@@ -101,7 +101,7 @@ implementation
 		nextStep := Round(Length(map.tiles) / 2 ); // Center of the tile grid
 
 		// Seed upper-left corner with random value
-		map.tiles[x, y].elevation := -1000 + Random(maxHeight);
+		map.tiles[x, y].elevation := -1000;
 
 		// Initialize four corners of map with the same value as above
 		while x < Length(map.tiles) do
@@ -246,17 +246,17 @@ implementation
 			for y := 0 to High(map.tiles) do
 			begin
 				
-				if ( map.tiles[x, y].elevation < -200 ) then
+				if ( map.tiles[x, y].elevation < 0 ) then
 				begin
 					map.tiles[x, y].flag := Water;
 					map.tiles[x, y].bmp := BitmapNamed('dark water');
 				end
-				else if ( map.tiles[x, y].elevation >= -200 ) and ( map.tiles[x, y].elevation < 0 ) then 
+				else if ( map.tiles[x, y].elevation >= 0 ) and ( map.tiles[x, y].elevation < 200 ) then 
 				begin
 					map.tiles[x, y].flag := Water;
 					map.tiles[x, y].bmp := BitmapNamed('water');
 				end
-				else if ( map.tiles[x, y].elevation >= 0 ) and ( map.tiles[x, y].elevation < 100 ) then
+				else if ( map.tiles[x, y].elevation >= 200 ) and ( map.tiles[x, y].elevation < 300 ) then
 				begin
 					map.tiles[x, y].flag := Sand;
 					map.tiles[x, y].bmp := BitmapNamed('sand');
@@ -267,19 +267,19 @@ implementation
 					map.tiles[x, y].flag := Grass;
 					map.tiles[x, y].bmp := BitmapNamed('grass');
 
-					if ( map.tiles[x, y].elevation > 600 ) and ( map.tiles[x, y].elevation < 1000 ) then
+					if ( map.tiles[x, y].elevation > 400 ) and ( map.tiles[x, y].elevation < 600 ) then
 					begin
 						map.tiles[x, y].flag := MediumGrass;
 						map.tiles[x, y].bmp := BitmapNamed('dark grass');
 					end;
 
-					if ( map.tiles[x, y].elevation >= 1000 ) and ( map.tiles[x, y].elevation < 1500 ) then
+					if ( map.tiles[x, y].elevation >= 600 ) and ( map.tiles[x, y].elevation < 800 ) then
 					begin
 						map.tiles[x, y].flag := HighGrass;
 						map.tiles[x, y].bmp := BitmapNamed('darkest grass');
 					end;
 
-					if ( map.tiles[x, y].elevation >= 1500 ) and ( map.tiles[x, y].elevation < 1700 ) then
+					if ( map.tiles[x, y].elevation >= 800 ) and ( map.tiles[x, y].elevation < 1000 ) then
 					begin
 
 						if Random(10) > 6 then
@@ -294,13 +294,13 @@ implementation
 						end;
 					end;
 
-					if ( map.tiles[x, y].elevation >= 1700 ) and ( map.tiles[x, y].elevation < 2500 ) then
+					if ( map.tiles[x, y].elevation >= 1000 ) and ( map.tiles[x, y].elevation < 1500 ) then
 					begin
 						map.tiles[x, y].flag := SnowyGrass;
 						map.tiles[x, y].bmp := BitmapNamed('snowy grass');
 					end;
 
-					if ( map.tiles[x, y].elevation >= 2500 ) then
+					if ( map.tiles[x, y].elevation >= 1500 ) then
 					begin
 						map.tiles[x, y].flag := Mountain;
 						map.tiles[x, y].bmp := BitmapNamed('mountain');
@@ -357,9 +357,10 @@ implementation
 			for y := 0 to High(map.tiles) do
 			begin
 				case map.tiles[x, y].flag of
-					Grass: map.tiles[x, y].hasTree := (Random(10) > 7);
-					MediumGrass: map.tiles[x, y].hasTree := (Random(10) > 7);
-					HighGrass: map.tiles[x, y].hasTree := (Random(10) > 7);
+					Sand: map.tiles[x, y].hasTree := (Random(100) > 95);
+					Grass: map.tiles[x, y].hasTree := (Random(100) > 70);
+					MediumGrass: map.tiles[x, y].hasTree := (Random(100) > 70);
+					HighGrass: map.tiles[x, y].hasTree := (Random(100) > 70);
 					else 
 						map.tiles[x, y].hasTree := false;
 				end;	
@@ -454,7 +455,7 @@ implementation
 		if ( (size - 1) mod 2 = 0 ) then 
 		begin
 			SetGridLength(newMap.tiles, size);
-			GetHeightMap(newMap, 70, 12);
+			GetHeightMap(newMap, 70, 20);
 			GenerateTerrain(newMap);
 			SeedTrees(newMap);
 

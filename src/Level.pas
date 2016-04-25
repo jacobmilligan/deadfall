@@ -15,32 +15,47 @@ interface
 	uses State, sgTypes;
 
 	//
-	// Initializes the playing map state, intializes using 
+	// Initializes the playing map state, using 
 	// a new active state
 	//
 	procedure LevelInit(var newState: ActiveState);
 
+	//
+	// Handles input from the player, moving and taking actions 
+	// on the current map. Checks collision on tiles and the edge
+	// of the screen.
+	//
 	procedure LevelHandleInput(var core: GameCore);
 
+	//
+	// Moves the camera, checks camera collision, and is responsible
+	// for updating and calculating enemy actions within the game
+	//
 	procedure LevelUpdate(var core: GameCore);
 
+	//
+	// Draws the area of the current map that's 
 	procedure LevelDraw(var core: GameCore);
 
 
 implementation
-	uses Map, SwinGame, Math;
+	uses Map, SwinGame;
 
 	procedure LevelInit(var newState: ActiveState);
 	var
 		i, j: Integer;
 		spawnFound: Boolean;
 	begin
+		// Assign functions for state
 		newState.HandleInput := @LevelHandleInput;
 		newState.Update := @LevelUpdate;
 		newState.Draw := @LevelDraw;
 
+		// Generate a new map with the passed-in size
 		newState.currentMap := GenerateNewMap(257);
-		newState.currentMap.player := CreateSprite(LoadBitmapNamed('player', 'player.png'));
+
+		//
+		newState.currentMap.player := CreateSprite(BitmapNamed('player'));
 
 
 		spawnFound := false;
@@ -140,6 +155,7 @@ implementation
 		x, y: Integer;
 		tileScreenWidth, tileScreenHeight: Integer;
 		map: MapPtr;  
+		barRect: Rectangle;
 	const
 		X_TEST = 100;
 		Y_TEST = 100;
@@ -155,22 +171,35 @@ implementation
 		begin
 			if ( x >= 0 ) and ( x < Length(map^.tiles) ) then
 			begin
+				
 				for y := Round(CameraPos.y / 32) - 1 to Round((CameraPos.y / 32) + tileScreenHeight) do
 				begin
+					
 					if ( y >= 0 ) and ( y < Length(map^.tiles) ) then
 					begin
 						DrawBitmap(map^.tiles[x, y].bmp, x * 32, y * 32);
 
-						if map^.tiles[x, y].hasTree then
+						if (map^.tiles[x, y].hasTree) and (map^.tiles[x, y].flag > Sand) then
 						begin
 							DrawBitmap(BitmapNamed('tree'), x * 32, y * 32);
 						end;
+						if (map^.tiles[x, y].hasTree) and (map^.tiles[x, y].flag = Sand) then
+						begin
+							DrawBitmap(BitmapNamed('palm tree'), x * 32, y * 32);
+						end;
 					end;
+
 				end;
+
 			end;
 		end;
 
 		DrawSprite(map^.player);
+
+		barRect := RectangleFrom(0, 0, core.playerStats.HP, 32);
+
+		DrawBitmap(BitmapNamed('empty bar'), CameraX() + 10, CameraY() + 10);
+		FillRectangle(RGBAColor(224, 51, 51, 150), CameraX() + 15, CameraY() + 15, (core.playerStats.HP * 2) - 8, 23);
 
 	end;
 

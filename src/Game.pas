@@ -31,6 +31,9 @@ interface
 	//
 	procedure GameDraw(var core: GameCore);
 
+	//
+	// Loads all resources needed by the game
+	//
 	procedure LoadResources();
 
 
@@ -49,18 +52,24 @@ implementation
 		LoadBitmapNamed('mountain', 'mountain.png');
 		LoadBitmapNamed('snowy grass', 'snowy_grass.png');
 		LoadBitmapNamed('tree', 'tree.png');
+		LoadBitmapNamed('palm tree', 'palm_tree.png');
 
 		LoadBitmapNamed('player', 'player.png');
+
+		LoadBitmapNamed('empty bar', 'empty_bar.png');
+		LoadBitmapNamed('health bar', 'health_bar.png');
 	end;
 
 	procedure GameInit(caption: String; x, y: Integer; var core: GameCore);
 	begin
 		OpenGraphicsWindow(caption, x, y);
 
-		core.active := true;
+		core.active := true; // game is active now
 		core.deltaTime := 0;
 
 		SetLength(core.stateManager^.states, 0);
+
+		core.playerStats.HP := 100;
 
 		StateChange(core.stateManager, LevelState);
 	end;
@@ -76,7 +85,10 @@ implementation
 		end
 		else
 		begin
+			// Current state handles input
 			core.stateManager^.states[High(core.stateManager^.states)].HandleInput(core);
+
+			// Current state updates the game
 			core.stateManager^.states[High(core.stateManager^.states)].Update(core);
 		end;
 	end;
@@ -85,6 +97,7 @@ implementation
 	begin
 		ClearScreen(ColorBlack);
 		
+		// Current state draws itself to the window
 		core.stateManager^.states[High(core.stateManager^.states)].Draw(core);
 		
 		RefreshScreen(60);
