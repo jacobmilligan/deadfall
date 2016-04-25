@@ -20,7 +20,7 @@ interface
 		// Valid tile types for building maps with.
 		// Used as a terrain flag for different logic.
 		//
-		TileType = (Water, Sand, Dirt, Grass, Stone, Wall);
+		TileType = (Water, Sand, Dirt, Grass, MediumGrass, HighGrass, SnowyGrass, Mountain, Stone, Wall);
 
 		// Each tile has a terrain flag, elevation and bitmap
 		Tile = record
@@ -80,7 +80,7 @@ implementation
 	// (for details, see: Computer Rendering of Stochastic Models - Alain Fournier et. al.).
 	// This heightmap data gets used later on to generate terrain realistically
 	//
-	procedure GetHeightMap(var map: MapData; maxHeight, smoothAmt: Integer);
+	procedure GetHeightMap(var map: MapData; maxHeight, smoothness: Integer);
 	var
 		x, y: Integer;
 		midpointVal: Double;
@@ -90,18 +90,13 @@ implementation
 		loadingStr := 'Generating height map.';
 		ClearScreen(ColorBlack);
 
-		if smoothAmt < 1 then
-		begin
-			smoothAmt := 1;
-		end;
-
 		x := 0;
 		y := 0;
 		midpointVal := 0;
 		nextStep := Round(Length(map.tiles) / 2 ); // Center of the tile grid
 
-		// Seed right corner with random value
-		map.tiles[x, y].elevation := Random(maxHeight);
+		// Seed upper-left corner with random value
+		map.tiles[x, y].elevation := -1000 + Random(maxHeight);
 
 		// Initialize four corners of map with the same value as above
 		while x < Length(map.tiles) do
@@ -134,7 +129,7 @@ implementation
 			
 			//
 			// Diamond step.
-			// Check surrounding points in a diamond for a given midpoint, i.e.:
+			// Check surrounding points in a diamond around a given midpoint, i.e.:
 			//  	  x
 			//  	x o x
 			//   	  x
@@ -158,7 +153,7 @@ implementation
 								 + map.tiles[x - nextStep, y + nextStep].elevation
 								 + map.tiles[x + nextStep, y - nextStep].elevation
 								 + map.tiles[x + nextStep, y + nextStep].elevation;
-					map.tiles[x, y].elevation := Round( (midpointVal / 4) + Random(maxHeight) ) - smoothAmt;
+					map.tiles[x, y].elevation := Round( (midpointVal / 4) + (Random(maxHeight) * smoothness) );
 					y += 2 * nextStep;
 				end;
 
@@ -214,7 +209,7 @@ implementation
 					//
 					if cornerCount > 0 then
 					begin
-						map.tiles[x, y].elevation := Round( (midpointVal / cornerCount) + Random(maxHeight) ) - smoothAmt;
+						map.tiles[x, y].elevation := Round( (midpointVal / cornerCount) + Random(maxHeight) * smoothness );
 					end;
 
 					y += 2 * nextStep;
@@ -224,36 +219,11 @@ implementation
 			end;
 
 			nextStep := Round(nextStep / 2); // Make the next space smaller
-			smoothAmt := Round(smoothAmt / 2);
+			smoothness := Round(smoothness / 2);
 
 			DrawText(loadingStr, ColorWhite, 300, 200);
 			loadingStr += '.';
 			RefreshScreen(60);
-		end;
-	end;
-
-	function SmoothElevationChange(var tiles: TileGrid; x, y, min, max: Integer): Boolean;
-	var
-		i, j, smoothPoints: Integer;
-	begin
-		result := false;
-
-		for i := x - 1 to x + 1 do
-		begin
-			for j := y - 1 to y + 1 do
-			begin
-				
-				if ( tiles[x, y].elevation >= min ) and ( tiles[x, y].elevation <= max ) then
-				begin
-					smoothPoints += 1;
-				end;
-
-			end;
-		end;
-
-		if smoothPoints > 4 then
-		begin
-			result := true;
 		end;
 	end;
 
@@ -262,41 +232,26 @@ implementation
 		x, y: Integer;
 	begin
 		LoadResources();
+
 		for x := 0 to High(map.tiles) do
 		begin
 			for y := 0 to High(map.tiles) do
 			begin
 				
-				if ( map.tiles[x, y].elevation >= 0 ) and ( map.tiles[x, y].elevation < 900 ) then 
+				if ( map.tiles[x, y].elevation < -200 ) then
 				begin
-					
-					if SmoothElevationChange(map.tiles, x, y, 0, 900) then
-					begin
-						map.tiles[x, y].flag := Water;
-						map.tiles[x, y].bmp := BitmapNamed('water');
-					end
-					else
-					begin
-						map.tiles[x, y].flag := Sand;
-						map.tiles[x, y].bmp := BitmapNamed('sand');
-					end;
-
+					map.tiles[x, y].flag := Water;
+					map.tiles[x, y].bmp := BitmapNamed('dark water');
 				end
-				else if ( map.tiles[x, y].elevation >= 900 ) and ( map.tiles[x, y].elevation < 950 ) then
+				else if ( map.tiles[x, y].elevation >= -200 ) and ( map.tiles[x, y].elevation < 0 ) then 
+				begin
+					map.tiles[x, y].flag := Water;
+					map.tiles[x, y].bmp := BitmapNamed('water');
+				end
+				else if ( map.tiles[x, y].elevation >= 0 ) and ( map.tiles[x, y].elevation < 30 ) then
 				begin
 					map.tiles[x, y].flag := Sand;
 					map.tiles[x, y].bmp := BitmapNamed('sand');
-
-					if SmoothElevationChange(map.tiles, x, y, 900, 950) then
-					begin
-						map.tiles[x, y].flag := Sand;
-						map.tiles[x, y].bmp := BitmapNamed('sand');
-					end
-					else
-					begin
-						map.tiles[x, y].flag := Dirt;
-						map.tiles[x, y].bmp := BitmapNamed('dirt');
-					end;
 				end
 				else
 				begin
@@ -311,6 +266,46 @@ implementation
 						map.tiles[x, y].flag := Grass;
 						map.tiles[x, y].bmp := BitmapNamed('grass');
 					end;
+
+					if ( map.tiles[x, y].elevation > 600 ) and ( map.tiles[x, y].elevation < 1000 ) then
+					begin
+						map.tiles[x, y].flag := MediumGrass;
+						map.tiles[x, y].bmp := BitmapNamed('dark grass');
+					end;
+
+					if ( map.tiles[x, y].elevation >= 1000 ) and ( map.tiles[x, y].elevation < 1500 ) then
+					begin
+						map.tiles[x, y].flag := HighGrass;
+						map.tiles[x, y].bmp := BitmapNamed('darkest grass');
+					end;
+
+					if ( map.tiles[x, y].elevation >= 1500 ) and ( map.tiles[x, y].elevation < 1700 ) then
+					begin
+
+						if Random(10) > 6 then
+						begin
+							map.tiles[x, y].flag := SnowyGrass;
+							map.tiles[x, y].bmp := BitmapNamed('snowy grass');
+						end
+						else
+						begin
+							map.tiles[x, y].flag := HighGrass;
+							map.tiles[x, y].bmp := BitmapNamed('darkest grass');
+						end;
+					end;
+
+					if ( map.tiles[x, y].elevation >= 1700 ) and ( map.tiles[x, y].elevation < 2500 ) then
+					begin
+						map.tiles[x, y].flag := SnowyGrass;
+						map.tiles[x, y].bmp := BitmapNamed('snowy grass');
+					end;
+
+					if ( map.tiles[x, y].elevation >= 2500 ) then
+					begin
+						map.tiles[x, y].flag := Mountain;
+						map.tiles[x, y].bmp := BitmapNamed('mountain');
+					end;
+
 				end;
 
 			end;
@@ -340,13 +335,33 @@ implementation
 	function GenerateNewMap(size: Integer): MapData;
 	var
 		newMap: MapData;
+		x, y: Integer;
 	begin
-
 		if ( (size - 1) mod 2 = 0 ) then 
 		begin
 			SetGridLength(newMap.tiles, size);
-			GetHeightMap(newMap, 300, 300);
+			GetHeightMap(newMap, 90, 30);
 			GenerateTerrain(newMap);
+
+			for x := 0 to High(newMap.tiles) do
+			begin
+				for y := 0 to High(newMap.tiles) do
+				begin
+					case newMap.tiles[x, y].flag of
+						Water: DrawPixel(ColorBlue, Round(x / 1.3), Round(y / 1.5));
+						Sand: DrawPixel(ColorYellow, Round(x / 1.3), Round(y / 1.5));
+						Grass: DrawPixel(ColorLawnGreen, Round(x / 1.3), Round(y / 1.5));
+						Dirt: DrawPixel(ColorBrown, Round(x / 1.3), Round(y / 1.5));
+						MediumGrass: DrawPixel(ColorGreen, Round(x / 1.3), Round(y / 1.5));
+						HighGrass: DrawPixel(ColorOlive, Round(x / 1.3), Round(y / 1.5));
+						SnowyGrass: DrawPixel(ColorWhite, Round(x / 1.3), Round(y / 1.5));
+						Mountain: DrawPixel(ColorBlack, Round(x / 1.3), Round(y / 1.5));
+					end;
+				end;
+			end;
+			TakeScreenshot('map');
+			RefreshScreen(60);
+
 		end
 		else 
 		begin

@@ -36,7 +36,7 @@ implementation
 		newState.Update := @LevelUpdate;
 		newState.Draw := @LevelDraw;
 
-		newState.currentMap := GenerateNewMap(1025);
+		newState.currentMap := GenerateNewMap(2049);
 		newState.currentMap.player := CreateSprite(LoadBitmapNamed('dirt', 'dirt.png'));
 		SpriteSetX(newState.currentMap.player, 10);
 		SpriteSetY(newState.currentMap.player, 10);
@@ -46,7 +46,7 @@ implementation
 
 	procedure LevelHandleInput(var core: GameCore);
 	const
-		SPEED = 10;
+		SPEED = 100;
 	var
 		map: MapPtr;
 		velocity: Vector; 
@@ -58,19 +58,19 @@ implementation
 
 		if KeyDown(RightKey) then 
 		begin
-			velocity.x += (10 * core.deltaTime) * SPEED;
+			velocity.x += 2 * SPEED;
 		end;
 		if KeyDown(LeftKey) then 
 		begin
-			velocity.x -= (10 * core.deltaTime) * SPEED;
+			velocity.x -= 2 * SPEED;
 		end;
 		if KeyDown(UpKey) then 
 		begin
-			velocity.y -= (10 * core.deltaTime) * SPEED;
+			velocity.y -= 2 * SPEED;
 		end;
 		if KeyDown(DownKey) then 
 		begin
-			velocity.y += (10 * core.deltaTime) * SPEED;
+			velocity.y += 2 * SPEED;
 		end;
 
 		SpriteSetDX(map^.player, velocity.x);
@@ -115,7 +115,6 @@ implementation
 		end;
 
 		DrawSprite(map^.player);
-		RefreshScreen(60);
 
 	end;
 

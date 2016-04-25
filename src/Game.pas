@@ -40,9 +40,14 @@ implementation
 	procedure LoadResources();
 	begin
 		LoadBitmapNamed('water', 'water.png');
+		LoadBitmapNamed('dark water', 'dark_water.png');
 		LoadBitmapNamed('dirt', 'dirt.png');
 		LoadBitmapNamed('grass', 'grass.png');
+		LoadBitmapNamed('dark grass', 'dark_grass.png');
+		LoadBitmapNamed('darkest grass', 'super_dark_grass.png');
 		LoadBitmapNamed('sand', 'sand.png');
+		LoadBitmapNamed('mountain', 'mountain.png');
+		LoadBitmapNamed('snowy grass', 'snowy_grass.png');
 	end;
 
 	procedure GameInit(caption: String; x, y: Integer; var core: GameCore);
@@ -76,9 +81,10 @@ implementation
 	procedure GameDraw(var core: GameCore);
 	begin
 		ClearScreen(ColorBlack);
+		
 		core.stateManager^.states[High(core.stateManager^.states)].Draw(core);
-
-		WriteLn(core.deltaTime:0:4);
+		
+		RefreshScreen(60);
 	end;
 
 
