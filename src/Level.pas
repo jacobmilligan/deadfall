@@ -39,7 +39,7 @@ implementation
 		newState.Update := @LevelUpdate;
 		newState.Draw := @LevelDraw;
 
-		newState.currentMap := GenerateNewMap(2049);
+		newState.currentMap := GenerateNewMap(257);
 		newState.currentMap.player := CreateSprite(LoadBitmapNamed('player', 'player.png'));
 
 
@@ -53,8 +53,8 @@ implementation
 			begin
 				if newState.currentMap.tiles[i, j].flag = Sand then
 				begin
-					SpriteSetX(newState.currentMap.player, (i + 1) * 32);
-					SpriteSetY(newState.currentMap.player, (j - 1) * 32);
+					SpriteSetX(newState.currentMap.player, i * 32);
+					SpriteSetY(newState.currentMap.player, j * 32);
 					spawnFound := true;
 				end;
 				j += 1;
@@ -63,7 +63,7 @@ implementation
 			i += 1;
 		end;
 
-		MoveCameraTo(100, 100);
+		CenterCameraOn(newState.currentMap.player, ScreenWidth() / 2, ScreenHeight() / 2);
 	end;
 
 	procedure LevelHandleInput(var core: GameCore);
@@ -102,8 +102,37 @@ implementation
 	end;
 
 	procedure LevelUpdate(var core: GameCore);
+	var
+		offsetX, offsetY, rightEdgeDistance, bottomEdgeDistance: Single;
+		mapSizeToPixel, halfSprite: Integer;
+		map: MapPtr;
 	begin
-		CenterCameraOn(core.stateManager^.states[High(core.stateManager^.states)].currentMap.player, 0, 0);
+		map := @core.stateManager^.states[High(core.stateManager^.states)].currentMap;
+		offsetX := 0;
+		offsetY := 0;
+		mapSizeToPixel := High(map^.tiles) * 32;
+		rightEdgeDistance := mapSizeToPixel - SpriteX(map^.player);
+		bottomEdgeDistance := mapSizeToPixel - SpriteY(map^.player);
+		halfSprite := Round(SpriteWidth(map^.player) / 2);
+
+		if CameraX() < (ScreenWidth() / 2) + halfSprite then
+		begin
+			offsetX := ( ScreenWidth() - SpriteX(map^.player) ) / 2;
+		end;
+		if ( SpriteX(map^.player) + (ScreenWidth() / 2) ) > mapSizeToPixel then
+		begin
+			offsetX := -( (ScreenWidth() / 2) - rightEdgeDistance);
+		end;
+		if CameraY() < (ScreenHeight() / 2) + halfSprite then
+		begin
+			offsetY := ( ScreenHeight() - SpriteY(map^.player) ) / 2;
+		end;
+		if ( SpriteY(map^.player) + (ScreenHeight() / 2) ) > mapSizeToPixel then
+		begin
+			offsetY := -( (ScreenHeight() / 2) - bottomEdgeDistance);
+		end;
+
+		CenterCameraOn(map^.player, offsetX, offsetY);
 	end;
 
 	procedure LevelDraw(var core: GameCore);
