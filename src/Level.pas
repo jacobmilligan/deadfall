@@ -54,8 +54,7 @@ implementation
 		// Generate a new map with the passed-in size
 		newState.currentMap := GenerateNewMap(257);
 
-		//
-		LoadResourceBundle('md.txt');
+		//		
 		newState.currentMap.player := CreateSprite(BitmapNamed('eng'), AnimationScriptNamed('player'));
 		SpriteStartAnimation(newState.currentMap.player, 'player_up');
 
@@ -102,24 +101,24 @@ implementation
 			begin
 				SpriteStartAnimation(map^.player, 'player_right');
 			end;
-		end;
-		if KeyDown(LeftKey) and not HasCollision(map^, SpriteX(map^.player) - 16, SpriteY(map^.player)) then 
+		end
+		else if KeyDown(LeftKey) and not HasCollision(map^, SpriteX(map^.player) - 16, SpriteY(map^.player)) then 
 		begin
 			velocity.x -= 2 * SPEED;
 			if not (SpriteAnimationName(map^.player) = 'player_left') then
 			begin
 				SpriteStartAnimation(map^.player, 'player_left');
 			end;
-		end;
-		if KeyDown(UpKey) and not HasCollision(map^, SpriteX(map^.player), SpriteY(map^.player) - 16) then 
+		end
+		else if KeyDown(UpKey) and not HasCollision(map^, SpriteX(map^.player), SpriteY(map^.player) - 16) then 
 		begin
 			velocity.y -= 2 * SPEED;
 			if not (SpriteAnimationName(map^.player) = 'player_up') then
 			begin
 				SpriteStartAnimation(map^.player, 'player_up');
 			end;
-		end;
-		if KeyDown(DownKey) and not HasCollision(map^, SpriteX(map^.player), SpriteY(map^.player) + 16) then 
+		end
+		else if KeyDown(DownKey) and not HasCollision(map^, SpriteX(map^.player), SpriteY(map^.player) + 16) then 
 		begin
 			velocity.y += 2 * SPEED;
 			if not (SpriteAnimationName(map^.player) = 'player_down') then

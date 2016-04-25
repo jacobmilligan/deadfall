@@ -58,6 +58,8 @@ implementation
 
 		LoadBitmapNamed('empty bar', 'empty_bar.png');
 		LoadBitmapNamed('health bar', 'health_bar.png');
+
+		LoadResourceBundle('md.txt');
 	end;
 
 	procedure GameInit(caption: String; x, y: Integer; var core: GameCore);
