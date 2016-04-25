@@ -160,6 +160,11 @@ implementation
 					if ( y >= 0 ) and ( y < Length(map^.tiles) ) then
 					begin
 						DrawBitmap(map^.tiles[x, y].bmp, x * 32, y * 32);
+
+						if map^.tiles[x, y].hasTree then
+						begin
+							DrawBitmap(BitmapNamed('tree'), x * 32, y * 32);
+						end;
 					end;
 				end;
 			end;

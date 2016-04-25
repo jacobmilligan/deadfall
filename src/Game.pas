@@ -48,6 +48,7 @@ implementation
 		LoadBitmapNamed('sand', 'sand.png');
 		LoadBitmapNamed('mountain', 'mountain.png');
 		LoadBitmapNamed('snowy grass', 'snowy_grass.png');
+		LoadBitmapNamed('tree', 'tree.png');
 
 		LoadBitmapNamed('player', 'player.png');
 	end;

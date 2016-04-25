@@ -20,11 +20,12 @@ interface
 		// Valid tile types for building maps with.
 		// Used as a terrain flag for different logic.
 		//
-		TileType = (Water, Sand, Dirt, Grass, MediumGrass, HighGrass, SnowyGrass, Mountain, Stone, Wall);
+		TileType = (Water, Sand, Dirt, Grass, MediumGrass, HighGrass, SnowyGrass, Mountain);
 
 		// Each tile has a terrain flag, elevation and bitmap
 		Tile = record
 			flag: TileType;
+			hasTree: Boolean;
 
 			//
 			// Represents the tiles elevation - zero represents sea
@@ -234,8 +235,11 @@ implementation
 	procedure GenerateTerrain(var map: MapData);
 	var
 		x, y: Integer;
+		loadingStr: String;
 	begin
 		LoadResources();
+		ClearScreen(ColorBlack);
+		loadingStr := 'Generating Terrain.';
 
 		for x := 0 to High(map.tiles) do
 		begin
@@ -252,7 +256,7 @@ implementation
 					map.tiles[x, y].flag := Water;
 					map.tiles[x, y].bmp := BitmapNamed('water');
 				end
-				else if ( map.tiles[x, y].elevation >= 0 ) and ( map.tiles[x, y].elevation < 30 ) then
+				else if ( map.tiles[x, y].elevation >= 0 ) and ( map.tiles[x, y].elevation < 100 ) then
 				begin
 					map.tiles[x, y].flag := Sand;
 					map.tiles[x, y].bmp := BitmapNamed('sand');
@@ -260,16 +264,8 @@ implementation
 				else
 				begin
 
-					if (Random(10) > 9) then 
-					begin
-						map.tiles[x, y].flag := Dirt;
-						map.tiles[x, y].bmp := BitmapNamed('dirt');
-					end
-					else 
-					begin
-						map.tiles[x, y].flag := Grass;
-						map.tiles[x, y].bmp := BitmapNamed('grass');
-					end;
+					map.tiles[x, y].flag := Grass;
+					map.tiles[x, y].bmp := BitmapNamed('grass');
 
 					if ( map.tiles[x, y].elevation > 600 ) and ( map.tiles[x, y].elevation < 1000 ) then
 					begin
@@ -308,6 +304,88 @@ implementation
 					begin
 						map.tiles[x, y].flag := Mountain;
 						map.tiles[x, y].bmp := BitmapNamed('mountain');
+						map.tiles[x, y].hasTree := false;
+					end;
+
+				end;
+
+			end;
+		end;
+		loadingStr += '.';
+		DrawText(loadingStr, ColorWhite, 300, 200);
+		RefreshScreen(60);
+	end;
+
+	function IsInMap(var map: MapData; x, y: Integer): Boolean;
+	begin
+		result := false;
+
+		if (x > 0) and (x < High(map.tiles)) and (y > 0) and (y < High(map.tiles)) then
+		begin
+			result := true;
+		end;
+	end;
+
+	function NeighbourCount(var map: MapData; x, y: Integer): Integer;
+	var
+		i, j, count: Integer;
+	begin
+		count := 0;
+
+		for i := x - 1 to x + 1 do
+		begin
+			for j := y - 1 to y + 1 do
+			begin
+				
+				if map.tiles[i, j].hasTree then
+				begin
+					count += 1;
+				end;
+
+			end;
+		end;
+
+		result := count;
+	end;
+
+	procedure SeedTrees(var map: MapData);
+	var
+		treeCount, x, y: Integer;
+	begin
+		for x := 0 to High(map.tiles) do
+		begin
+			for y := 0 to High(map.tiles) do
+			begin
+				case map.tiles[x, y].flag of
+					Grass: map.tiles[x, y].hasTree := (Random(10) > 7);
+					MediumGrass: map.tiles[x, y].hasTree := (Random(10) > 7);
+					HighGrass: map.tiles[x, y].hasTree := (Random(10) > 7);
+					else 
+						map.tiles[x, y].hasTree := false;
+				end;	
+			end;
+		end;
+
+		for x := 0 to High(map.tiles) do
+		begin
+			for y := 0 to High(map.tiles) do
+			begin
+				
+				if map.tiles[x, y].hasTree and IsInMap(map, x, y) then
+				begin
+					
+					treeCount := NeighbourCount(map, x, y);
+					
+					if (treeCount > 1) and (treeCount <= 2) then
+					begin
+						map.tiles[x - 1, y].hasTree := true;
+						map.tiles[x + 1, y].hasTree := true;
+						map.tiles[x, y + 1].hasTree := true;
+						map.tiles[x, y - 1].hasTree := true;
+					end
+					else
+					begin
+						map.tiles[x, y].hasTree := false;
 					end;
 
 				end;
@@ -332,10 +410,42 @@ implementation
 			for y := 0 to High(tiles) do
 			begin
 				tiles[x, y].elevation := 0;
+				tiles[x, y].hasTree := false;
 			end;
 		end;
 	end;
-	
+
+	function GetTilePos(var entity: Sprite): Point2D;
+	begin
+		result := PointAt(Round(SpriteX(entity) / 32), Round(SpriteY(entity) / 32));
+	end;
+
+	function HasCollision(var map: MapData; x, y: Single): Boolean;
+	var
+		tileX, tileY: Integer;
+	begin
+		tileX := Round(x / 32);
+		tileY := Round(y / 32);
+		
+		result := true;
+		
+		if ( tileX >= 0 ) and ( tileX < High(map.tiles) ) and ( tileY >= 0 ) and ( tileY < High(map.tiles) ) then
+		begin
+			case map.tiles[tileX, tileY].flag of
+			Water: result := true;
+			Mountain: result := true;
+			else 
+				result := false;
+			end;
+
+			if map.tiles[tileX, tileY].hasTree then
+			begin
+				result := true;
+			end;
+		end;
+		
+	end;
+
 	function GenerateNewMap(size: Integer): MapData;
 	var
 		newMap: MapData;
@@ -344,8 +454,9 @@ implementation
 		if ( (size - 1) mod 2 = 0 ) then 
 		begin
 			SetGridLength(newMap.tiles, size);
-			GetHeightMap(newMap, 90, 30);
+			GetHeightMap(newMap, 70, 12);
 			GenerateTerrain(newMap);
+			SeedTrees(newMap);
 
 			for x := 0 to High(newMap.tiles) do
 			begin
@@ -373,33 +484,6 @@ implementation
 		end;
 		result := newMap;
 
-	end;
-
-	function GetTilePos(var entity: Sprite): Point2D;
-	begin
-		result := PointAt(Round(SpriteX(entity) / 32), Round(SpriteY(entity) / 32));
-	end;
-
-	function HasCollision(var map: MapData; x, y: Single): Boolean;
-	var
-		tileX, tileY: Integer;
-	begin
-		tileX := Round(x / 32);
-		tileY := Round(y / 32);
-		if ( tileX >= 0 ) and ( tileX < High(map.tiles) ) and ( tileY >= 0 ) and ( tileY < High(map.tiles) ) then
-		begin
-			case map.tiles[tileX, tileY].flag of
-			Water: result := true;
-			Mountain: result := true;
-			else 
-				result := false;
-			end;
-		end
-		else
-		begin
-			result := true;
-		end;
-		
 	end;
 
 end.
