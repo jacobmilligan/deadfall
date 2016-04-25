@@ -54,6 +54,10 @@ interface
 
 	function GenerateNewMap(size: Integer): MapData;
 
+	function GetTilePos(var entity: Sprite): Point2D;
+
+	function HasCollision(var map: MapData; x, y: Single): Boolean;
+
 
 implementation
 	uses SwinGame, Game;
@@ -369,6 +373,33 @@ implementation
 		end;
 		result := newMap;
 
+	end;
+
+	function GetTilePos(var entity: Sprite): Point2D;
+	begin
+		result := PointAt(Round(SpriteX(entity) / 32), Round(SpriteY(entity) / 32));
+	end;
+
+	function HasCollision(var map: MapData; x, y: Single): Boolean;
+	var
+		tileX, tileY: Integer;
+	begin
+		tileX := Round(x / 32);
+		tileY := Round(y / 32);
+		if ( tileX >= 0 ) and ( tileX < High(map.tiles) ) and ( tileY >= 0 ) and ( tileY < High(map.tiles) ) then
+		begin
+			case map.tiles[tileX, tileY].flag of
+			Water: result := true;
+			Mountain: result := true;
+			else 
+				result := false;
+			end;
+		end
+		else
+		begin
+			result := true;
+		end;
+		
 	end;
 
 end.
