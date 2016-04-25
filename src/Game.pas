@@ -48,6 +48,8 @@ implementation
 		LoadBitmapNamed('sand', 'sand.png');
 		LoadBitmapNamed('mountain', 'mountain.png');
 		LoadBitmapNamed('snowy grass', 'snowy_grass.png');
+
+		LoadBitmapNamed('player', 'player.png');
 	end;
 
 	procedure GameInit(caption: String; x, y: Integer; var core: GameCore);

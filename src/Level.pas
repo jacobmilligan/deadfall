@@ -37,7 +37,7 @@ implementation
 		newState.Draw := @LevelDraw;
 
 		newState.currentMap := GenerateNewMap(2049);
-		newState.currentMap.player := CreateSprite(LoadBitmapNamed('dirt', 'dirt.png'));
+		newState.currentMap.player := CreateSprite(LoadBitmapNamed('player', 'player.png'));
 		SpriteSetX(newState.currentMap.player, 10);
 		SpriteSetY(newState.currentMap.player, 10);
 
