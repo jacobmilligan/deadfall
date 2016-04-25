@@ -55,7 +55,9 @@ implementation
 		newState.currentMap := GenerateNewMap(257);
 
 		//
-		newState.currentMap.player := CreateSprite(BitmapNamed('player'));
+		LoadResourceBundle('md.txt');
+		newState.currentMap.player := CreateSprite(BitmapNamed('eng'), AnimationScriptNamed('player'));
+		SpriteStartAnimation(newState.currentMap.player, 'player_up');
 
 
 		spawnFound := false;
@@ -83,7 +85,7 @@ implementation
 
 	procedure LevelHandleInput(var core: GameCore);
 	const
-		SPEED = 2;
+		SPEED = 1;
 	var
 		map: MapPtr;
 		velocity: Vector; 
@@ -96,24 +98,40 @@ implementation
 		if KeyDown(RightKey) and not HasCollision(map^, SpriteX(map^.player) + 16, SpriteY(map^.player)) then 
 		begin
 			velocity.x += 2 * SPEED;
+			if not (SpriteAnimationName(map^.player) = 'player_right') then
+			begin
+				SpriteStartAnimation(map^.player, 'player_right');
+			end;
 		end;
 		if KeyDown(LeftKey) and not HasCollision(map^, SpriteX(map^.player) - 16, SpriteY(map^.player)) then 
 		begin
 			velocity.x -= 2 * SPEED;
+			if not (SpriteAnimationName(map^.player) = 'player_left') then
+			begin
+				SpriteStartAnimation(map^.player, 'player_left');
+			end;
 		end;
 		if KeyDown(UpKey) and not HasCollision(map^, SpriteX(map^.player), SpriteY(map^.player) - 16) then 
 		begin
 			velocity.y -= 2 * SPEED;
+			if not (SpriteAnimationName(map^.player) = 'player_up') then
+			begin
+				SpriteStartAnimation(map^.player, 'player_up');
+			end;
 		end;
 		if KeyDown(DownKey) and not HasCollision(map^, SpriteX(map^.player), SpriteY(map^.player) + 16) then 
 		begin
 			velocity.y += 2 * SPEED;
+			if not (SpriteAnimationName(map^.player) = 'player_down') then
+			begin
+				SpriteStartAnimation(map^.player, 'player_down');
+			end;
 		end;
 
 		SpriteSetDX(map^.player, velocity.x);
 		SpriteSetDY(map^.player, velocity.y);
-
-		MoveSprite(map^.player);
+		
+		UpdateSprite(map^.player);
 	end;
 
 	procedure LevelUpdate(var core: GameCore);
