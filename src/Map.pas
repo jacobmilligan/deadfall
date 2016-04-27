@@ -44,7 +44,8 @@ interface
 		Entity = record
 			sprite: Sprite;
 			direction: Direction;
-			hp: Integer;
+			hp: Single;
+			hunger: Single;
 		end;
 
 		//
@@ -378,9 +379,10 @@ implementation
 			begin
 				case map.tiles[x, y].flag of
 					Sand: hasTree := (Random(100) > 95);
-					Grass: hasTree := (Random(100) > 70);
-					MediumGrass: hasTree := (Random(100) > 70);
+					Grass: hasTree := (Random(100) > 80);
+					MediumGrass: hasTree := (Random(100) > 75);
 					HighGrass: hasTree := (Random(100) > 70);
+					SnowyGrass: hasTree := (Random(100) > 85);
 					else 
 						hasTree := false;
 				end;
@@ -533,7 +535,7 @@ implementation
 		if ( (size - 1) mod 2 = 0 ) then 
 		begin
 			SetGridLength(newMap.tiles, size);
-			GetHeightMap(newMap, 90, 20);
+			GetHeightMap(newMap, 110, 20);
 			GenerateTerrain(newMap);
 			SeedTrees(newMap);
 

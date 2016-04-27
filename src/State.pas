@@ -57,12 +57,11 @@ interface
 		    // Represents an active game, if this is set to false, the game shuts down
 		    //
 			active: Boolean;
+			
+			states: StateArray;
 
 			deltaTime: Double;
-
-			playerStats: EntityStats;
-
-			states: StateArray;
+						
 		end;
 
 	procedure StateChange(core: GameCore; newState: GameState);
@@ -81,7 +80,7 @@ implementation
 			else 
 				WriteLn('Invalid state');
 		end;
-
+		
 		SetLength(core^.states, Length(core^.states) + 1);
 		core^.states[High(core^.states)] := newActiveState;
 	end;

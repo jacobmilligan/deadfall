@@ -70,9 +70,8 @@ implementation
 
 		core^.active := true; // game is active now
 		core^.deltaTime := 0;
-
+		
 		SetLength(core^.states, 0);
-
 		StateChange(core, LevelState);
 	end;
 
@@ -88,10 +87,10 @@ implementation
 		else
 		begin
 			// Current state handles input
-			core^.states[High(core^.states)].HandleInput(core);
+			core^.states[ High(core^.states) ].HandleInput(core);
 
 			// Current state updates the game
-			core^.states[High(core^.states)].Update(core);
+			core^.states[ High(core^.states) ].Update(core);
 		end;
 	end;
 
@@ -100,7 +99,7 @@ implementation
 		ClearScreen(ColorBlack);
 		
 		// Current state draws itself to the window
-		core^.states[High(core^.states)].Draw(core);
+		core^.states[ High(core^.states) ].Draw(core);
 		
 		RefreshScreen(60);
 	end;

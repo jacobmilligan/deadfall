@@ -36,6 +36,8 @@ interface
 	//
 	// Draws the area of the current map that's 
 	procedure LevelDraw(core: GameCore);
+	
+	procedure SwitchAnimation(var sprite: Sprite; ani: String);
 
 
 implementation
@@ -57,7 +59,7 @@ implementation
 
 		//		
 		newState.currentMap.player.sprite := CreateSprite(BitmapNamed('eng'), AnimationScriptNamed('player'));
-		SpriteStartAnimation(newState.currentMap.player.sprite, 'player_up');
+		SwitchAnimation(newState.currentMap.player.sprite, 'player_down_idle');
 
 		spawnFound := false;
 		i := 0;
@@ -81,10 +83,18 @@ implementation
 
 		CenterCameraOn(newState.currentMap.player.sprite, ScreenWidth() / 2, ScreenHeight() / 2);
 	end;
+	
+	procedure SwitchAnimation(var sprite: Sprite; ani: String);
+	begin
+	  	if not (SpriteAnimationName(sprite) = ani) then
+		begin
+			SpriteStartAnimation(sprite, ani);
+		end;
+	end;
 
 	procedure LevelHandleInput(core: GameCore);
 	const
-		SPEED = 2;
+		SPEED = 1.5;
 	var
 		map: MapPtr;
 		velocity: Vector;
@@ -99,36 +109,33 @@ implementation
 		begin
 			map^.player.direction := Right;
 			velocity.x += 2 * SPEED;
-			if not (SpriteAnimationName(map^.player.sprite) = 'player_right') then
-			begin
-				SpriteStartAnimation(map^.player.sprite, 'player_right');
-			end;
+			SwitchAnimation(map^.player.sprite, 'player_right');
 		end
 		else if KeyDown(LeftKey) then 
 		begin
 			map^.player.direction := Left;
 			velocity.x -= 2 * SPEED;
-			if not (SpriteAnimationName(map^.player.sprite) = 'player_left') then
-			begin
-				SpriteStartAnimation(map^.player.sprite, 'player_left');
-			end;
+			SwitchAnimation(map^.player.sprite, 'player_left');
 		end
 		else if KeyDown(UpKey) then 
 		begin
 			map^.player.direction := Up;
 			velocity.y -= 2 * SPEED;
-			if not (SpriteAnimationName(map^.player.sprite) = 'player_up') then
-			begin
-				SpriteStartAnimation(map^.player.sprite, 'player_up');
-			end;
+			SwitchAnimation(map^.player.sprite, 'player_up');
 		end
 		else if KeyDown(DownKey) then 
 		begin
 			map^.player.direction := Down;
 			velocity.y += 2 * SPEED;
-			if not (SpriteAnimationName(map^.player.sprite) = 'player_down') then
-			begin
-				SpriteStartAnimation(map^.player.sprite, 'player_down');
+			SwitchAnimation(map^.player.sprite, 'player_down');
+		end
+		else
+		begin
+			case map^.player.direction of
+				Up: SwitchAnimation(map^.player.sprite, 'player_up_idle');
+				Right: SwitchAnimation(map^.player.sprite, 'player_right_idle');
+				Down: SwitchAnimation(map^.player.sprite, 'player_down_idle');
+				Left: SwitchAnimation(map^.player.sprite, 'player_left_idle');
 			end;
 		end;
 		
@@ -236,11 +243,8 @@ implementation
 
 		DrawSprite(map^.player.sprite);
 
-		barRect := RectangleFrom(0, 0, map^.player.hp, 32);
-
 		DrawBitmap(BitmapNamed('empty bar'), CameraX() + 10, CameraY() + 10);
-		FillRectangle(RGBAColor(224, 51, 51, 150), CameraX() + 15, CameraY() + 15, (map^.player.hp * 2) - 8, 23);
-
+		FillRectangle(RGBAColor(224, 51, 51, 150), CameraX() + 15, CameraY() + 15, Round(map^.player.hp * 2) - 8, 23);
 	end;
 
 end.
