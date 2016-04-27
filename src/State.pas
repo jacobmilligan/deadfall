@@ -21,23 +21,10 @@ interface
 		//
 		GameState = (TitleState, LevelState, MenuState, QuitState);
 
-		StateManager = ^TStateManager;
+		GameCore = ^TGameCore;
 
 		EntityStats = record
 			HP: Integer;
-		end;
-
-		GameCore = record
-			//
-		    // Represents an active game, if this is set to false, the game shuts down
-		    //
-			active: Boolean;
-
-			deltaTime: Double;
-
-			playerStats: EntityStats;
-
-			stateManager: StateManager;
 		end;
 
 		//
@@ -48,39 +35,43 @@ interface
 			//
 		    // Checks input and modifies the states data accordingly
 		    //
-			HandleInput: procedure(var core: GameCore);
+			HandleInput: procedure(core: GameCore);
 
 			//
 		    // Uses the states current data to update and change the game
 		    //
-			Update: procedure(var core: GameCore);
+			Update: procedure(core: GameCore);
 
 			// 
 		    // Draws state-local data to the window
 		    //
-			Draw: procedure(var core: GameCore);
+			Draw: procedure(core: GameCore);
 
 			currentMap: MapData;
 		end;
 
 		StateArray = array of ActiveState;
-
-		TStateManager = record
+		
+		TGameCore = record
 			//
-		    // Defines the size of each tile grid cell on a level
+		    // Represents an active game, if this is set to false, the game shuts down
 		    //
-			tilesize: Integer;
+			active: Boolean;
+
+			deltaTime: Double;
+
+			playerStats: EntityStats;
 
 			states: StateArray;
 		end;
 
-	procedure StateChange(manager: StateManager; newState: GameState);
+	procedure StateChange(core: GameCore; newState: GameState);
 
 
 implementation
 	uses Title, Level;
 	
-	procedure StateChange(manager: StateManager; newState: GameState);
+	procedure StateChange(core: GameCore; newState: GameState);
 	var
 		newActiveState: ActiveState;
 	begin
@@ -91,8 +82,8 @@ implementation
 				WriteLn('Invalid state');
 		end;
 
-		SetLength(manager^.states, Length(manager^.states) + 1);
-		manager^.states[High(manager^.states)] := newActiveState;
+		SetLength(core^.states, Length(core^.states) + 1);
+		core^.states[High(core^.states)] := newActiveState;
 	end;
 
 

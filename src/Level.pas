@@ -25,17 +25,17 @@ interface
 	// on the current map. Checks collision on tiles and the edge
 	// of the screen.
 	//
-	procedure LevelHandleInput(var core: GameCore);
+	procedure LevelHandleInput(core: GameCore);
 
 	//
 	// Moves the camera, checks camera collision, and is responsible
 	// for updating and calculating enemy actions within the game
 	//
-	procedure LevelUpdate(var core: GameCore);
+	procedure LevelUpdate(core: GameCore);
 
 	//
 	// Draws the area of the current map that's 
-	procedure LevelDraw(var core: GameCore);
+	procedure LevelDraw(core: GameCore);
 
 
 implementation
@@ -53,11 +53,11 @@ implementation
 
 		// Generate a new map with the passed-in size
 		newState.currentMap := GenerateNewMap(257);
+		newState.currentMap.player.hp := 100;
 
 		//		
-		newState.currentMap.player := CreateSprite(BitmapNamed('eng'), AnimationScriptNamed('player'));
-		SpriteStartAnimation(newState.currentMap.player, 'player_up');
-
+		newState.currentMap.player.sprite := CreateSprite(BitmapNamed('eng'), AnimationScriptNamed('player'));
+		SpriteStartAnimation(newState.currentMap.player.sprite, 'player_up');
 
 		spawnFound := false;
 		i := 0;
@@ -67,10 +67,10 @@ implementation
 			j := 0;
 			while j < High(newState.currentMap.tiles) do
 			begin
-				if newState.currentMap.tiles[i, j].flag = Sand then
+				if (i > 1) and (newState.currentMap.tiles[i, j].flag = Sand) and (newState.currentMap.tiles[i, j].feature = None) then
 				begin
-					SpriteSetX(newState.currentMap.player, i * 32);
-					SpriteSetY(newState.currentMap.player, j * 32);
+					SpriteSetX(newState.currentMap.player.sprite, i * 32);
+					SpriteSetY(newState.currentMap.player.sprite, j * 32);
 					spawnFound := true;
 				end;
 				j += 1;
@@ -79,95 +79,105 @@ implementation
 			i += 1;
 		end;
 
-		CenterCameraOn(newState.currentMap.player, ScreenWidth() / 2, ScreenHeight() / 2);
+		CenterCameraOn(newState.currentMap.player.sprite, ScreenWidth() / 2, ScreenHeight() / 2);
 	end;
 
-	procedure LevelHandleInput(var core: GameCore);
+	procedure LevelHandleInput(core: GameCore);
 	const
-		SPEED = 1;
+		SPEED = 2;
 	var
 		map: MapPtr;
-		velocity: Vector; 
+		velocity: Vector;
+		dir: Direction;
 	begin
-		map := @core.stateManager^.states[High(core.stateManager^.states)].currentMap;
+		map := @core^.states[High(core^.states)].currentMap;
 		
 		velocity.x := 0;
 		velocity.y := 0;
 
-		if KeyDown(RightKey) and not HasCollision(map^, SpriteX(map^.player) + 16, SpriteY(map^.player)) then 
+		if KeyDown(RightKey) then 
 		begin
+			map^.player.direction := Right;
 			velocity.x += 2 * SPEED;
-			if not (SpriteAnimationName(map^.player) = 'player_right') then
+			if not (SpriteAnimationName(map^.player.sprite) = 'player_right') then
 			begin
-				SpriteStartAnimation(map^.player, 'player_right');
+				SpriteStartAnimation(map^.player.sprite, 'player_right');
 			end;
 		end
-		else if KeyDown(LeftKey) and not HasCollision(map^, SpriteX(map^.player) - 16, SpriteY(map^.player)) then 
+		else if KeyDown(LeftKey) then 
 		begin
+			map^.player.direction := Left;
 			velocity.x -= 2 * SPEED;
-			if not (SpriteAnimationName(map^.player) = 'player_left') then
+			if not (SpriteAnimationName(map^.player.sprite) = 'player_left') then
 			begin
-				SpriteStartAnimation(map^.player, 'player_left');
+				SpriteStartAnimation(map^.player.sprite, 'player_left');
 			end;
 		end
-		else if KeyDown(UpKey) and not HasCollision(map^, SpriteX(map^.player), SpriteY(map^.player) - 16) then 
+		else if KeyDown(UpKey) then 
 		begin
+			map^.player.direction := Up;
 			velocity.y -= 2 * SPEED;
-			if not (SpriteAnimationName(map^.player) = 'player_up') then
+			if not (SpriteAnimationName(map^.player.sprite) = 'player_up') then
 			begin
-				SpriteStartAnimation(map^.player, 'player_up');
+				SpriteStartAnimation(map^.player.sprite, 'player_up');
 			end;
 		end
-		else if KeyDown(DownKey) and not HasCollision(map^, SpriteX(map^.player), SpriteY(map^.player) + 16) then 
+		else if KeyDown(DownKey) then 
 		begin
+			map^.player.direction := Down;
 			velocity.y += 2 * SPEED;
-			if not (SpriteAnimationName(map^.player) = 'player_down') then
+			if not (SpriteAnimationName(map^.player.sprite) = 'player_down') then
 			begin
-				SpriteStartAnimation(map^.player, 'player_down');
+				SpriteStartAnimation(map^.player.sprite, 'player_down');
 			end;
 		end;
-
-		SpriteSetDX(map^.player, velocity.x);
-		SpriteSetDY(map^.player, velocity.y);
 		
-		UpdateSprite(map^.player);
+		SpriteSetDX(map^.player.sprite, velocity.x);
+		SpriteSetDY(map^.player.sprite, velocity.y);
+		
+		CheckCollision(map^, map^.player.sprite, map^.player.direction);	
+		
+		UpdateSprite(map^.player.sprite);
 	end;
-
-	procedure LevelUpdate(var core: GameCore);
+	
+	procedure UpdateCamera(map: MapPtr);
 	var
 		offsetX, offsetY, rightEdgeDistance, bottomEdgeDistance: Single;
 		mapSizeToPixel, halfSprite: Integer;
-		map: MapPtr;
 	begin
-		map := @core.stateManager^.states[High(core.stateManager^.states)].currentMap;
-		offsetX := 0;
+	 	offsetX := 0;
 		offsetY := 0;
 		mapSizeToPixel := High(map^.tiles) * 32;
-		rightEdgeDistance := mapSizeToPixel - SpriteX(map^.player);
-		bottomEdgeDistance := mapSizeToPixel - SpriteY(map^.player);
-		halfSprite := Round(SpriteWidth(map^.player) / 2);
+		rightEdgeDistance := mapSizeToPixel - SpriteX(map^.player.sprite);
+		bottomEdgeDistance := mapSizeToPixel - SpriteY(map^.player.sprite);
+		halfSprite := Round(SpriteWidth(map^.player.sprite) / 2);
 
 		if CameraX() < (ScreenWidth() / 2) + halfSprite then
 		begin
-			offsetX := ( ScreenWidth() - SpriteX(map^.player) ) / 2;
+			offsetX := ( ScreenWidth() - SpriteX(map^.player.sprite) ) / 2;
 		end;
-		if ( SpriteX(map^.player) + (ScreenWidth() / 2) ) > mapSizeToPixel then
+		if ( SpriteX(map^.player.sprite) + (ScreenWidth() / 2) ) > mapSizeToPixel then
 		begin
 			offsetX := -( (ScreenWidth() / 2) - rightEdgeDistance);
 		end;
 		if CameraY() < (ScreenHeight() / 2) + halfSprite then
 		begin
-			offsetY := ( ScreenHeight() - SpriteY(map^.player) ) / 2;
+			offsetY := ( ScreenHeight() - SpriteY(map^.player.sprite) ) / 2;
 		end;
-		if ( SpriteY(map^.player) + (ScreenHeight() / 2) ) > mapSizeToPixel then
+		if ( SpriteY(map^.player.sprite) + (ScreenHeight() / 2) ) > mapSizeToPixel then
 		begin
 			offsetY := -( (ScreenHeight() / 2) - bottomEdgeDistance);
 		end;
 
-		CenterCameraOn(map^.player, offsetX, offsetY);
+		CenterCameraOn(map^.player.sprite, offsetX, offsetY);
+	end;		
+
+	procedure LevelUpdate(core: GameCore);
+	begin
+		UpdateCamera(@core^.states[High(core^.states)].currentMap);
 	end;
 
-	procedure LevelDraw(var core: GameCore);
+	procedure LevelDraw(core: GameCore);
 	var
 		x, y: Integer;
 		tileScreenWidth, tileScreenHeight: Integer;
@@ -177,7 +187,7 @@ implementation
 		X_TEST = 100;
 		Y_TEST = 100;
 	begin
-		map := @core.stateManager^.states[High(core.stateManager^.states)].currentMap;
+		map := @core^.states[High(core^.states)].currentMap;
 		tileScreenWidth := Round(ScreenWidth() / 32);
 		tileScreenHeight := Round(ScreenHeight() / 32);
 
@@ -186,6 +196,7 @@ implementation
 
 		for x := Round(CameraPos.x / 32) - 1 to Round( (CameraPos.x / 32) + tileScreenWidth ) do
 		begin
+			
 			if ( x >= 0 ) and ( x < Length(map^.tiles) ) then
 			begin
 				
@@ -196,11 +207,11 @@ implementation
 					begin
 						DrawBitmap(map^.tiles[x, y].bmp, x * 32, y * 32);
 
-						if (map^.tiles[x, y].hasTree) and (map^.tiles[x, y].flag > Sand) then
+						if (map^.tiles[x, y].feature = Tree) and (map^.tiles[x, y].flag > Sand) then
 						begin
 							DrawBitmap(BitmapNamed('tree'), x * 32, y * 32);
 						end;
-						if (map^.tiles[x, y].hasTree) and (map^.tiles[x, y].flag = Sand) then
+						if (map^.tiles[x, y].feature = Tree) and (map^.tiles[x, y].flag = Sand) then
 						begin
 							DrawBitmap(BitmapNamed('palm tree'), x * 32, y * 32);
 						end;
@@ -209,14 +220,15 @@ implementation
 				end;
 
 			end;
+			
 		end;
 
-		DrawSprite(map^.player);
+		DrawSprite(map^.player.sprite);
 
-		barRect := RectangleFrom(0, 0, core.playerStats.HP, 32);
+		barRect := RectangleFrom(0, 0, map^.player.hp, 32);
 
 		DrawBitmap(BitmapNamed('empty bar'), CameraX() + 10, CameraY() + 10);
-		FillRectangle(RGBAColor(224, 51, 51, 150), CameraX() + 15, CameraY() + 15, (core.playerStats.HP * 2) - 8, 23);
+		FillRectangle(RGBAColor(224, 51, 51, 150), CameraX() + 15, CameraY() + 15, (map^.player.hp * 2) - 8, 23);
 
 	end;
 

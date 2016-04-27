@@ -15,17 +15,21 @@ interface
 	uses sgTypes;
 
 	type
+		Direction = (Up, Right, Down, Left);
 
 		//
 		// Valid tile types for building maps with.
 		// Used as a terrain flag for different logic.
 		//
 		TileType = (Water, Sand, Dirt, Grass, MediumGrass, HighGrass, SnowyGrass, Mountain);
+		
+		FeatureType = (None, Tree);
 
 		// Each tile has a terrain flag, elevation and bitmap
 		Tile = record
 			flag: TileType;
-			hasTree: Boolean;
+			feature: FeatureType;
+			collidable: Boolean;
 
 			//
 			// Represents the tiles elevation - zero represents sea
@@ -36,13 +40,19 @@ interface
 		end;
 
 		TileGrid = array of array of Tile;
+		
+		Entity = record
+			sprite: Sprite;
+			direction: Direction;
+			hp: Integer;
+		end;
 
 		//
 		// Main representation of a current level. Holds a tile grid.
 		//
 		MapData = record
 			tiles: TileGrid;
-			player: Sprite;
+			player: Entity;
 		end;
 
 		MapPtr = ^MapData;
@@ -55,13 +65,14 @@ interface
 
 	function GenerateNewMap(size: Integer): MapData;
 
-	function GetTilePos(var entity: Sprite): Point2D;
-
-	function HasCollision(var map: MapData; x, y: Single): Boolean;
+	procedure CheckCollision(var map: MapData; var entity: Sprite; dir: Direction);
 
 
 implementation
-	uses SwinGame, Game;
+	uses SwinGame, Game, Math;
+	
+	const
+		TILESIZE = 32;
 	
 	procedure PrintGrid(var grid: TileGrid);
 	var
@@ -250,11 +261,13 @@ implementation
 				begin
 					map.tiles[x, y].flag := Water;
 					map.tiles[x, y].bmp := BitmapNamed('dark water');
+					map.tiles[x, y].collidable := true;
 				end
 				else if ( map.tiles[x, y].elevation >= 0 ) and ( map.tiles[x, y].elevation < 200 ) then 
 				begin
 					map.tiles[x, y].flag := Water;
 					map.tiles[x, y].bmp := BitmapNamed('water');
+					map.tiles[x, y].collidable := true;
 				end
 				else if ( map.tiles[x, y].elevation >= 200 ) and ( map.tiles[x, y].elevation < 300 ) then
 				begin
@@ -304,7 +317,7 @@ implementation
 					begin
 						map.tiles[x, y].flag := Mountain;
 						map.tiles[x, y].bmp := BitmapNamed('mountain');
-						map.tiles[x, y].hasTree := false;
+						map.tiles[x, y].collidable := true;
 					end;
 
 				end;
@@ -337,7 +350,7 @@ implementation
 			for j := y - 1 to y + 1 do
 			begin
 				
-				if map.tiles[i, j].hasTree then
+				if map.tiles[i, j].feature = Tree then
 				begin
 					count += 1;
 				end;
@@ -347,23 +360,34 @@ implementation
 
 		result := count;
 	end;
+	
+	procedure SetFeature(var tile: Tile; feature: FeatureType; collidable: Boolean);
+	begin
+		tile.feature := feature;
+		tile.collidable := collidable;
+	end;
 
 	procedure SeedTrees(var map: MapData);
 	var
 		treeCount, x, y: Integer;
+		hasTree: Boolean;		
 	begin
 		for x := 0 to High(map.tiles) do
 		begin
 			for y := 0 to High(map.tiles) do
 			begin
 				case map.tiles[x, y].flag of
-					Sand: map.tiles[x, y].hasTree := (Random(100) > 95);
-					Grass: map.tiles[x, y].hasTree := (Random(100) > 70);
-					MediumGrass: map.tiles[x, y].hasTree := (Random(100) > 70);
-					HighGrass: map.tiles[x, y].hasTree := (Random(100) > 70);
+					Sand: hasTree := (Random(100) > 95);
+					Grass: hasTree := (Random(100) > 70);
+					MediumGrass: hasTree := (Random(100) > 70);
+					HighGrass: hasTree := (Random(100) > 70);
 					else 
-						map.tiles[x, y].hasTree := false;
-				end;	
+						hasTree := false;
+				end;
+				if hasTree then
+				begin
+					SetFeature(map.tiles[x, y], Tree, true);
+				end;
 			end;
 		end;
 
@@ -372,21 +396,21 @@ implementation
 			for y := 0 to High(map.tiles) do
 			begin
 				
-				if map.tiles[x, y].hasTree and IsInMap(map, x, y) then
+				if (map.tiles[x, y].feature = Tree) and IsInMap(map, x, y) then
 				begin
 					
 					treeCount := NeighbourCount(map, x, y);
 					
 					if (treeCount > 1) and (treeCount <= 2) then
 					begin
-						map.tiles[x - 1, y].hasTree := true;
-						map.tiles[x + 1, y].hasTree := true;
-						map.tiles[x, y + 1].hasTree := true;
-						map.tiles[x, y - 1].hasTree := true;
+						SetFeature(map.tiles[x - 1, y], Tree, true);
+						SetFeature(map.tiles[x + 1, y], Tree, true);
+						SetFeature(map.tiles[x, y + 1], Tree, true);
+						SetFeature(map.tiles[x, y - 1], Tree, true);
 					end
 					else
 					begin
-						map.tiles[x, y].hasTree := false;
+						SetFeature(map.tiles[x, y], None, false);					
 					end;
 
 				end;
@@ -411,37 +435,91 @@ implementation
 			for y := 0 to High(tiles) do
 			begin
 				tiles[x, y].elevation := 0;
-				tiles[x, y].hasTree := false;
+				tiles[x, y].collidable := false;
+				tiles[x, y].feature := None;
 			end;
 		end;
 	end;
-
-	function GetTilePos(var entity: Sprite): Point2D;
-	begin
-		result := PointAt(Round(SpriteX(entity) / 32), Round(SpriteY(entity) / 32));
-	end;
-
-	function HasCollision(var map: MapData; x, y: Single): Boolean;
+	
+	procedure CheckCollision(var map: MapData; var entity: Sprite; dir: Direction);
 	var
-		tileX, tileY: Integer;
+		tileX, tileY, i, j, startX, finishX, startY, finishY: Integer;
+		x, y: Single;
 	begin
-		tileX := Round(x / 32);
-		tileY := Round(y / 32);
+		x := SpriteX(entity);
+		y := SpriteY(entity);
 		
-		result := true;
-		
-		if ( tileX >= 0 ) and ( tileX < High(map.tiles) ) and ( tileY >= 0 ) and ( tileY < High(map.tiles) ) then
-		begin
-			case map.tiles[tileX, tileY].flag of
-			Water: result := true;
-			Mountain: result := true;
-			else 
-				result := false;
-			end;
+		startX := tileX - 1;
+		finishX := tileX + 1;
+		startY := tileY - 1;
+		finishY := tileY + 1;
 
-			if map.tiles[tileX, tileY].hasTree then
+		case dir of
+			Up: y -= TILESIZE / 2;
+			Right: x += TILESIZE / 2;
+			Down: y += TILESIZE;
+			Left: x -= TILESIZE / 2;
+		end;
+		
+		tileX := Trunc(x / TILESIZE);
+		tileY := Trunc(y / TILESIZE);
+		
+		if dir = Up then
+		begin
+			startX := tileX - 1;
+			finishX := tileX + 1;
+			startY := Floor(y / 32);
+			finishY := startY;
+		end
+		else if dir = Right then
+		begin
+		  	startX := Ceil(x / 32);
+			finishX := startX;
+			startY := tileY - 1;
+			finishY := tileY + 1;
+		end
+		else if dir = Down then
+		begin
+		  	startX := tileX - 1;
+			finishX := tileX + 1;
+			startY := Floor(y / 32);
+			finishY := startY;
+		end
+		else if dir = Left then
+		begin
+		  	startX := Floor(x / 32);
+			finishX := startX;
+			startY := tileY - 1;
+			finishY := tileY + 1;
+		end;
+		
+		if (startX < 1) or (startX > High(map.tiles)) then
+		begin
+			startX := tileX;
+		end;
+		if (startY < 1) or (startY > High(map.tiles)) then
+		begin
+			startY := tileY;
+		end;
+		
+		for i := startX to finishX do
+		begin
+			for j := startY to finishY do
 			begin
-				result := true;
+				
+				if SpriteBitmapCollision(entity, map.tiles[i, j].bmp, i * TILESIZE, j * TILESIZE) then
+				begin
+					if (i < 1) or (j < 1) or (i > High(map.tiles)) or (j > High(map.tiles)) or (map.tiles[i, j].collidable) then
+					begin
+						case dir of
+							Up: SpriteSetDY(entity, 2); 
+							Right: SpriteSetDX(entity, -2);
+							Down: SpriteSetDY(entity, -2);
+							Left: SpriteSetDX(entity, 2);
+						end;
+					end;
+				end;
+							
 			end;
 		end;
 		

@@ -20,14 +20,14 @@ begin
 
 	GameInit('Deadfall', 800, 600, core);
 
-	while core.active do
+	while core^.active do
 	begin
 		dtStart := GetTicks();
-
+		
 		GameUpdate(core);
 		GameDraw(core);
 
-		core.deltaTime := (GetTicks() - dtStart) / 1000;
+		core^.deltaTime := (GetTicks() - dtStart) / 1000;
 	end;
 end;
 

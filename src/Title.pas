@@ -16,11 +16,11 @@ interface
 
 	procedure TitleInit(var newState: ActiveState);
 
-	procedure TitleHandleInput(var manager: GameCore);
+	procedure TitleHandleInput(core: GameCore);
 
-	procedure TitleUpdate(var manager: GameCore);
+	procedure TitleUpdate(core: GameCore);
 
-	procedure TitleDraw(var manager: GameCore);
+	procedure TitleDraw(core: GameCore);
 
 
 implementation
@@ -32,17 +32,17 @@ implementation
 		newState.Draw := @TitleDraw;
 	end;
 
-	procedure TitleHandleInput(var manager: GameCore);
+	procedure TitleHandleInput(core: GameCore);
 	begin
 		
 	end;
 
-	procedure TitleUpdate(var manager: GameCore);
+	procedure TitleUpdate(core: GameCore);
 	begin
 		WriteLn('Title State');
 	end;
 
-	procedure TitleDraw(var manager: GameCore);
+	procedure TitleDraw(core: GameCore);
 	begin
 		
 	end;
