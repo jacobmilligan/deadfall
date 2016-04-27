@@ -52,7 +52,9 @@ implementation
 		LoadBitmapNamed('mountain', 'mountain.png');
 		LoadBitmapNamed('snowy grass', 'snowy_grass.png');
 		LoadBitmapNamed('tree', 'tree.png');
+		LoadBitmapNamed('pine tree', 'pine_tree.png');
 		LoadBitmapNamed('palm tree', 'palm_tree.png');
+		LoadBitmapNamed('snowy tree', 'snowy_tree.png');
 
 		LoadBitmapNamed('player', 'player.png');
 

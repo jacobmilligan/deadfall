@@ -533,7 +533,7 @@ implementation
 		if ( (size - 1) mod 2 = 0 ) then 
 		begin
 			SetGridLength(newMap.tiles, size);
-			GetHeightMap(newMap, 70, 20);
+			GetHeightMap(newMap, 90, 20);
 			GenerateTerrain(newMap);
 			SeedTrees(newMap);
 

@@ -207,13 +207,24 @@ implementation
 					begin
 						DrawBitmap(map^.tiles[x, y].bmp, x * 32, y * 32);
 
-						if (map^.tiles[x, y].feature = Tree) and (map^.tiles[x, y].flag > Sand) then
+						if map^.tiles[x, y].feature = Tree then
 						begin
-							DrawBitmap(BitmapNamed('tree'), x * 32, y * 32);
-						end;
-						if (map^.tiles[x, y].feature = Tree) and (map^.tiles[x, y].flag = Sand) then
-						begin
-							DrawBitmap(BitmapNamed('palm tree'), x * 32, y * 32);
+							if (map^.tiles[x, y].flag = Grass) then
+							begin
+								DrawBitmap(BitmapNamed('tree'), x * 32, y * 32);
+							end
+							else if (map^.tiles[x, y].flag = Sand) then
+							begin
+								DrawBitmap(BitmapNamed('palm tree'), x * 32, y * 32);
+							end
+							else if (map^.tiles[x, y].flag > Grass) and (map^.tiles[x, y].flag < SnowyGrass) then
+							begin
+								DrawBitmap(BitmapNamed('pine tree'), x * 32, y * 32);
+							end
+							else
+							begin
+							  	DrawBitmap(BitmapNamed('snowy tree'), x * 32, y * 32);
+							end;
 						end;
 					end;
 
