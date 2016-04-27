@@ -378,7 +378,7 @@ implementation
 			for y := 0 to High(map.tiles) do
 			begin
 				case map.tiles[x, y].flag of
-					Sand: hasTree := (Random(100) > 95);
+					Sand: hasTree := (Random(100) > 90);
 					Grass: hasTree := (Random(100) > 80);
 					MediumGrass: hasTree := (Random(100) > 75);
 					HighGrass: hasTree := (Random(100) > 70);
@@ -403,7 +403,7 @@ implementation
 					
 					treeCount := NeighbourCount(map, x, y);
 					
-					if (treeCount > 1) and (treeCount <= 2) then
+					if (treeCount > 1) and (treeCount <= 2) and (Random(100) > 50) then
 					begin
 						SetFeature(map.tiles[x - 1, y], Tree, true);
 						SetFeature(map.tiles[x + 1, y], Tree, true);
