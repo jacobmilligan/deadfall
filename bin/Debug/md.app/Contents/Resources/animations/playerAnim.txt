@@ -1,7 +1,7 @@
 SwinGame Animation #v1
 
 //
-//  Player Down animation
+//  Entity Down animation
 //
 f:0,1,7,1
 f:1,2,7,2
@@ -9,7 +9,7 @@ f:2,3,7,3
 f:3,0,7,0
 
 //
-//  Player Left animation
+//  Entity Left animation
 //
 f:4,5,7,5
 f:5,6,7,6
@@ -17,7 +17,7 @@ f:6,7,7,7
 f:7,4,7,4
 
 //
-//  Player Right animation
+//  Entity Right animation
 //
 f:8,9,7,9
 f:9,10,7,10
@@ -25,7 +25,7 @@ f:10,11,7,11
 f:11,8,7,8
 
 //
-//  Player Up animation
+//  Entity Up animation
 //
 f:12,13,7,13
 f:13,14,7,14
@@ -33,32 +33,32 @@ f:14,15,7,15
 f:15,12,7,12
 
 //
-//  Player Idle Down animation
+//  Entity Idle Down animation
 //
 f:16,0,7,16
 
 //
-//  Player Idle Left animation
+//  Entity Idle Left animation
 //
 f:17,4,7,17
 
 //
-//  Player Right animation
+//  Entity Right animation
 //
 f:18,8,7,18
 
 //
-//  Player Up animation
+//  Entity Up animation
 //
 f:19,12,7,19
 
-i:player_down,0
-i:player_left,4
-i:player_right,8
-i:player_up,12
+i:entity_down,0
+i:entity_left,4
+i:entity_right,8
+i:entity_up,12
 
-i:player_down_idle,16
-i:player_left_idle,17
-i:player_right_idle,18
-i:player_up_idle,19
+i:entity_down_idle,16
+i:entity_left_idle,17
+i:entity_right_idle,18
+i:entity_up_idle,19
 

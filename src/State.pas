@@ -16,36 +16,44 @@ interface
 
 	type
 		//
-		// All possible gamestates are set as an enum, used in choosing
-		// which state to switch to
+		//	All possible gamestates are set as an enum, used in choosing
+		//	which state to switch to
 		//
 		GameState = (TitleState, LevelState, MenuState, QuitState);
 
+		//
+		//	Forward declaration of pointer to GameCore type to avoid 
+		//	circular reference in ActiveState
+		//
 		GameCore = ^TGameCore;
 
 		//
-		// Each function pointer (input, update, draw) is called once per frame
-		// and is assigned via each states init function
+		//	Each function pointer (input, update, draw) is called once per frame
+		//	and is assigned via each states init function
 		//
 		ActiveState = record
 			//
-		    // Checks input and modifies the states data accordingly
+		    //	Checks input and modifies the states data accordingly
 		    //
 			HandleInput: procedure(core: GameCore; var inputs: InputMap);
 
 			//
-		    // Uses the states current data to update and change the game
+		    //	Uses the states current data to update and change the game
 		    //
 			Update: procedure(core: GameCore);
 
 			// 
-		    // Draws state-local data to the window
+		    //	Draws state-local data to the window
 		    //
 			Draw: procedure(core: GameCore);
-
+			
+			//
+			//	Represents the current map containing tile and entity information
+			//
 			currentMap: MapData;
 		end;
-
+		
+		//	Active states. States can be layered, i.e. Menu can go over the top of Level
 		StateArray = array of ActiveState;
 		
 		TGameCore = record
@@ -54,8 +62,10 @@ interface
 		    //
 			active: Boolean;
 			
+			//	Active states
 			states: StateArray;
 			
+			//				
 			deltaTime: Double;
 			
 		end;

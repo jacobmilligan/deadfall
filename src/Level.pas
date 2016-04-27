@@ -38,12 +38,6 @@ interface
 	//	of the camera
 	//
 	procedure LevelDraw(core: GameCore);
-	
-	//
-	//	Checks if the sprite is already using the passed in animation string
-	//	and if not, starts a new animation using that string
-	//
-	procedure SwitchAnimation(var sprite: Sprite; ani: String);
 
 
 implementation
@@ -67,7 +61,7 @@ implementation
 
 		// Setup player sprite and animation
 		newState.currentMap.player.sprite := CreateSprite(BitmapNamed('eng'), AnimationScriptNamed('player'));
-		SwitchAnimation(newState.currentMap.player.sprite, 'player_down_idle');
+		SwitchAnimation(newState.currentMap.player.sprite, 'entity_down_idle');
 		
 		//
 		//	Search for the first sand tile without a feature on it,
@@ -95,69 +89,33 @@ implementation
 
 		CenterCameraOn(newState.currentMap.player.sprite, ScreenWidth() / 2, ScreenHeight() / 2);
 	end;
-	
-	procedure SwitchAnimation(var sprite: Sprite; ani: String);
-	begin
-	  	if not (SpriteAnimationName(sprite) = ani) then
-		begin
-			SpriteStartAnimation(sprite, ani);
-		end;
-	end;
 
 	procedure LevelHandleInput(core: GameCore; var inputs: InputMap);
-	const
-		SPEED = 1.5;
 	var
 		map: MapPtr;
-		velocity: Vector;
-		dir: Direction;
-		key: KeyCode;
 	begin
 		map := @core^.states[High(core^.states)].currentMap;
-		
-		velocity.x := 0;
-		velocity.y := 0;
 
-		if KeyDown(inputs.MoveRight) then 
+		if KeyDown(inputs.MoveUp) then 
 		begin
-			map^.player.direction := Right;
-			velocity.x += 2 * SPEED;
-			SwitchAnimation(map^.player.sprite, 'player_right');
+			MoveEntity(map^, map^.player, Up, 3);
 		end
-		else if KeyDown(inputs.MoveLeft) then 
+		else if KeyDown(inputs.MoveRight) then 
 		begin
-			map^.player.direction := Left;
-			velocity.x -= 2 * SPEED;
-			SwitchAnimation(map^.player.sprite, 'player_left');
-		end
-		else if KeyDown(inputs.MoveUp) then 
-		begin
-			map^.player.direction := Up;
-			velocity.y -= 2 * SPEED;
-			SwitchAnimation(map^.player.sprite, 'player_up');
+			MoveEntity(map^, map^.player, Right, 3);
 		end
 		else if KeyDown(inputs.MoveDown) then 
 		begin
-			map^.player.direction := Down;
-			velocity.y += 2 * SPEED;
-			SwitchAnimation(map^.player.sprite, 'player_down');
+			MoveEntity(map^, map^.player, Down, 3);
+		end
+		else if KeyDown(inputs.MoveLeft) then 
+		begin
+			MoveEntity(map^, map^.player, Left, 3);
 		end
 		else
 		begin
-			case map^.player.direction of
-				Up: SwitchAnimation(map^.player.sprite, 'player_up_idle');
-				Right: SwitchAnimation(map^.player.sprite, 'player_right_idle');
-				Down: SwitchAnimation(map^.player.sprite, 'player_down_idle');
-				Left: SwitchAnimation(map^.player.sprite, 'player_left_idle');
-			end;
+			MoveEntity(map^, map^.player, map^.player.direction, 0);
 		end;
-		
-		SpriteSetDX(map^.player.sprite, velocity.x);
-		SpriteSetDY(map^.player.sprite, velocity.y);
-		
-		CheckCollision(map^, map^.player.sprite, map^.player.direction);	
-		
-		UpdateSprite(map^.player.sprite);
 	end;
 	
 	procedure UpdateCamera(map: MapPtr);
