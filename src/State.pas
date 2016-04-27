@@ -12,7 +12,7 @@
 unit State;
 
 interface
-	uses sgTypes, Map;
+	uses sgTypes, Map, Input;
 
 	type
 		//
@@ -23,10 +23,6 @@ interface
 
 		GameCore = ^TGameCore;
 
-		EntityStats = record
-			HP: Integer;
-		end;
-
 		//
 		// Each function pointer (input, update, draw) is called once per frame
 		// and is assigned via each states init function
@@ -35,7 +31,7 @@ interface
 			//
 		    // Checks input and modifies the states data accordingly
 		    //
-			HandleInput: procedure(core: GameCore);
+			HandleInput: procedure(core: GameCore; var inputs: InputMap);
 
 			//
 		    // Uses the states current data to update and change the game
@@ -59,9 +55,9 @@ interface
 			active: Boolean;
 			
 			states: StateArray;
-
+			
 			deltaTime: Double;
-						
+			
 		end;
 
 	procedure StateChange(core: GameCore; newState: GameState);

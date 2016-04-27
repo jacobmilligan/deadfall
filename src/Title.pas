@@ -12,11 +12,11 @@
 unit Title;
 
 interface
-	uses State, Game;
+	uses State, Game, Input;
 
 	procedure TitleInit(var newState: ActiveState);
 
-	procedure TitleHandleInput(core: GameCore);
+	procedure TitleHandleInput(core: GameCore; var inputs: InputMap);
 
 	procedure TitleUpdate(core: GameCore);
 
@@ -32,7 +32,7 @@ implementation
 		newState.Draw := @TitleDraw;
 	end;
 
-	procedure TitleHandleInput(core: GameCore);
+	procedure TitleHandleInput(core: GameCore; var inputs: InputMap);
 	begin
 		
 	end;

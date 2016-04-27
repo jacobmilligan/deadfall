@@ -12,31 +12,37 @@
 unit Level;
 
 interface
-	uses State, sgTypes;
+	uses sgTypes, State, Input;
 
 	//
-	// Initializes the playing map state, using 
-	// a new active state
+	//	Initializes the playing map state, using 
+	//	a new active state
 	//
 	procedure LevelInit(var newState: ActiveState);
 
 	//
-	// Handles input from the player, moving and taking actions 
-	// on the current map. Checks collision on tiles and the edge
-	// of the screen.
+	//	Handles input from the player, moving and taking actions 
+	//	on the current map. Checks collision on tiles and the edge
+	//	of the screen.
 	//
-	procedure LevelHandleInput(core: GameCore);
+	procedure LevelHandleInput(core: GameCore; var inputs: InputMap);
 
 	//
-	// Moves the camera, checks camera collision, and is responsible
-	// for updating and calculating enemy actions within the game
+	//	Moves the camera, checks camera collision, and is responsible
+	//	for updating and calculating enemy actions within the game
 	//
 	procedure LevelUpdate(core: GameCore);
 
 	//
-	// Draws the area of the current map that's 
+	// 	Draws only the area of the current map that's within the bounds
+	//	of the camera
+	//
 	procedure LevelDraw(core: GameCore);
 	
+	//
+	//	Checks if the sprite is already using the passed in animation string
+	//	and if not, starts a new animation using that string
+	//
 	procedure SwitchAnimation(var sprite: Sprite; ani: String);
 
 
@@ -55,12 +61,18 @@ implementation
 
 		// Generate a new map with the passed-in size
 		newState.currentMap := GenerateNewMap(257);
+		
+		// Setup player stats
 		newState.currentMap.player.hp := 100;
 
-		//		
+		// Setup player sprite and animation
 		newState.currentMap.player.sprite := CreateSprite(BitmapNamed('eng'), AnimationScriptNamed('player'));
 		SwitchAnimation(newState.currentMap.player.sprite, 'player_down_idle');
-
+		
+		//
+		//	Search for the first sand tile without a feature on it,
+		//	thus spawning the player on a beach
+		//
 		spawnFound := false;
 		i := 0;
 		while ( i < High(newState.currentMap.tiles) ) and not spawnFound do
@@ -92,38 +104,39 @@ implementation
 		end;
 	end;
 
-	procedure LevelHandleInput(core: GameCore);
+	procedure LevelHandleInput(core: GameCore; var inputs: InputMap);
 	const
 		SPEED = 1.5;
 	var
 		map: MapPtr;
 		velocity: Vector;
 		dir: Direction;
+		key: KeyCode;
 	begin
 		map := @core^.states[High(core^.states)].currentMap;
 		
 		velocity.x := 0;
 		velocity.y := 0;
 
-		if KeyDown(RightKey) then 
+		if KeyDown(inputs.MoveRight) then 
 		begin
 			map^.player.direction := Right;
 			velocity.x += 2 * SPEED;
 			SwitchAnimation(map^.player.sprite, 'player_right');
 		end
-		else if KeyDown(LeftKey) then 
+		else if KeyDown(inputs.MoveLeft) then 
 		begin
 			map^.player.direction := Left;
 			velocity.x -= 2 * SPEED;
 			SwitchAnimation(map^.player.sprite, 'player_left');
 		end
-		else if KeyDown(UpKey) then 
+		else if KeyDown(inputs.MoveUp) then 
 		begin
 			map^.player.direction := Up;
 			velocity.y -= 2 * SPEED;
 			SwitchAnimation(map^.player.sprite, 'player_up');
 		end
-		else if KeyDown(DownKey) then 
+		else if KeyDown(inputs.MoveDown) then 
 		begin
 			map^.player.direction := Down;
 			velocity.y += 2 * SPEED;

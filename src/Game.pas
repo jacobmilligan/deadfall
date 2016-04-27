@@ -12,7 +12,7 @@
 unit Game;
 
 interface
-	uses State;
+	uses State, Input;
 
 	//
 	// Opens graphics window and sets up game core & resources
@@ -23,7 +23,7 @@ interface
 	// Updates the game, calling the current game_state's Update & HandleInput function
 	// pointers as well, delegating responsibility to the state for non-game-scope tasks
 	//
-	procedure GameUpdate(core: GameCore);
+	procedure GameUpdate(core: GameCore; var inputs: InputMap);
 
 	//
 	// Updates the game, calling the current game_state's own draw function
@@ -75,7 +75,7 @@ implementation
 		StateChange(core, LevelState);
 	end;
 
-	procedure GameUpdate(core: GameCore);
+	procedure GameUpdate(core: GameCore; var inputs: InputMap);
 	begin
 
 		ProcessEvents();
@@ -87,7 +87,7 @@ implementation
 		else
 		begin
 			// Current state handles input
-			core^.states[ High(core^.states) ].HandleInput(core);
+			core^.states[ High(core^.states) ].HandleInput(core, inputs);
 
 			// Current state updates the game
 			core^.states[ High(core^.states) ].Update(core);

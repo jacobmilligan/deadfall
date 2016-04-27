@@ -10,21 +10,23 @@
 //  
 
 program DeadFall;
-uses SwinGame, Game, State;
+uses SwinGame, Game, State, Input;
 
 procedure Main();
 var
 	core: GameCore;
+	inputs: InputMap;
 	dtStart: Double;
 begin
-
+	
+	SetDefaultInput(inputs);
 	GameInit('Deadfall', 800, 600, core);
 
 	while core^.active do
 	begin
 		dtStart := GetTicks();
 		
-		GameUpdate(core);
+		GameUpdate(core, inputs);
 		GameDraw(core);
 
 		core^.deltaTime := (GetTicks() - dtStart) / 1000;
