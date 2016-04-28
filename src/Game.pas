@@ -69,7 +69,6 @@ implementation
 		OpenGraphicsWindow(caption, x, y);
 
 		core^.active := true; // game is active now
-		core^.deltaTime := 0;
 		
 		SetLength(core^.states, 0);
 		StateChange(core, LevelState);

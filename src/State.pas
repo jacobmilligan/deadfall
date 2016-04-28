@@ -64,10 +64,6 @@ interface
 			
 			//	Active states
 			states: StateArray;
-			
-			//				
-			deltaTime: Double;
-			
 		end;
 
 	procedure StateChange(core: GameCore; newState: GameState);

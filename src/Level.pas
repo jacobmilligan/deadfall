@@ -12,8 +12,16 @@
 unit Level;
 
 interface
-	uses sgTypes, State, Input;
-
+	uses sgTypes, State, Map, Input;
+	
+	//
+	//	Updates the camera position relative to the players
+	//	position. Moves the offset according to how close the player
+	//	is to the edge of the map, ensuring the player never sees outside
+	//	the map bounds.
+	//
+	procedure UpdateCamera(map: MapPtr);
+	
 	//
 	//	Initializes the playing map state, using 
 	//	a new active state
@@ -41,7 +49,44 @@ interface
 
 
 implementation
-	uses Map, SwinGame;
+	uses SwinGame;
+	
+	procedure UpdateCamera(map: MapPtr);
+	var
+		offsetX, offsetY, rightEdgeDistance, bottomEdgeDistance: Single;
+		mapSizeToPixel, halfSprite: Integer;
+	begin
+		mapSizeToPixel := High(map^.tiles) * 32;
+		rightEdgeDistance := mapSizeToPixel - SpriteX(map^.player.sprite);
+		bottomEdgeDistance := mapSizeToPixel - SpriteY(map^.player.sprite);
+		halfSprite := Round(SpriteWidth(map^.player.sprite) / 2);
+		
+		offsetX := 0;
+		offsetY := 0;
+
+		if CameraX() < (ScreenWidth() / 2) + halfSprite then
+		begin
+			// Left edge of the map
+			offsetX := ( ScreenWidth() - SpriteX(map^.player.sprite) ) / 2;
+		end;
+		if ( SpriteX(map^.player.sprite) + (ScreenWidth() / 2) ) > mapSizeToPixel then
+		begin
+			// Right edge of map
+			offsetX := -( (ScreenWidth() / 2) - rightEdgeDistance);
+		end;
+		if CameraY() < (ScreenHeight() / 2) + halfSprite then
+		begin
+			// Top edge of map
+			offsetY := ( ScreenHeight() - SpriteY(map^.player.sprite) ) / 2;
+		end;
+		if ( SpriteY(map^.player.sprite) + (ScreenHeight() / 2) ) > mapSizeToPixel then
+		begin
+			// Bottom edge of map
+			offsetY := -( (ScreenHeight() / 2) - bottomEdgeDistance);
+		end;
+
+		CenterCameraOn(map^.player.sprite, offsetX, offsetY);
+	end;
 
 	procedure LevelInit(var newState: ActiveState);
 	var
@@ -95,7 +140,7 @@ implementation
 		map: MapPtr;
 	begin
 		map := @core^.states[High(core^.states)].currentMap;
-
+		
 		if KeyDown(inputs.MoveUp) then 
 		begin
 			MoveEntity(map^, map^.player, Up, 3);
@@ -114,40 +159,12 @@ implementation
 		end
 		else
 		begin
+			//
+			//	Move with 0 speed based off previously assigned direction 
+			//	(i.e. whatever way the player was facing last)
+			//
 			MoveEntity(map^, map^.player, map^.player.direction, 0);
 		end;
-	end;
-	
-	procedure UpdateCamera(map: MapPtr);
-	var
-		offsetX, offsetY, rightEdgeDistance, bottomEdgeDistance: Single;
-		mapSizeToPixel, halfSprite: Integer;
-	begin
-	 	offsetX := 0;
-		offsetY := 0;
-		mapSizeToPixel := High(map^.tiles) * 32;
-		rightEdgeDistance := mapSizeToPixel - SpriteX(map^.player.sprite);
-		bottomEdgeDistance := mapSizeToPixel - SpriteY(map^.player.sprite);
-		halfSprite := Round(SpriteWidth(map^.player.sprite) / 2);
-
-		if CameraX() < (ScreenWidth() / 2) + halfSprite then
-		begin
-			offsetX := ( ScreenWidth() - SpriteX(map^.player.sprite) ) / 2;
-		end;
-		if ( SpriteX(map^.player.sprite) + (ScreenWidth() / 2) ) > mapSizeToPixel then
-		begin
-			offsetX := -( (ScreenWidth() / 2) - rightEdgeDistance);
-		end;
-		if CameraY() < (ScreenHeight() / 2) + halfSprite then
-		begin
-			offsetY := ( ScreenHeight() - SpriteY(map^.player.sprite) ) / 2;
-		end;
-		if ( SpriteY(map^.player.sprite) + (ScreenHeight() / 2) ) > mapSizeToPixel then
-		begin
-			offsetY := -( (ScreenHeight() / 2) - bottomEdgeDistance);
-		end;
-
-		CenterCameraOn(map^.player.sprite, offsetX, offsetY);
 	end;		
 
 	procedure LevelUpdate(core: GameCore);
@@ -166,25 +183,32 @@ implementation
 		Y_TEST = 100;
 	begin
 		map := @core^.states[High(core^.states)].currentMap;
+		
+		// Translate pixel values into tilemap values
 		tileScreenWidth := Round(ScreenWidth() / 32);
 		tileScreenHeight := Round(ScreenHeight() / 32);
-
 		x := Round(CameraPos.x / 32);
 		y := Round(CameraPos.y / 32);
 
 		for x := Round(CameraPos.x / 32) - 1 to Round( (CameraPos.x / 32) + tileScreenWidth ) do
 		begin
 			
+			//
+			//	Don't bother iterating columns if the row 
+			//	index is off the edge of the map, as the rows
+			//	will be off the map, too
+			//
 			if ( x >= 0 ) and ( x < Length(map^.tiles) ) then
 			begin
 				
 				for y := Round(CameraPos.y / 32) - 1 to Round((CameraPos.y / 32) + tileScreenHeight) do
 				begin
 					
+					// Only draw tile if y index is within map bounds
 					if ( y >= 0 ) and ( y < Length(map^.tiles) ) then
 					begin
 						DrawBitmap(map^.tiles[x, y].bmp, x * 32, y * 32);
-
+						
 						if map^.tiles[x, y].feature = Tree then
 						begin
 							if (map^.tiles[x, y].flag = Grass) then
@@ -213,7 +237,8 @@ implementation
 		end;
 
 		DrawSprite(map^.player.sprite);
-
+		
+		// Handle health, hunger, and money UI elements
 		DrawBitmap(BitmapNamed('empty bar'), CameraX() + 10, CameraY() + 10);
 		FillRectangle(RGBAColor(224, 51, 51, 150), CameraX() + 15, CameraY() + 15, Round(map^.player.hp * 2) - 8, 23);
 	end;

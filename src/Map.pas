@@ -15,32 +15,58 @@ interface
 	uses sgTypes;
 
 	type
+		
+		//	
+		//	Valid entity directions on the map. Used in movement and
+		//	collision detection
+		//
 		Direction = (Up, Right, Down, Left);
 
 		//
-		// Valid tile types for building maps with.
-		// Used as a terrain flag for different logic.
+		//	Valid tile types for building maps with.
+		//	Used as a terrain flag for different logic.
 		//
 		TileType = (Water, Sand, Dirt, Grass, MediumGrass, HighGrass, SnowyGrass, Mountain);
 		
+		//
+		//	Represents a feature on top of a tile that can have a bitmap,
+		//	collision, and be interactive
+		//
 		FeatureType = (None, Tree);
 
-		// Each tile has a terrain flag, elevation and bitmap
+		// 
+		//	Represents a tile on the map - has a terrain flag, 
+		//	elevation and bitmap
+		//
 		Tile = record
+			// terrain type
 			flag: TileType;
+			
+			// type of feature if any
 			feature: FeatureType;
+			
+			// uses collision detection
 			collidable: Boolean;
 
 			//
-			// Represents the tiles elevation - zero represents sea
-			// level.
+			//	Represents the tiles elevation - zero represents sea
+			//	level.
 			//
 			elevation: Double;
+			
+			// tiles base bitmap
 			bmp: Bitmap;
 		end;
-
+		
+		//
+		//	Array used to hold a a tilemap
+		//
 		TileGrid = array of array of Tile;
 		
+		//
+		//	Any moving, interactive, collidable entity on the map
+		//	that possesses some sort of action logic
+		//
 		Entity = record
 			sprite: Sprite;
 			direction: Direction;
@@ -49,23 +75,34 @@ interface
 		end;
 
 		//
-		// Main representation of a current level. Holds a tile grid.
+		//	Main representation of a current level. Holds a tile grid.
 		//
 		MapData = record
 			tiles: TileGrid;
 			player: Entity;
 		end;
-
+		
+		// Used to access maps in other functions
 		MapPtr = ^MapData;
 
 	//
-	// Takes a new 2D tile grid, sets the size to the passed in
-	// parameter, and initializes the elevation of each tile to zero.
+	//	Takes a new 2D tile grid, sets the size to the passed in
+	//	parameter, and initializes the elevation of each tile to zero.
 	//
 	procedure SetGridLength(var tiles: TileGrid; size: Integer);
-
+	
+	//
+	//	Fills a MapData's TileGrid with generated heightmap data
+	//	using the Diamond-Square fractal generation algorithm 
+	//	(for details, see: Computer Rendering of Stochastic Models - Alain Fournier et. al.).
+	//	This heightmap data gets used later on to generate terrain realistically
+	//
 	function GenerateNewMap(size: Integer): MapData;
 
+	//
+	//	Checks if a given entity is about to collide with anything on the
+	//	given map based off its projected delta movement
+	//
 	procedure CheckCollision(var map: MapData; var entity: Sprite; dir: Direction);
 
 
@@ -75,6 +112,7 @@ implementation
 	const
 		TILESIZE = 32;
 	
+	// Prints the tile grid to the console to use for debugging purposes
 	procedure PrintGrid(var grid: TileGrid);
 	var
 		x, y: Integer;
@@ -91,12 +129,6 @@ implementation
 		WriteLn('------------------------');
 	end;
 
-	//
-	// Fills a MapData's TileGrid with generated heightmap data
-	// using the Diamond-Square fractal generation algorithm 
-	// (for details, see: Computer Rendering of Stochastic Models - Alain Fournier et. al.).
-	// This heightmap data gets used later on to generate terrain realistically
-	//
 	procedure GetHeightMap(var map: MapData; maxHeight, smoothness: Integer);
 	var
 		x, y: Integer;
@@ -170,6 +202,8 @@ implementation
 								 + map.tiles[x - nextStep, y + nextStep].elevation
 								 + map.tiles[x + nextStep, y - nextStep].elevation
 								 + map.tiles[x + nextStep, y + nextStep].elevation;
+					
+					// Set midpoint to the average + Random value and multiply by smoothing factor
 					map.tiles[x, y].elevation := Round( (midpointVal / 4) + (Random(maxHeight) * smoothness) );
 					y += 2 * nextStep;
 				end;
@@ -226,6 +260,7 @@ implementation
 					//
 					if cornerCount > 0 then
 					begin
+						// Set midpoint to the average of corner amt + Random value and multiply by smoothing factor
 						map.tiles[x, y].elevation := Round( (midpointVal / cornerCount) + Random(maxHeight) * smoothness );
 					end;
 
@@ -236,12 +271,24 @@ implementation
 			end;
 
 			nextStep := Round(nextStep / 2); // Make the next space smaller
+			
+			//
+			//	Increase smoothness for every iteration, allowing 
+			//	less difference in height the more iterations that are completed
+			//
 			smoothness := Round(smoothness / 2);
 
 			DrawText(loadingStr, ColorWhite, 300, 200);
 			loadingStr += '.';
 			RefreshScreen(60);
 		end;
+	end;
+	
+	procedure SetTile(var newTile: Tile; flag: TileType; bmp: String; collidable: Boolean);
+	begin
+		newTile.flag := flag;
+		newTile.bmp := BitmapNamed(bmp);
+		newTile.collidable := collidable;
 	end;
 
 	procedure GenerateTerrain(var map: MapData);
@@ -260,37 +307,28 @@ implementation
 				
 				if ( map.tiles[x, y].elevation < 0 ) then
 				begin
-					map.tiles[x, y].flag := Water;
-					map.tiles[x, y].bmp := BitmapNamed('dark water');
-					map.tiles[x, y].collidable := true;
+					SetTile(map.tiles[x, y], Water, 'dark water', true);
 				end
 				else if ( map.tiles[x, y].elevation >= 0 ) and ( map.tiles[x, y].elevation < 200 ) then 
 				begin
-					map.tiles[x, y].flag := Water;
-					map.tiles[x, y].bmp := BitmapNamed('water');
-					map.tiles[x, y].collidable := true;
+					SetTile(map.tiles[x, y], Water, 'water', true);
 				end
 				else if ( map.tiles[x, y].elevation >= 200 ) and ( map.tiles[x, y].elevation < 300 ) then
 				begin
-					map.tiles[x, y].flag := Sand;
-					map.tiles[x, y].bmp := BitmapNamed('sand');
+					SetTile(map.tiles[x, y], Sand, 'sand', false);
 				end
 				else
 				begin
-
-					map.tiles[x, y].flag := Grass;
-					map.tiles[x, y].bmp := BitmapNamed('grass');
+					SetTile(map.tiles[x, y], Grass, 'grass', false);
 
 					if ( map.tiles[x, y].elevation > 400 ) and ( map.tiles[x, y].elevation < 600 ) then
 					begin
-						map.tiles[x, y].flag := MediumGrass;
-						map.tiles[x, y].bmp := BitmapNamed('dark grass');
+						SetTile(map.tiles[x, y], MediumGrass, 'dark grass', false);
 					end;
 
 					if ( map.tiles[x, y].elevation >= 600 ) and ( map.tiles[x, y].elevation < 800 ) then
 					begin
-						map.tiles[x, y].flag := HighGrass;
-						map.tiles[x, y].bmp := BitmapNamed('darkest grass');
+						SetTile(map.tiles[x, y], HighGrass, 'darkest grass', false);
 					end;
 
 					if ( map.tiles[x, y].elevation >= 800 ) and ( map.tiles[x, y].elevation < 1000 ) then
@@ -298,27 +336,22 @@ implementation
 
 						if Random(10) > 6 then
 						begin
-							map.tiles[x, y].flag := SnowyGrass;
-							map.tiles[x, y].bmp := BitmapNamed('snowy grass');
+							SetTile(map.tiles[x, y], SnowyGrass, 'snowy grass', false);
 						end
 						else
 						begin
-							map.tiles[x, y].flag := HighGrass;
-							map.tiles[x, y].bmp := BitmapNamed('darkest grass');
+							SetTile(map.tiles[x, y], HighGrass, 'darkest grass', false);
 						end;
 					end;
 
 					if ( map.tiles[x, y].elevation >= 1000 ) and ( map.tiles[x, y].elevation < 1500 ) then
 					begin
-						map.tiles[x, y].flag := SnowyGrass;
-						map.tiles[x, y].bmp := BitmapNamed('snowy grass');
+						SetTile(map.tiles[x, y], SnowyGrass, 'snowy grass', false);
 					end;
 
 					if ( map.tiles[x, y].elevation >= 1500 ) then
 					begin
-						map.tiles[x, y].flag := Mountain;
-						map.tiles[x, y].bmp := BitmapNamed('mountain');
-						map.tiles[x, y].collidable := true;
+						SetTile(map.tiles[x, y], Mountain, 'mountain', true);
 					end;
 
 				end;

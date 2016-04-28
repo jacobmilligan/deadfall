@@ -24,12 +24,8 @@ begin
 
 	while core^.active do
 	begin
-		dtStart := GetTicks();
-		
 		GameUpdate(core, inputs);
 		GameDraw(core);
-
-		core^.deltaTime := (GetTicks() - dtStart) / 1000;
 	end;
 end;
 
