@@ -72,6 +72,7 @@ interface
 			direction: Direction;
 			hp: Single;
 			hunger: Single;
+			nextUpdate: Single;
 		end;
 		
 		EntityCollection = array of Entity;
@@ -357,7 +358,7 @@ implementation
 	begin
 		LoadResources();
 		ClearScreen(ColorBlack);
-		loadingStr := 'Generating Terrain.';
+		loadingStr := 'Generating Terrain';
 
 		for x := 0 to High(map.tiles) do
 		begin
@@ -416,8 +417,8 @@ implementation
 				end;
 
 			end;
+			loadingStr += '.';
 		end;
-		loadingStr += '.';
 		DrawText(loadingStr, ColorWhite, 300, 200);
 		RefreshScreen(60);
 	end;
@@ -627,6 +628,7 @@ implementation
 	begin
 		if ( (size - 1) mod 2 = 0 ) then 
 		begin
+			SetLength(newMap.npcs, 0);
 			SetGridLength(newMap.tiles, size);
 			GetHeightMap(newMap, 100, 20);
 			GenerateTerrain(newMap);

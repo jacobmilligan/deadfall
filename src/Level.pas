@@ -99,7 +99,7 @@ implementation
 		newState.Draw := @LevelDraw;
 
 		// Generate a new map with the passed-in size
-		newState.currentMap := GenerateNewMap(129);
+		newState.currentMap := GenerateNewMap(513);
 		
 		// Setup player stats
 		newState.currentMap.player.hp := 100;
@@ -168,9 +168,12 @@ implementation
 	end;		
 
 	procedure LevelUpdate(core: GameCore);
+	var
+		i: Integer;
 	begin
 		UpdateCamera(@core^.states[High(core^.states)].currentMap);
-		SpawnNPC(core^.states[ High(core^.states) ].currentMap);
+		UpdateSpawns(core^.states[High(core^.states)].currentMap);
+		UpdateNPCS(core^.states[High(core^.states)].currentMap);
 	end;
 
 	procedure LevelDraw(core: GameCore);
@@ -207,6 +210,11 @@ implementation
 		end;
 
 		DrawSprite(map^.player.sprite);
+		
+		for x := 0 to High(map^.npcs) do
+        begin
+            DrawSprite(map^.npcs[x].sprite);
+        end;
 		
 		// Handle health, hunger, and money UI elements
 		DrawBitmap(BitmapNamed('empty bar'), CameraX() + 10, CameraY() + 10);
