@@ -99,7 +99,7 @@ implementation
 		newState.Draw := @LevelDraw;
 
 		// Generate a new map with the passed-in size
-		newState.currentMap := GenerateNewMap(513);
+		newState.currentMap := GenerateNewMap(33);
 		
 		// Setup player stats
 		newState.currentMap.player.hp := 100;

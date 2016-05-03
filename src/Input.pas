@@ -128,7 +128,7 @@ implementation
         
         CheckCollision(map, toMove.sprite, dir);
         
-        UpdateSprite(toMove.sprite);
+        UpdateSprite(toMove.sprite);        
     end;
     
 end.

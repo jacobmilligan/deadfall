@@ -70,6 +70,7 @@ interface
 		Entity = record
 			sprite: Sprite;
 			direction: Direction;
+			currentGoal: Point2D;
 			hp: Single;
 			hunger: Single;
 			nextUpdate: Single;
@@ -608,10 +609,10 @@ implementation
 					if OutOfBounds(map.tiles, i, j) or (map.tiles[i, j].collidable) then
 					begin
 						case dir of
-							Up: SpriteSetDY(entity, 0); 
-							Right: SpriteSetDX(entity, 0);
-							Down: SpriteSetDY(entity, 0);
-							Left: SpriteSetDX(entity, 0);
+							Up: SpriteSetDY(entity, 1); 
+							Right: SpriteSetDX(entity, -1);
+							Down: SpriteSetDY(entity, -1);
+							Left: SpriteSetDX(entity, 1);
 						end;
 					end;
 				end;
