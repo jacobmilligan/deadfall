@@ -73,17 +73,24 @@ interface
 			hp: Single;
 			hunger: Single;
 		end;
-
+		
+		EntityCollection = array of Entity;
+		
 		//
 		//	Main representation of a current level. Holds a tile grid.
 		//
 		MapData = record
 			tiles: TileGrid;
 			player: Entity;
+			npcs: EntityCollection;
 		end;
 		
 		// Used to access maps in other functions
 		MapPtr = ^MapData;
+		
+		TileView = record
+			x, y, right, bottom: LongInt;
+		end;
 
 	//
 	//	Takes a new 2D tile grid, sets the size to the passed in
@@ -104,7 +111,23 @@ interface
 	//	given map based off its projected delta movement
 	//
 	procedure CheckCollision(var map: MapData; var entity: Sprite; dir: Direction);
-
+	
+	//
+	//	Checks to see if a given point is out of the bounds of the passed in TileGrid. Returns
+	//	true or false
+	//
+	function OutOfBounds(var tiles: TileGrid; x, y: Integer): Boolean;
+	
+	//
+	//	Draws a given tiles bitmap and any features it contains to the screen.
+	//
+	procedure DrawTile(var currTile: Tile; x, y: Integer);
+	
+	//
+	//	Creates a new TileView record from the view currently within the
+	//	games camera bounds
+	//
+	function CreateTileView(): TileView;
 
 implementation
 	uses SwinGame, Game, Math;
@@ -112,21 +135,57 @@ implementation
 	const
 		TILESIZE = 32;
 	
-	// Prints the tile grid to the console to use for debugging purposes
-	procedure PrintGrid(var grid: TileGrid);
+	function OutOfBounds(var tiles: TileGrid; x, y: Integer): Boolean;
+	begin
+		result := false;
+		
+		if (x < 1) or (y < 1) then
+		begin
+			result := true;
+		end;
+		if ( x >= High(tiles) ) or ( y >= High(tiles) ) then
+		begin
+			result := true;
+		end;
+	end;
+	
+	function CreateTileView(): TileView;
 	var
 		x, y: Integer;
+		width, height: LongInt;
+		newView: TileView;
 	begin
-		for x := 0 to High(grid) do
+		newView.x := Round(CameraPos.x / 32) - 1;
+		newView.y := Round(CameraPos.y / 32) - 1;
+		newView.right := Round( (CameraPos.x / 32) + (ScreenWidth() / 32) );
+		newView.bottom := Round( (CameraPos.y / 32) + (ScreenHeight() / 32) );
+		
+		result := newView;
+	end;
+	
+	procedure DrawTile(var currTile: Tile; x, y: Integer);
+	begin
+		DrawBitmap(currTile.bmp, x, y);
+		
+		if currTile.feature = Tree then
 		begin
-			for y := 0 to High(grid) do
+			if (currTile.flag = Grass) then
 			begin
-				Write(grid[x, y].elevation:0:4, ' ');
+				DrawBitmap(BitmapNamed('tree'), x, y);
+			end
+			else if (currTile.flag = Sand) then
+			begin
+				DrawBitmap(BitmapNamed('palm tree'), x, y);
+			end
+			else if (currTile.flag > Grass) and (currTile.flag < SnowyGrass) then
+			begin
+				DrawBitmap(BitmapNamed('pine tree'), x, y);
+			end
+			else
+			begin
+				DrawBitmap(BitmapNamed('snowy tree'), x, y);
 			end;
-			WriteLn();
 		end;
-
-		WriteLn('------------------------');
 	end;
 
 	procedure GetHeightMap(var map: MapData; maxHeight, smoothness: Integer);
@@ -480,6 +539,7 @@ implementation
 	var
 		tileX, tileY, i, j, startX, finishX, startY, finishY: Integer;
 		x, y: Single;
+		spriteRect: Rectangle;
 	begin
 		x := SpriteX(entity);
 		y := SpriteY(entity);
@@ -488,7 +548,7 @@ implementation
 		finishX := tileX + 1;
 		startY := tileY - 1;
 		finishY := tileY + 1;
-
+		
 		case dir of
 			Up: y -= TILESIZE / 2;
 			Right: x += TILESIZE / 2;
@@ -536,7 +596,7 @@ implementation
 		begin
 			startY := tileY;
 		end;
-		
+				
 		for i := startX to finishX do
 		begin
 			for j := startY to finishY do
@@ -544,13 +604,13 @@ implementation
 				
 				if SpriteBitmapCollision(entity, map.tiles[i, j].bmp, i * TILESIZE, j * TILESIZE) then
 				begin
-					if (i < 1) or (j < 1) or (i > High(map.tiles)) or (j > High(map.tiles)) or (map.tiles[i, j].collidable) then
+					if OutOfBounds(map.tiles, i, j) or (map.tiles[i, j].collidable) then
 					begin
 						case dir of
-							Up: SpriteSetDY(entity, 2); 
-							Right: SpriteSetDX(entity, -2);
-							Down: SpriteSetDY(entity, -2);
-							Left: SpriteSetDX(entity, 2);
+							Up: SpriteSetDY(entity, 0); 
+							Right: SpriteSetDX(entity, 0);
+							Down: SpriteSetDY(entity, 0);
+							Left: SpriteSetDX(entity, 0);
 						end;
 					end;
 				end;

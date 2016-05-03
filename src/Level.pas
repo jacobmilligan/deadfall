@@ -49,7 +49,7 @@ interface
 
 
 implementation
-	uses SwinGame;
+	uses SwinGame, NPC;
 	
 	procedure UpdateCamera(map: MapPtr);
 	var
@@ -99,7 +99,7 @@ implementation
 		newState.Draw := @LevelDraw;
 
 		// Generate a new map with the passed-in size
-		newState.currentMap := GenerateNewMap(33);
+		newState.currentMap := GenerateNewMap(129);
 		
 		// Setup player stats
 		newState.currentMap.player.hp := 100;
@@ -170,14 +170,16 @@ implementation
 	procedure LevelUpdate(core: GameCore);
 	begin
 		UpdateCamera(@core^.states[High(core^.states)].currentMap);
+		SpawnNPC(core^.states[ High(core^.states) ].currentMap);
 	end;
 
 	procedure LevelDraw(core: GameCore);
 	var
-		x, y: Integer;
+		x, y: LongInt;
 		tileScreenWidth, tileScreenHeight: Integer;
 		map: MapPtr;  
 		barRect: Rectangle;
+		currentTileView: TileView;
 	const
 		X_TEST = 100;
 		Y_TEST = 100;
@@ -189,51 +191,19 @@ implementation
 		tileScreenHeight := Round(ScreenHeight() / 32);
 		x := Round(CameraPos.x / 32);
 		y := Round(CameraPos.y / 32);
-
-		for x := Round(CameraPos.x / 32) - 1 to Round( (CameraPos.x / 32) + tileScreenWidth ) do
+		
+		currentTileView := CreateTileView();
+		
+		for x := currentTileView.x to currentTileView.right do
 		begin
-			
-			//
-			//	Don't bother iterating columns if the row 
-			//	index is off the edge of the map, as the rows
-			//	will be off the map, too
-			//
-			if ( x >= 0 ) and ( x < Length(map^.tiles) ) then
+			for y := currentTileView.y to currentTileView.bottom do
 			begin
-				
-				for y := Round(CameraPos.y / 32) - 1 to Round((CameraPos.y / 32) + tileScreenHeight) do
+				// Only draw tile if y and x index are within map bounds
+				if not OutOfBounds(map^.tiles, x, y) then
 				begin
-					
-					// Only draw tile if y index is within map bounds
-					if ( y >= 0 ) and ( y < Length(map^.tiles) ) then
-					begin
-						DrawBitmap(map^.tiles[x, y].bmp, x * 32, y * 32);
-						
-						if map^.tiles[x, y].feature = Tree then
-						begin
-							if (map^.tiles[x, y].flag = Grass) then
-							begin
-								DrawBitmap(BitmapNamed('tree'), x * 32, y * 32);
-							end
-							else if (map^.tiles[x, y].flag = Sand) then
-							begin
-								DrawBitmap(BitmapNamed('palm tree'), x * 32, y * 32);
-							end
-							else if (map^.tiles[x, y].flag > Grass) and (map^.tiles[x, y].flag < SnowyGrass) then
-							begin
-								DrawBitmap(BitmapNamed('pine tree'), x * 32, y * 32);
-							end
-							else
-							begin
-							  	DrawBitmap(BitmapNamed('snowy tree'), x * 32, y * 32);
-							end;
-						end;
-					end;
-
+					DrawTile(map^.tiles[x, y], x * 32, y * 32);
 				end;
-
 			end;
-			
 		end;
 
 		DrawSprite(map^.player.sprite);

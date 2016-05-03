@@ -17,7 +17,7 @@ interface
 	//
 	// Opens graphics window and sets up game core & resources
 	//
-	procedure GameInit(caption: String; x, y: Integer; core: GameCore);
+	procedure GameInit(caption: String; width, height: Integer; core: GameCore);
 
 	//
 	// Updates the game, calling the current game_state's Update & HandleInput function
@@ -64,9 +64,9 @@ implementation
 		LoadResourceBundle('md.txt');
 	end;
 
-	procedure GameInit(caption: String; x, y: Integer; core: GameCore);
+	procedure GameInit(caption: String; width, height: Integer; core: GameCore);
 	begin
-		OpenGraphicsWindow(caption, x, y);
+		OpenGraphicsWindow(caption, width, height);
 
 		core^.active := true; // game is active now
 		

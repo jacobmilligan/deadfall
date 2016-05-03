@@ -1,2 +1,2 @@
-BITMAP,eng,Engineer.png,32,32,4,4,16
+BITMAP,eng,Engineer.png,28,28,4,4,16
 ANIM,player,playerAnim.txt
