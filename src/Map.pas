@@ -32,7 +32,7 @@ interface
 		//	Represents a feature on top of a tile that can have a bitmap,
 		//	collision, and be interactive
 		//
-		FeatureType = (None, Tree);
+		FeatureType = (None, Tree, Meat);
 
 		// 
 		//	Represents a tile on the map - has a terrain flag, 
@@ -74,6 +74,7 @@ interface
 			hp: Single;
 			hunger: Single;
 			nextUpdate: Single;
+			attackTimeout: Integer;
 		end;
 		
 		EntityCollection = array of Entity;
@@ -112,7 +113,7 @@ interface
 	//	Checks if a given entity is about to collide with anything on the
 	//	given map based off its projected delta movement
 	//
-	procedure CheckCollision(var map: MapData; var entity: Sprite; dir: Direction);
+	procedure CheckCollision(var map: MapData; var toCheck: Sprite; dir: Direction; var hasCollision: Boolean);
 	
 	//
 	//	Checks to see if a given point is out of the bounds of the passed in TileGrid. Returns
@@ -187,6 +188,10 @@ implementation
 			begin
 				DrawBitmap(BitmapNamed('snowy tree'), x, y);
 			end;
+		end;
+		if currTile.feature = Meat then
+		begin
+			DrawBitmap(BitmapNamed('meat'), x, y);
 		end;
 	end;
 
@@ -537,14 +542,16 @@ implementation
 		end;
 	end;
 	
-	procedure CheckCollision(var map: MapData; var entity: Sprite; dir: Direction);
+	procedure CheckCollision(var map: MapData; var toCheck: Sprite; dir: Direction; var hasCollision: Boolean);
 	var
 		tileX, tileY, i, j, startX, finishX, startY, finishY: Integer;
 		x, y: Single;
 		spriteRect: Rectangle;
 	begin
-		x := SpriteX(entity);
-		y := SpriteY(entity);
+		hasCollision := false;
+	
+		x := SpriteX(toCheck);
+		y := SpriteY(toCheck);
 		
 		startX := tileX - 1;
 		finishX := tileX + 1;
@@ -604,19 +611,20 @@ implementation
 			for j := startY to finishY do
 			begin
 				
-				if SpriteBitmapCollision(entity, map.tiles[i, j].bmp, i * TILESIZE, j * TILESIZE) then
+				if SpriteBitmapCollision(toCheck, map.tiles[i, j].bmp, i * TILESIZE, j * TILESIZE) then
 				begin
 					if OutOfBounds(map.tiles, i, j) or (map.tiles[i, j].collidable) then
 					begin
+						hasCollision := true;
 						case dir of
-							Up: SpriteSetDY(entity, 1); 
-							Right: SpriteSetDX(entity, -1);
-							Down: SpriteSetDY(entity, -1);
-							Left: SpriteSetDX(entity, 1);
+							Up: SpriteSetDY(toCheck, 0); 
+							Right: SpriteSetDX(toCheck, 0);
+							Down: SpriteSetDY(toCheck, 0);
+							Left: SpriteSetDX(toCheck, 0);
 						end;
 					end;
 				end;
-							
+					
 			end;
 		end;
 		

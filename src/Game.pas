@@ -56,7 +56,7 @@ implementation
 		LoadBitmapNamed('palm tree', 'palm_tree.png');
 		LoadBitmapNamed('snowy tree', 'snowy_tree.png');
 
-		LoadBitmapNamed('player', 'player.png');
+		LoadBitmapNamed('meat', 'meat.png');
 
 		LoadBitmapNamed('empty bar', 'empty_bar.png');
 		LoadBitmapNamed('health bar', 'health_bar.png');

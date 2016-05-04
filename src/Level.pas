@@ -99,13 +99,14 @@ implementation
 		newState.Draw := @LevelDraw;
 
 		// Generate a new map with the passed-in size
-		newState.currentMap := GenerateNewMap(33);
+		newState.currentMap := GenerateNewMap(513);
 		
 		// Setup player stats
 		newState.currentMap.player.hp := 100;
+		newState.currentMap.player.attackTimeout := 0;
 
 		// Setup player sprite and animation
-		newState.currentMap.player.sprite := CreateSprite(BitmapNamed('eng'), AnimationScriptNamed('player'));
+		newState.currentMap.player.sprite := CreateSprite('player', BitmapNamed('eng'), AnimationScriptNamed('player'));
 		SwitchAnimation(newState.currentMap.player.sprite, 'entity_down_idle');
 		
 		//
@@ -165,15 +166,33 @@ implementation
 			//
 			MoveEntity(map^, map^.player, map^.player.direction, 0);
 		end;
+		
+		if KeyDown(inputs.Attack) then
+		begin
+			map^.player.attackTimeout := 3;
+		end;
 	end;		
 
 	procedure LevelUpdate(core: GameCore);
 	var
 		i: Integer;
+		map: MapPtr;
 	begin
-		UpdateCamera(@core^.states[High(core^.states)].currentMap);
-		UpdateSpawns(core^.states[High(core^.states)].currentMap);
-		UpdateNPCS(core^.states[High(core^.states)].currentMap);
+		map := @core^.states[High(core^.states)].currentMap;
+		if map^.player.attackTimeout > 0 then
+		begin
+			map^.player.attackTimeout -= 1;
+			WriteLn('attack');
+		end
+		else
+		begin
+			WriteLn('no attack');
+		end;
+		
+		UpdateCamera(map);
+		UpdateSpawns(map^);
+		UpdateNPCS(map^);
+		UpdateSprite(map^.player.sprite);      
 	end;
 
 	procedure LevelDraw(core: GameCore);

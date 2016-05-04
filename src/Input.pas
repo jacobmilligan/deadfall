@@ -21,7 +21,7 @@ interface
         //  Is set to default keys in GameInit() using SetDefaultInput()
         //
         InputMap = record
-            MoveUp, MoveRight, MoveDown, MoveLeft: KeyCode;
+            MoveUp, MoveRight, MoveDown, MoveLeft, Attack: KeyCode;
         end;
         
     //
@@ -72,6 +72,7 @@ implementation
         inputs.MoveRight := RightKey;
         inputs.MoveDown := DownKey;
         inputs.MoveLeft := LeftKey;
+        inputs.Attack := XKey;
     end;
     
     procedure SwitchAnimation(var sprite: Sprite; ani: String);
@@ -85,6 +86,7 @@ implementation
     procedure MoveEntity(var map: MapData; var toMove: Entity; dir: Direction; speed: Single);
     var
         velocity: Vector;
+        hasCollision: Boolean;
     begin
         toMove.direction := dir;
         velocity.x := 0;
@@ -126,9 +128,7 @@ implementation
         SpriteSetDX(toMove.sprite, velocity.x);
 		SpriteSetDY(toMove.sprite, velocity.y);
         
-        CheckCollision(map, toMove.sprite, dir);
-        
-        UpdateSprite(toMove.sprite);        
+        CheckCollision(map, toMove.sprite, dir, hasCollision);        
     end;
     
 end.
