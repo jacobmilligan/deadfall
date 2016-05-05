@@ -104,6 +104,7 @@ implementation
 		// Setup player stats
 		newState.currentMap.player.hp := 100;
 		newState.currentMap.player.attackTimeout := 0;
+		SetLength(newState.currentMap.inventory, 0);
 
 		// Setup player sprite and animation
 		newState.currentMap.player.sprite := CreateSprite('player', BitmapNamed('eng'), AnimationScriptNamed('player'));
@@ -182,11 +183,6 @@ implementation
 		if map^.player.attackTimeout > 0 then
 		begin
 			map^.player.attackTimeout -= 1;
-			WriteLn('attack');
-		end
-		else
-		begin
-			WriteLn('no attack');
 		end;
 		
 		UpdateCamera(map);

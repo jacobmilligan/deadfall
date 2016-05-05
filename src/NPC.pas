@@ -28,7 +28,7 @@ interface
     
 
 implementation
-    uses Input;
+    uses Input, Math;
     
     procedure SpawnNPC(var map: MapData; x, y: LongInt);
     var
@@ -139,6 +139,7 @@ implementation
     var
         x, y: LongInt;
     begin
+
         for x := 0 to High(map.tiles) do
         begin
             for y := 0 to High(map.tiles) do
@@ -151,19 +152,35 @@ implementation
         end;
     end;
     
+    procedure RemoveNPC(deleteIndex: Integer; var npcs: EntityCollection);
+    var
+        i: Integer;
+    begin
+        for i := deleteIndex to High(npcs) do
+        begin
+            npcs[i] := npcs[i + 1];
+        end;
+        SetLength(npcs, Length(npcs) - 1);
+    end;
+    
     procedure UpdateNPCS(var map: MapData);
     var 
-        i: Integer;
+        toRemove, i: Integer;
         playerPos, npcPos: Point2D;
         attackRect: Rectangle;
     begin
+        toRemove := 0;
         playerPos := PointAt(SpriteX(map.player.sprite), SpriteY(map.player.sprite));
-        for i := 0 to High(map.npcs) do
+        
+        // Iterate in reverse to allow for removal of items from the array
+        for i := High(map.npcs) downto 0 do
         begin
             npcPos := PointAt(SpriteX(map.npcs[i].sprite), SpriteY(map.npcs[i].sprite));
+            
             if map.npcs[i].hp > 0 then
             begin
                 map.npcs[i].nextUpdate -= 100 / PointPointDistance(playerPos, npcPos);
+                
                 if map.npcs[i].nextUpdate < 0 then
                 begin
                     map.npcs[i].nextUpdate := 1;
@@ -196,11 +213,21 @@ implementation
             end
             else
             begin
-                map.tiles[Trunc(npcPos.x / 32), Trunc(npcPos.y / 32)].feature := Meat;                
-                map.npcs[i].sprite := CreateSprite(BitmapNamed('meat'));
-                UpdateSprite(map.npcs[i].sprite);
-            end;        
-        end;
+                RemoveNPC(i, map.npcs);
+                if map.tiles[Floor(npcPos.x / 32), Floor(npcPos.y / 32)].feature = None then
+                begin
+                    map.tiles[Floor(npcPos.x / 32), Floor(npcPos.y / 32)].feature := Food;
+                end
+                else if map.tiles[Ceil(npcPos.x / 32), Ceil(npcPos.y / 32)].feature = None then
+                begin
+                    map.tiles[Ceil(npcPos.x / 32), Ceil(npcPos.y / 32)].feature := Food;
+                end
+                else
+                begin
+                    AddToInventory(map.inventory, Food);
+                end;
+            end;
+        end;        
     end;
     
 end.

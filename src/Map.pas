@@ -32,7 +32,15 @@ interface
 		//	Represents a feature on top of a tile that can have a bitmap,
 		//	collision, and be interactive
 		//
-		FeatureType = (None, Tree, Meat);
+		FeatureType = (None, Tree, Food, Treasure);
+		
+		Item = record
+			category: FeatureType;
+			hungerPlus: Integer;
+			dollarValue: Double;
+		end;
+		
+		InventoryCollection = array of Item;
 
 		// 
 		//	Represents a tile on the map - has a terrain flag, 
@@ -85,6 +93,7 @@ interface
 		MapData = record
 			tiles: TileGrid;
 			player: Entity;
+			inventory: InventoryCollection;
 			npcs: EntityCollection;
 		end;
 		
@@ -131,12 +140,35 @@ interface
 	//	games camera bounds
 	//
 	function CreateTileView(): TileView;
+	
+	procedure AddToInventory(var inventory: InventoryCollection; feature: FeatureType);
 
 implementation
 	uses SwinGame, Game, Math;
 	
 	const
 		TILESIZE = 32;
+		
+	procedure AddToInventory(var inventory: InventoryCollection; feature: FeatureType);
+	var
+		newItem: Item;
+	begin
+		newItem.category := feature;
+					
+		if feature = Food then
+		begin
+			newItem.hungerPlus := Random(10);
+			newItem.dollarValue := Random(10);	
+		end
+		else if feature = Treasure then
+		begin
+			newItem.hungerPlus := 1;
+			newItem.dollarValue := Random(5000);
+		end;
+		
+		SetLength(inventory, Length(inventory) + 1);
+		inventory[High(inventory)] := newItem;
+	end;
 	
 	function OutOfBounds(var tiles: TileGrid; x, y: Integer): Boolean;
 	begin
@@ -189,7 +221,7 @@ implementation
 				DrawBitmap(BitmapNamed('snowy tree'), x, y);
 			end;
 		end;
-		if currTile.feature = Meat then
+		if currTile.feature = Food then
 		begin
 			DrawBitmap(BitmapNamed('meat'), x, y);
 		end;
@@ -623,6 +655,11 @@ implementation
 							Left: SpriteSetDX(toCheck, 0);
 						end;
 					end;
+					if not OutOfBounds(map.tiles, i, j) and (map.tiles[i, j].feature = Food) then
+					begin
+						AddToInventory(map.inventory, map.tiles[i, j].feature);
+						map.tiles[i, j].feature := None;
+					end;
 				end;
 					
 			end;
@@ -634,6 +671,9 @@ implementation
 	var
 		newMap: MapData;
 		x, y: Integer;
+		mapBmp: Bitmap;
+		opts: DrawingOptions;
+		clr: Color;
 	begin
 		if ( (size - 1) mod 2 = 0 ) then 
 		begin
@@ -642,31 +682,39 @@ implementation
 			GetHeightMap(newMap, 100, 20);
 			GenerateTerrain(newMap);
 			SeedTrees(newMap);
-
+			
+			mapBmp := CreateBitmap(size, size);
+			opts.dest := mapBmp;
+			
 			for x := 0 to High(newMap.tiles) do
 			begin
 				for y := 0 to High(newMap.tiles) do
 				begin
 					case newMap.tiles[x, y].flag of
-						Water: DrawPixel(ColorBlue, Round(x / 1.3), Round(y / 1.5));
-						Sand: DrawPixel(ColorYellow, Round(x / 1.3), Round(y / 1.5));
-						Grass: DrawPixel(ColorLawnGreen, Round(x / 1.3), Round(y / 1.5));
-						Dirt: DrawPixel(ColorBrown, Round(x / 1.3), Round(y / 1.5));
-						MediumGrass: DrawPixel(ColorGreen, Round(x / 1.3), Round(y / 1.5));
-						HighGrass: DrawPixel(ColorOlive, Round(x / 1.3), Round(y / 1.5));
-						SnowyGrass: DrawPixel(ColorWhite, Round(x / 1.3), Round(y / 1.5));
-						Mountain: DrawPixel(ColorBlack, Round(x / 1.3), Round(y / 1.5));
+						Water: clr := RGBColor(42, 76, 211); // Blue
+						Sand: clr := RGBColor(241, 249, 101); // Sandy yellow
+						Grass: clr := RGBColor(139, 230, 128); // Light green
+						Dirt: clr := RGBColor(148, 92, 53); // Brown
+						MediumGrass: clr := RGBColor(57, 167, 63); // darker green
+						HighGrass: clr := RGBColor(23, 125, 29); // Dark green
+						SnowyGrass: clr := ColorWhite;
+						Mountain: clr := RGBColor(119, 119, 119); // Grey
 					end;
+					if newMap.tiles[x, y].feature = Tree then
+					begin
+						clr := RGBColor(113, 149, 48);
+					end;
+					DrawPixel(clr, Round(x / 1.3), Round(y / 1.5), opts)
 				end;
 			end;
-			TakeScreenshot('map');
-			RefreshScreen(60);
-
+			SaveBitmap(mapBmp, 'new_map.png');
 		end
 		else 
 		begin
 			WriteLn('Deadfall error: Cannot initialize map with size ', size, '! Map must be of size 2^n + 1.');
 		end;
+		
+		// Todo: Return an invalid map and handle this error properly
 		result := newMap;
 
 	end;
