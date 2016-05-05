@@ -14,18 +14,18 @@ uses SwinGame, Game, State, Input;
 
 procedure Main();
 var
-	core: GameCore;
+	states: StateArray;
 	inputs: InputMap;
 	dtStart: Double;
 begin
 	
-	GameInit('Deadfall', 800, 600, core);
+	GameInit('Deadfall', 800, 600, states);
 	SetDefaultInput(inputs);
 
-	while core^.active do
+	while not WindowCloseRequested() do
 	begin
-		GameUpdate(core, inputs);
-		GameDraw(core);
+		GameUpdate(states, inputs);
+		GameDraw(states);
 	end;
 end;
 

@@ -17,19 +17,19 @@ interface
 	//
 	// Opens graphics window and sets up game core & resources
 	//
-	procedure GameInit(caption: String; width, height: Integer; core: GameCore);
+	procedure GameInit(caption: String; width, height: Integer; var states: StateArray);
 
 	//
 	// Updates the game, calling the current game_state's Update & HandleInput function
 	// pointers as well, delegating responsibility to the state for non-game-scope tasks
 	//
-	procedure GameUpdate(core: GameCore; var inputs: InputMap);
+	procedure GameUpdate(var states: StateArray; var inputs: InputMap);
 
 	//
 	// Updates the game, calling the current game_state's own draw function
 	// as well, delegating responsibility for drawing state-local objects (sprites, shapes etc.)
 	//
-	procedure GameDraw(core: GameCore);
+	procedure GameDraw(var states: StateArray);
 
 	//
 	// Loads all resources needed by the game
@@ -64,45 +64,35 @@ implementation
 		LoadResourceBundle('md.txt');
 	end;
 
-	procedure GameInit(caption: String; width, height: Integer; core: GameCore);
+	procedure GameInit(caption: String; width, height: Integer; var states: StateArray);
 	begin
 		OpenGraphicsWindow(caption, width, height);
 		
-		core^.active := true; // game is active now
-		
-		SetLength(core^.states, 0);
-		StateChange(core, LevelState);
+		SetLength(states, 0);
+		StateChange(states, LevelState);
 	end;
 
-	procedure GameUpdate(core: GameCore; var inputs: InputMap);
+	procedure GameUpdate(var states: StateArray; var inputs: InputMap);
 	begin
 
 		ProcessEvents();
+		
+		// Current state handles input
+		states[High(states)].HandleInput(states[High(states)], inputs);
 
-		if WindowCloseRequested() then
-		begin
-			core^.active := false;
-		end
-		else
-		begin
-			// Current state handles input
-			core^.states[ High(core^.states) ].HandleInput(core, inputs);
+		// Current state updates the game
+		states[High(states)].Update(states[High(states)]);
 
-			// Current state updates the game
-			core^.states[ High(core^.states) ].Update(core);
-		end;
 	end;
 
-	procedure GameDraw(core: GameCore);
+	procedure GameDraw(var states: StateArray);
 	begin
 		ClearScreen(ColorBlack);
 		
 		// Current state draws itself to the window
-		core^.states[ High(core^.states) ].Draw(core);
+		states[High(states)].Draw(states[High(states)]);
 		
 		RefreshScreen(60);
 	end;
-
-
 
 end.

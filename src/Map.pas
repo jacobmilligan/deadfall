@@ -97,9 +97,6 @@ interface
 			npcs: EntityCollection;
 		end;
 		
-		// Used to access maps in other functions
-		MapPtr = ^MapData;
-		
 		TileView = record
 			x, y, right, bottom: LongInt;
 		end;

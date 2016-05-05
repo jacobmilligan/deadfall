@@ -20,91 +20,86 @@ interface
 		//	which state to switch to
 		//
 		GameState = (TitleState, LevelState, MenuState, QuitState);
-
-		//
-		//	Forward declaration of pointer to GameCore type to avoid 
-		//	circular reference in ActiveState
-		//
-		GameCore = ^TGameCore;
-
+		
 		//
 		//	Each function pointer (input, update, draw) is called once per frame
 		//	and is assigned via each states init function
 		//
 		ActiveState = record
 			stateName: GameState;
+			
+			manager: ^StateArray;
 		
 			//
 		    //	Checks input and modifies the states data accordingly
 		    //
-			HandleInput: procedure(core: GameCore; var inputs: InputMap);
+			HandleInput: procedure(var thisState: ActiveState; var inputs: InputMap);
 
 			//
 		    //	Uses the states current data to update and change the game
 		    //
-			Update: procedure(core: GameCore);
+			Update: procedure(var thisState: ActiveState);
 
 			// 
 		    //	Draws state-local data to the window
 		    //
-			Draw: procedure(core: GameCore);
+			Draw: procedure(var thisState: ActiveState);
 			
 			//
 			//	Represents the current map containing tile and entity information
 			//
-			currentMap: MapData;
+			map: MapData;
 		end;
 		
 		//	Active states. States can be layered, i.e. Menu can go over the top of Level
 		StateArray = array of ActiveState;
-		
-		TGameCore = record
-			//
-		    // Represents an active game, if this is set to false, the game shuts down
-		    //
-			active: Boolean;
-			
-			//	Active states
-			states: StateArray;
-		end;
 
-	procedure StateChange(core: GameCore; newState: GameState);
+	procedure StateChange(var states: StateArray; newState: GameState);
 
 
 implementation
 	uses Title, Level, Menu;
 	
-	procedure StateChange(core: GameCore; newState: GameState);
+	procedure StateChange(var states: StateArray; newState: GameState);
 	var
 		newActiveState: ActiveState;
 	begin
 		
 		newActiveState.stateName := newState;
+		newActiveState.manager := @states;
 				
 		if newState = TitleState then
 		begin
 			TitleInit(newActiveState);
 			
-			SetLength(core^.states, 1);
-			core^.states[High(core^.states)] := newActiveState;
+			SetLength(states, 1);
+			states[High(states)] := newActiveState;
 		end
 		else if newState = LevelState then
 		begin
-			LevelInit(newActiveState);
+		
+			if (Length(states) > 0) and (states[High(states)].stateName = MenuState) then
+			begin
+				SetLength(states, 1);
+			end
+			else
+			begin
+				LevelInit(newActiveState);
+				SetLength(states, 1);			
+				states[High(states)] := newActiveState;
+			end;
 			
-			SetLength(core^.states, 1);
-			core^.states[High(core^.states)] := newActiveState;
 		end
 		else if newState = MenuState then
 		begin
 			MenuInit(newActiveState);
 			
-			SetLength(core^.states, Length(core^.states) + 1);
-			core^.states[High(core^.states)] := newActiveState;
+			SetLength(states, Length(states) + 1);
+			states[High(states)] := newActiveState;
 		end
 		else
 		begin
-			WriteLn('Invalid state');			
+			WriteLn('Invalid state');	
 		end;
 		
 	end;

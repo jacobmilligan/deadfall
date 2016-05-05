@@ -21,7 +21,7 @@ interface
         //  Is set to default keys in GameInit() using SetDefaultInput()
         //
         InputMap = record
-            MoveUp, MoveRight, MoveDown, MoveLeft, Attack: KeyCode;
+            MoveUp, MoveRight, MoveDown, MoveLeft, Attack, Menu: KeyCode;
         end;
         
     //
@@ -73,6 +73,7 @@ implementation
         inputs.MoveDown := DownKey;
         inputs.MoveLeft := LeftKey;
         inputs.Attack := XKey;
+        inputs.Menu := EscapeKey;
     end;
     
     procedure SwitchAnimation(var sprite: Sprite; ani: String);

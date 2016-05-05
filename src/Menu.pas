@@ -16,11 +16,11 @@ interface
 
 	procedure MenuInit(var newState: ActiveState);
 
-	procedure MenuHandleInput(core: GameCore; var inputs: InputMap);
+	procedure MenuHandleInput(var thisState: ActiveState; var inputs: InputMap);
 
-	procedure MenuUpdate(core: GameCore);
+	procedure MenuUpdate(var thisState: ActiveState);
 
-	procedure MenuDraw(core: GameCore);
+	procedure MenuDraw(var thisState: ActiveState);
 
 
 implementation
@@ -32,19 +32,27 @@ implementation
 		newState.Draw := @MenuDraw;
 	end;
 
-	procedure MenuHandleInput(core: GameCore; var inputs: InputMap);
+	procedure MenuHandleInput(var thisState: ActiveState; var inputs: InputMap);
 	begin
 		
 	end;
 
-	procedure MenuUpdate(core: GameCore);
-	begin
-		WriteLn('Menu State');
-	end;
-
-	procedure MenuDraw(core: GameCore);
+	procedure MenuUpdate(var thisState: ActiveState);
 	begin
 		
+	end;
+
+	procedure MenuDraw(var thisState: ActiveState);
+	var
+		managerPtr: ^StateArray;
+		levelState: ^ActiveState;
+		levelIndex: Integer;
+	begin
+		managerPtr := thisState.manager;
+		levelIndex := High(managerPtr^) - 1;
+		levelState := @managerPtr^[levelIndex];
+		
+		levelState^.Draw(levelState^);
 	end;
 
 end.
