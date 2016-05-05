@@ -32,6 +32,8 @@ interface
 		//	and is assigned via each states init function
 		//
 		ActiveState = record
+			stateName: GameState;
+		
 			//
 		    //	Checks input and modifies the states data accordingly
 		    //
@@ -70,17 +72,30 @@ interface
 
 
 implementation
-	uses Title, Level;
+	uses Title, Level, Menu;
 	
 	procedure StateChange(core: GameCore; newState: GameState);
 	var
 		newActiveState: ActiveState;
 	begin
-		case newState of
-			TitleState: TitleInit(newActiveState);
-			LevelState: LevelInit(newActiveState);
-			else 
-				WriteLn('Invalid state');
+		
+		newActiveState.stateName := newState;
+				
+		if newState = TitleState then
+		begin
+			TitleInit(newActiveState);
+		end
+		else if newState = LevelState then
+		begin
+			LevelInit(newActiveState);
+		end
+		else if newState = MenuState then
+		begin
+			MenuInit(newActiveState);
+		end
+		else
+		begin
+			WriteLn('Invalid state');			
 		end;
 		
 		SetLength(core^.states, Length(core^.states) + 1);

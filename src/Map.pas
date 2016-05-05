@@ -232,10 +232,7 @@ implementation
 		x, y: Integer;
 		midpointVal: Double;
 		nextStep, cornerCount: Integer;
-		loadingStr: String;
 	begin
-		loadingStr := 'Generating height map.';
-		ClearScreen(ColorBlack);
 
 		x := 0;
 		y := 0;
@@ -260,10 +257,6 @@ implementation
 		
 		x := 0;
 		y := 0;
-
-		// Show loading text
-		DrawText(loadingStr, ColorWhite, 300, 200);
-		RefreshScreen(60);
 
 		//
 		// Generate the rest of the heightmap now that the first square 
@@ -375,10 +368,6 @@ implementation
 			//	less difference in height the more iterations that are completed
 			//
 			smoothness := Round(smoothness / 2);
-
-			DrawText(loadingStr, ColorWhite, 300, 200);
-			loadingStr += '.';
-			RefreshScreen(60);
 		end;
 	end;
 	
@@ -392,11 +381,8 @@ implementation
 	procedure GenerateTerrain(var map: MapData);
 	var
 		x, y: Integer;
-		loadingStr: String;
 	begin
 		LoadResources();
-		ClearScreen(ColorBlack);
-		loadingStr := 'Generating Terrain';
 
 		for x := 0 to High(map.tiles) do
 		begin
@@ -455,10 +441,7 @@ implementation
 				end;
 
 			end;
-			loadingStr += '.';
 		end;
-		DrawText(loadingStr, ColorWhite, 300, 200);
-		RefreshScreen(60);
 	end;
 
 	function IsInMap(var map: MapData; x, y: Integer): Boolean;
@@ -677,13 +660,26 @@ implementation
 	begin
 		if ( (size - 1) mod 2 = 0 ) then 
 		begin
+			ClearScreen(ColorBlack);
+			DrawText('Generating Heightmap', ColorWhite, 300, 200);
+			RefreshScreen(60);
+			
 			SetLength(newMap.npcs, 0);
 			SetGridLength(newMap.tiles, size);
 			GetHeightMap(newMap, 100, 20);
+			
+			ClearScreen(ColorBlack);
+			DrawText('Generating Terrain', ColorWhite, 300, 200);
+			RefreshScreen(60);
+			
 			GenerateTerrain(newMap);
 			SeedTrees(newMap);
 			
-			mapBmp := CreateBitmap(size, size);
+			ClearScreen(ColorBlack);
+			DrawText('Finalizing Map', ColorWhite, 300, 200);
+			RefreshScreen(60);
+			
+			{mapBmp := CreateBitmap(size, size);
 			opts.dest := mapBmp;
 			
 			for x := 0 to High(newMap.tiles) do
@@ -704,10 +700,10 @@ implementation
 					begin
 						clr := RGBColor(113, 149, 48);
 					end;
-					DrawPixel(clr, Round(x / 1.3), Round(y / 1.5), opts)
+					DrawPixel(clr, x, y, opts);
 				end;
 			end;
-			SaveBitmap(mapBmp, 'new_map.png');
+			SaveBitmap(mapBmp, 'new_map.png');}
 		end
 		else 
 		begin

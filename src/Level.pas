@@ -93,6 +93,7 @@ implementation
 		i, j: Integer;
 		spawnFound: Boolean;
 	begin
+	
 		// Assign functions for state
 		newState.HandleInput := @LevelHandleInput;
 		newState.Update := @LevelUpdate;
@@ -142,6 +143,8 @@ implementation
 		map: MapPtr;
 	begin
 		map := @core^.states[High(core^.states)].currentMap;
+		
+		
 		
 		if KeyDown(inputs.MoveUp) then 
 		begin

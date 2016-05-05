@@ -67,7 +67,7 @@ implementation
 	procedure GameInit(caption: String; width, height: Integer; core: GameCore);
 	begin
 		OpenGraphicsWindow(caption, width, height);
-
+		
 		core^.active := true; // game is active now
 		
 		SetLength(core^.states, 0);

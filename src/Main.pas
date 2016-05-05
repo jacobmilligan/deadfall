@@ -19,8 +19,8 @@ var
 	dtStart: Double;
 begin
 	
-	SetDefaultInput(inputs);
 	GameInit('Deadfall', 800, 600, core);
+	SetDefaultInput(inputs);
 
 	while core^.active do
 	begin
