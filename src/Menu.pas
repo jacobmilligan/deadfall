@@ -24,12 +24,16 @@ interface
 
 
 implementation
+	uses SwinGame;
 	
 	procedure MenuInit(var newState: ActiveState);
 	begin
 		newState.HandleInput := @MenuHandleInput;
 		newState.Update := @MenuUpdate;
 		newState.Draw := @MenuDraw;
+		
+		ShowPanel(PanelNamed('menu'));
+		DrawInterface();
 	end;
 
 	procedure MenuHandleInput(var thisState: ActiveState; var inputs: InputMap);
@@ -53,6 +57,7 @@ implementation
 		levelState := @managerPtr^[levelIndex];
 		
 		levelState^.Draw(levelState^);
+		DrawInterface();
 	end;
 
 end.

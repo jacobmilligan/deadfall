@@ -41,7 +41,6 @@ implementation
     surface: sg_drawing_surface;
   begin
     result := nil;
-
     surface := _sg_functions^.image.load_bitmap(PChar(filename));
     if not Assigned(surface._data) then exit;
 

@@ -1,3 +1,5 @@
 BITMAP,eng,Engineer.png,28,28,4,4,16
 BITMAP,bunny,bunny.png,28,28,4,4,16
+
+PANEL,menu,Menu.txt
 ANIM,player,playerAnim.txt
