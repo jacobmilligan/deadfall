@@ -663,7 +663,7 @@ begin
   {$IFDEF TRACE}
     TraceEnter('sgImages', 'BitmapNamed', 'name = ' + name);
   {$ENDIF}
-
+  
   tmp := _Images.values[name];
   if assigned(tmp) then
     result := Bitmap(tResourceContainer(tmp).Resource)

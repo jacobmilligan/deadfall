@@ -4000,7 +4000,7 @@ var
       'w': result^.area.width   := MyStrToInt(data, false);
       'h': result^.area.height  := MyStrToInt(data, false);
       'b': begin
-             LoadBitmap(Trim(data)); 
+             LoadBitmap(Trim(data));
              result^.panelBitmap := BitmapNamed(Trim(data));
            end;
       'a': begin
@@ -4026,6 +4026,7 @@ var
   var
     i: Longint;
   begin
+    
     SetLength(result^.regions, Length(regionDataArr));
     
     for i := Low(regionDataArr) to High(regionDataArr) do

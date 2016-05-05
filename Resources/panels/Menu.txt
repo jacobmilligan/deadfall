@@ -6,11 +6,17 @@
 // Load Fonts for labels before creating panels.
 
 // Panel data:
-x: 300
-y: 300
-w: 32
-h: 10
+x: 100
+y: 50
+w: 650
+h: 500
 d: false
-b: UIBlue.png
-a: UIBlue.png
-i: UIBlue.png
+v: true
+
+// Region data
+// Format: r: x, y, w, h, kind, name
+r: 50, 50, 550, 100, Button, InventoryBtn
+r: 50, 85, 550, 50, Label, InventoryLabel, PrStart, c, Inventory
+
+r: 50, 200, 550, 100, Button, ContinueBtn
+r: 50, 240, 550, 50, Label, ContinueLabel, PrStart, c, Continue

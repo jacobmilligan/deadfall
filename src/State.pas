@@ -51,8 +51,12 @@ interface
 			map: MapData;
 		end;
 		
+		StatePtr = ^ActiveState;
+		
 		//	Active states. States can be layered, i.e. Menu can go over the top of Level
 		StateArray = array of ActiveState;
+		
+		StateArrayPtr = ^StateArray;
 
 	procedure StateChange(var states: StateArray; newState: GameState);
 

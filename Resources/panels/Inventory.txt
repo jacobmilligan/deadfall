@@ -1,0 +1,16 @@
+// Panel Version: 1
+
+// Load bitmaps for the panel 
+// b: name,filename
+// b:main_menu_bmp,main_menu.png
+// Load Fonts for labels before creating panels.
+
+// Panel data:
+x: 100
+y: 50
+w: 650
+h: 500
+d: false
+v: true
+
+r: 100, 50, 600, 450, List, InventoryList, 3, 0, 0, PrStart, 16, 16
