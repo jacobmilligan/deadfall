@@ -84,22 +84,29 @@ implementation
 		if newState = TitleState then
 		begin
 			TitleInit(newActiveState);
+			
+			SetLength(core^.states, 1);
+			core^.states[High(core^.states)] := newActiveState;
 		end
 		else if newState = LevelState then
 		begin
 			LevelInit(newActiveState);
+			
+			SetLength(core^.states, 1);
+			core^.states[High(core^.states)] := newActiveState;
 		end
 		else if newState = MenuState then
 		begin
 			MenuInit(newActiveState);
+			
+			SetLength(core^.states, Length(core^.states) + 1);
+			core^.states[High(core^.states)] := newActiveState;
 		end
 		else
 		begin
 			WriteLn('Invalid state');			
 		end;
 		
-		SetLength(core^.states, Length(core^.states) + 1);
-		core^.states[High(core^.states)] := newActiveState;
 	end;
 
 
