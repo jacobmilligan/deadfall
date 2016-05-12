@@ -106,6 +106,13 @@ implementation
 		newState.map.player.hp := 100;
 		newState.map.player.attackTimeout := 0;
 		SetLength(newState.map.inventory, 0);
+		
+		for i := 0 to 100 do
+		begin
+			AddToInventory(newState.map.inventory, Food, 'Test Food');
+		end;
+		
+		
 
 		// Setup player sprite and animation
 		newState.map.player.sprite := CreateSprite('player', BitmapNamed('eng'), AnimationScriptNamed('player'));

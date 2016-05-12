@@ -2,10 +2,11 @@ BITMAP,eng,Engineer.png,28,28,4,4,16
 BITMAP,bunny,bunny.png,28,28,4,4,16
 BITMAP,ui_blue,UIBlue.png
 BITMAP,ui_red,UIRed.png
+BITMAP,hidden,hidden.png
 
 FONT,PrStart,PrStart.ttf,20
+FONT,PrStartSmall,PrStart.ttf,12
 
 ANIM,player,playerAnim.txt
 
-PANEL,menu,menu.txt
 PANEL,inventory,Inventory.txt

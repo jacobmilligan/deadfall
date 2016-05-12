@@ -6,11 +6,11 @@
 // Load Fonts for labels before creating panels.
 
 // Panel data:
-x: 100
-y: 50
-w: 650
-h: 500
+x: 122
+y: 71
+w: 555
+h: 460
 d: false
 v: true
 
-r: 0, 0, 650, 500, List, InventoryList, 3, 1, -1, PrStart, 16, 16, v
+r: 0, 0, 555, 500, List, InventoryList, 1, 1, -1, PrStartSmall, 16, 16, v

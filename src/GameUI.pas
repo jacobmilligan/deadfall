@@ -11,6 +11,7 @@ interface
 			x: Single;
 			y: Single;
 			id: String;
+			setFont: Font;
 		end;
 		
 		type UICollection = array of UIElement;
@@ -29,7 +30,7 @@ interface
 	
 	procedure InitUI(var newUI: UI; numElements: Integer);
 	
-	function CreateUIElement(inactiveBmp, activeBmp: Bitmap; x, y: Single; id: String = ''): UIElement;
+	function CreateUIElement(inactiveBmp, activeBmp: Bitmap; x, y: Single; id: String = ''; setFont: String = 'PrStart'): UIElement;
 	
 	procedure UpdateUI(var currentUI: UI);
 	
@@ -52,7 +53,7 @@ implementation
 		newUI.changeTimeOut := 0;
 	end;
 
-	function CreateUIElement(inactiveBmp, activeBmp: Bitmap; x, y: Single; id: String = ''): UIElement;
+	function CreateUIElement(inactiveBmp, activeBmp: Bitmap; x, y: Single; id: String = ''; setFont: String = 'PrStart'): UIElement;
 	begin
 		result.inactiveBmp := inactiveBmp;
 		result.activeBmp := activeBmp;
@@ -60,6 +61,7 @@ implementation
 		result.x := x;
 		result.y := y;
 		result.id := id;
+		result.setFont := FontNamed(setFont);
 	end;
 	
 	function FindUIElement(var currentUI: UI; id: String): Integer;
@@ -130,6 +132,7 @@ implementation
 		begin
 			currentUI.changeTimeOut := 0;
 		end;
+		
 	end;
 
 	procedure DrawUI(var currentUI: UI);
@@ -148,12 +151,12 @@ implementation
 			DrawBitmap(currentUI.items[i].currentBmp, CameraX() + currentUI.items[i].x, CameraY() + currentUI.items[i].y);
 			
 			itemCenterX := currentUI.items[i].x + (BitmapWidth(currentUI.items[i].currentBmp) / 2);
-			itemCenterX := itemCenterX - ( TextWidth(FontNamed('PrStart'), currentUI.items[i].id) / 2 );
+			itemCenterX := itemCenterX - ( TextWidth(currentUI.items[i].setFont, currentUI.items[i].id) / 2 );
 			
 			itemCenterY := currentUI.items[i].y + (BitmapHeight(currentUI.items[i].currentBmp) / 2);
-			itemCenterY := itemCenterY - ( TextHeight(FontNamed('PrStart'), currentUI.items[i].id) / 2 );
+			itemCenterY := itemCenterY - ( TextHeight(currentUI.items[i].setFont, currentUI.items[i].id) / 2 );
 			
-			DrawText(currentUI.items[i].id, ColorBlack, FontNamed('PrStart'), CameraX() + itemCenterX, CameraY() + itemCenterY); 
+			DrawText(currentUI.items[i].id, ColorBlack, currentUI.items[i].setFont, CameraX() + itemCenterX, CameraY() + itemCenterY); 
 		end;
 			
 	end;

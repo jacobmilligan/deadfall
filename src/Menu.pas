@@ -14,6 +14,9 @@ unit Menu;
 interface
 	uses State, Game, Input;
 	
+	type
+		DynamicStringArray = array of String;
+	
 	procedure MenuInit(var newState: ActiveState);
 
 	procedure MenuHandleInput(var thisState: ActiveState; var inputs: InputMap);
@@ -23,7 +26,7 @@ interface
 	procedure MenuDraw(var thisState: ActiveState);
 
 implementation
-	uses SwinGame, Map, GameUI, typinfo;
+	uses SwinGame, Map, GameUI, SysUtils, typinfo;
 	
 	function GetState(manager: StateArrayPtr; stateIndex: Integer): StatePtr;
 	begin
@@ -31,18 +34,70 @@ implementation
 		result := @manager^[stateIndex];
 	end;
 	
-	function CreateInventoryUI(): UI;
+	function ItemIndex(var itemNames: DynamicStringArray; name: String): Integer;
 	var
-		horizontalCenter: Single;
-		newUI: UI;
+		i: Integer;
 	begin
-		horizontalCenter := ( ScreenWidth() - BitmapWidth(BitmapNamed('ui_blue')) ) / 2;		
+		result := -1;
+		for i := 0 to High(itemNames) do
+		begin
+			if itemNames[i] = name then
+			begin
+				result := i;
+				break;
+			end;
+		end;
+	end;
+	
+	function CreateInventoryUI(constref inventory: InventoryCollection): UI;
+	var
+		newUI: UI;
+		currItemIndex, i: Integer;
+		itemNames: DynamicStringArray;
+		itemAmts: array of Integer;
+		itemStr: String;
+	begin
 		
-		InitUI(newUI, 1);
-		newUI.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 500, 'List');
+		SetLength(itemNames, 0);
+		SetLength(itemAmts, 0);
 		
+		for i := 0 to High(inventory) do
+		begin
+			currItemIndex := ItemIndex(itemNames, inventory[i].name); 
+			if currItemIndex < 0 then
+			begin
+				SetLength(itemNames, Length(itemNames) + 1);
+				SetLength(itemAmts, Length(itemAmts) + 1);
+				itemNames[High(itemNames)] := inventory[i].name;
+				itemAmts[High(itemAmts)] := 1;
+			end
+			else
+			begin
+				itemAmts[currItemIndex] += 1;
+			end;
+		end;
+			
+			
+		if Length(itemNames) < 0 then
+		begin
+			newUI.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_blue'), 100, 50,  'No Items', 'PrStartSmall');
+		end
+		else
+		begin
+			InitUI(newUI, Length(itemNames));		
+
+			for i := 0 to High(newUI.items) do
+			begin
+				itemStr := itemNames[i] + ': ' + IntToStr(itemAmts[i]);
+				newUI.items[i] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_blue'), 100, (50 + (50 * i)), itemStr, 'PrStartSmall');			
+			end;
+		end;
+		
+		SetLength(newUI.items, Length(newUI.items) + 1);
+		newUI.items[High(newUI.items)] := CreateUIElement(BitmapNamed('hidden'), BitmapNamed('hidden'), -100, 50,  'Inventory List', 'PrStartSmall');
+			
+		result.currentItem := High(newUI.items);
 		result.items := newUI.items;
-		result.currentItem := 0;
 	end;
 	
 	function CreateMenuUI(): UI;
@@ -57,8 +112,8 @@ implementation
 		newUI.items[1] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 250, 'Settings');
 		newUI.items[2] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 400, 'Exit');
 		
-		result.items := newUI.items;
 		result.currentItem := 0;
+		result.items := newUI.items;
 	end;
 	
 	procedure MenuInit(var newState: ActiveState);
@@ -71,30 +126,40 @@ implementation
 
 	procedure MenuHandleInput(var thisState: ActiveState; var inputs: InputMap);
 	var
-		i: Integer;
 		lastLevelState: StatePtr;
 	begin
 		lastLevelState := GetState(thisState.manager, 1);
 		
-		if KeyDown(inputs.MoveUp) then 
+		if UISelectedID(thisState.displayedUI) = 'Inventory List' then
 		begin
-			ChangeElement(thisState.displayedUI, UI_PREV);
-		end
-		else if KeyDown(inputs.MoveDown) then 
-		begin
-			ChangeElement(thisState.displayedUI, UI_NEXT);
-		end
-		else if KeyDown(inputs.Select) then
-		begin
-			if UISelectedID(thisState.displayedUI) = 'Exit' then
+			if KeyDown(inputs.Menu) then
 			begin
-				StateChange(thisState.manager^, QuitState);
+				thisState.displayedUI := CreateMenuUI();
+			end;
+		end
+		else
+		begin
+			if KeyDown(inputs.MoveUp) then 
+			begin
+				ChangeElement(thisState.displayedUI, UI_PREV);
 			end
-			else if UISelectedID(thisState.displayedUI) = 'Inventory' then
+			else if KeyDown(inputs.MoveDown) then 
 			begin
-				thisState.displayedUI := CreateInventoryUI();
+				ChangeElement(thisState.displayedUI, UI_NEXT);
+			end
+			else if KeyDown(inputs.Select) then
+			begin
+				if UISelectedID(thisState.displayedUI) = 'Exit' then
+				begin
+					StateChange(thisState.manager^, QuitState);
+				end
+				else if UISelectedID(thisState.displayedUI) = 'Inventory' then
+				begin
+					thisState.displayedUI := CreateInventoryUI(lastLevelState^.map.inventory);
+				end;
 			end;
 		end;
+		
 	end;
 
 	procedure MenuUpdate(var thisState: ActiveState);
@@ -105,6 +170,7 @@ implementation
 	procedure MenuDraw(var thisState: ActiveState);
 	var
 		lastLevelState: StatePtr;
+		i: Integer;
 	begin
 		lastLevelState := GetState(thisState.manager, 1);
 
