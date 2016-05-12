@@ -30,6 +30,10 @@ interface
 	// as well, delegating responsibility for drawing state-local objects (sprites, shapes etc.)
 	//
 	procedure GameDraw(var states: StateArray);
+	
+	procedure RequestQuit(var states: StateArray);
+	
+	procedure QuitGame(var states: StateArray);
 
 	//
 	// Loads all resources needed by the game
@@ -77,22 +81,40 @@ implementation
 
 		ProcessEvents();
 		
-		// Current state handles input
-		states[High(states)].HandleInput(states[High(states)], inputs);
+		if Length(states) > 0 then
+		begin
+			// Current state handles input
+			states[High(states)].HandleInput(states[High(states)], inputs);
 
-		// Current state updates the game
-		states[High(states)].Update(states[High(states)]);
+			// Current state updates the game
+			states[High(states)].Update(states[High(states)]);
+		end;
 
 	end;
 
 	procedure GameDraw(var states: StateArray);
 	begin
-		ClearScreen(ColorBlack);
-		
-		// Current state draws itself to the window
-		states[High(states)].Draw(states[High(states)]);
-		
-		RefreshScreen(60);
+		if Length(states) > 0 then
+		begin
+			ClearScreen(ColorBlack);
+			
+			// Current state draws itself to the window
+			states[High(states)].Draw(states[High(states)]);
+			
+			RefreshScreen(60);
+		end;
+	end;
+	
+	procedure RequestQuit(var states: StateArray);
+	begin
+		states[High(states)].quitRequested := true;
+	end;
+	
+	procedure QuitGame(var states: StateArray);
+	var
+		i, j: Integer;
+	begin
+		ReleaseAllResources();
 	end;
 
 end.

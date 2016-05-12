@@ -38,6 +38,7 @@ interface
 			category: FeatureType;
 			hungerPlus: Integer;
 			dollarValue: Double;
+			name: String;
 		end;
 		
 		InventoryCollection = array of Item;
@@ -61,7 +62,7 @@ interface
 			//	level.
 			//
 			elevation: Double;
-			
+
 			// tiles base bitmap
 			bmp: Bitmap;
 		end;
@@ -138,7 +139,7 @@ interface
 	//
 	function CreateTileView(): TileView;
 	
-	procedure AddToInventory(var inventory: InventoryCollection; feature: FeatureType);
+	procedure AddToInventory(var inventory: InventoryCollection; feature: FeatureType; name: String);
 
 implementation
 	uses SwinGame, Game, Math;
@@ -146,11 +147,12 @@ implementation
 	const
 		TILESIZE = 32;
 		
-	procedure AddToInventory(var inventory: InventoryCollection; feature: FeatureType);
+	procedure AddToInventory(var inventory: InventoryCollection; feature: FeatureType; name: String);
 	var
 		newItem: Item;
 	begin
 		newItem.category := feature;
+		newItem.name := name;
 					
 		if feature = Food then
 		begin
@@ -637,7 +639,7 @@ implementation
 					end;
 					if not OutOfBounds(map.tiles, i, j) and (map.tiles[i, j].feature = Food) then
 					begin
-						AddToInventory(map.inventory, map.tiles[i, j].feature);
+						AddToInventory(map.inventory, map.tiles[i, j].feature, 'Rabbit leg');
 						map.tiles[i, j].feature := None;
 					end;
 				end;

@@ -12,9 +12,9 @@
 unit State;
 
 interface
-	uses sgTypes, Map, Input;
-
-	type
+	uses sgTypes, Map, Input, GameUI;
+	
+	type		
 		//
 		//	All possible gamestates are set as an enum, used in choosing
 		//	which state to switch to
@@ -49,6 +49,11 @@ interface
 			//	Represents the current map containing tile and entity information
 			//
 			map: MapData;
+			
+			displayedUI: UI;
+			
+			quitRequested: Boolean;
+			
 		end;
 		
 		StatePtr = ^ActiveState;
@@ -59,10 +64,17 @@ interface
 		StateArrayPtr = ^StateArray;
 
 	procedure StateChange(var states: StateArray; newState: GameState);
-
+	
+	function GetState(manager: StateArrayPtr; stateIndex: Integer): StatePtr;
 
 implementation
-	uses Title, Level, Menu;
+	uses Title, Level, Menu, Game;
+	
+	function GetState(manager: StateArrayPtr; stateIndex: Integer): StatePtr;
+	begin
+		stateIndex := High(manager^) - stateIndex;
+		result := @manager^[stateIndex];
+	end;
 	
 	procedure StateChange(var states: StateArray; newState: GameState);
 	var
@@ -71,6 +83,7 @@ implementation
 		
 		newActiveState.stateName := newState;
 		newActiveState.manager := @states;
+		newActiveState.quitRequested := false;
 				
 		if newState = TitleState then
 		begin
@@ -100,6 +113,10 @@ implementation
 			
 			SetLength(states, Length(states) + 1);
 			states[High(states)] := newActiveState;
+		end
+		else if newState = QuitState then
+		begin
+			RequestQuit(states);
 		end
 		else
 		begin

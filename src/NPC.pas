@@ -224,7 +224,7 @@ implementation
                 end
                 else
                 begin
-                    AddToInventory(map.inventory, Food);
+                    AddToInventory(map.inventory, Food, 'Rabbit leg');
                 end;
             end;
         end;        

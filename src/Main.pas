@@ -22,11 +22,13 @@ begin
 	GameInit('Deadfall', 800, 600, states);
 	SetDefaultInput(inputs);
 
-	while not WindowCloseRequested() do
+	while ( not WindowCloseRequested() ) and ( not states[High(states)].quitRequested ) do
 	begin
 		GameUpdate(states, inputs);
 		GameDraw(states);
 	end;
+	
+	QuitGame(states);
 end;
 
 begin

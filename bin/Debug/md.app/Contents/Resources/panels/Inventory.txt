@@ -13,4 +13,4 @@ h: 500
 d: false
 v: true
 
-r: 100, 50, 600, 450, List, InventoryList, 3, 0, 0, PrStart, 16, 16
+r: 0, 0, 650, 500, List, InventoryList, 3, 1, -1, PrStart, 16, 16, v
