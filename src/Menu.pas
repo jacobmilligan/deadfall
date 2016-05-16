@@ -7,16 +7,16 @@
 //  Created By Jacob Milligan
 //  On 05/05/2016
 //  Student ID: 100660682
-//  
+//
 
 unit Menu;
 
 interface
 	uses State, Game, Input;
-	
+
 	type
 		DynamicStringArray = array of String;
-	
+
 	procedure MenuInit(var newState: ActiveState);
 
 	procedure MenuHandleInput(var thisState: ActiveState; var inputs: InputMap);
@@ -27,13 +27,13 @@ interface
 
 implementation
 	uses SwinGame, Map, GameUI, SysUtils, typinfo;
-	
+
 	function GetState(manager: StateArrayPtr; stateIndex: Integer): StatePtr;
 	begin
 		stateIndex := High(manager^) - stateIndex;
 		result := @manager^[stateIndex];
 	end;
-	
+
 	function ItemIndex(var itemNames: DynamicStringArray; name: String): Integer;
 	var
 		i: Integer;
@@ -48,22 +48,22 @@ implementation
 			end;
 		end;
 	end;
-	
+
 	function CreateInventoryUI(constref inventory: InventoryCollection): UI;
 	var
-		newUI: UI;
 		currItemIndex, i: Integer;
 		itemNames: DynamicStringArray;
 		itemAmts: array of Integer;
 		itemStr: String;
 	begin
-		
+
 		SetLength(itemNames, 0);
 		SetLength(itemAmts, 0);
-		
+
 		for i := 0 to High(inventory) do
 		begin
-			currItemIndex := ItemIndex(itemNames, inventory[i].name); 
+			currItemIndex := ItemIndex(itemNames, inventory[i].name);
+
 			if currItemIndex < 0 then
 			begin
 				SetLength(itemNames, Length(itemNames) + 1);
@@ -75,47 +75,43 @@ implementation
 			begin
 				itemAmts[currItemIndex] += 1;
 			end;
+
 		end;
-			
-			
+
 		if Length(itemNames) < 0 then
 		begin
-			newUI.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_blue'), 100, 50,  'No Items', 'PrStartSmall');
+			result.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_blue'), 100, 50,  'No Items', 'PrStartSmall');
 		end
 		else
 		begin
-			InitUI(newUI, Length(itemNames));		
+			InitUI(result, Length(itemNames));
 
-			for i := 0 to High(newUI.items) do
+			for i := 0 to High(result.items) do
 			begin
 				itemStr := itemNames[i] + ': ' + IntToStr(itemAmts[i]);
-				newUI.items[i] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_blue'), 100, (50 + (50 * i)), itemStr, 'PrStartSmall');			
+				result.items[i] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_blue'), 100, (50 + (50 * i)), itemStr, 'PrStartSmall');
 			end;
 		end;
-		
-		SetLength(newUI.items, Length(newUI.items) + 1);
-		newUI.items[High(newUI.items)] := CreateUIElement(BitmapNamed('hidden'), BitmapNamed('hidden'), -100, 50,  'Inventory List', 'PrStartSmall');
-			
-		result.currentItem := High(newUI.items);
-		result.items := newUI.items;
+
+		SetLength(result.items, Length(result.items) + 1);
+		result.items[High(result.items)] := CreateUIElement(BitmapNamed('hidden'), BitmapNamed('hidden'), -100, 50,  'Inventory List', 'PrStartSmall');
+
+		result.currentItem := High(result.items);
 	end;
-	
+
 	function CreateMenuUI(): UI;
 	var
 		horizontalCenter: Single;
-		newUI: UI;
 	begin
-		horizontalCenter := ( ScreenWidth() - BitmapWidth(BitmapNamed('ui_blue')) ) / 2;		
-		
-		InitUI(newUI, 3);
-		newUI.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 100, 'Inventory');
-		newUI.items[1] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 250, 'Settings');
-		newUI.items[2] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 400, 'Exit');
-		
+		horizontalCenter := ( ScreenWidth() - BitmapWidth(BitmapNamed('ui_blue')) ) / 2;
+
+		InitUI(result, 3);
+		result.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 100, 'Inventory');
+		result.items[1] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 250, 'Settings');
+		result.items[2] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 400, 'Exit');
 		result.currentItem := 0;
-		result.items := newUI.items;
 	end;
-	
+
 	procedure MenuInit(var newState: ActiveState);
 	begin
 		newState.HandleInput := @MenuHandleInput;
@@ -127,27 +123,34 @@ implementation
 	procedure MenuHandleInput(var thisState: ActiveState; var inputs: InputMap);
 	var
 		lastLevelState: StatePtr;
+		// For some reason the game crashes if I remove this redundant variable declaration
+		newUI: UI;
 	begin
 		lastLevelState := GetState(thisState.manager, 1);
-		
+
 		if UISelectedID(thisState.displayedUI) = 'Inventory List' then
 		begin
-			if KeyDown(inputs.Menu) then
+			if KeyTyped(inputs.Menu) then
 			begin
 				thisState.displayedUI := CreateMenuUI();
 			end;
 		end
 		else
 		begin
-			if KeyDown(inputs.MoveUp) then 
+
+			if KeyTyped(inputs.MoveUp) then
 			begin
 				ChangeElement(thisState.displayedUI, UI_PREV);
 			end
-			else if KeyDown(inputs.MoveDown) then 
+			else if KeyTyped(inputs.MoveDown) then
 			begin
 				ChangeElement(thisState.displayedUI, UI_NEXT);
 			end
-			else if KeyDown(inputs.Select) then
+			else if KeyTyped(inputs.Menu) then
+			begin
+				StateChange(thisState.manager^, LevelState);
+			end
+			else if KeyTyped(inputs.Select) then
 			begin
 				if UISelectedID(thisState.displayedUI) = 'Exit' then
 				begin
@@ -158,13 +161,14 @@ implementation
 					thisState.displayedUI := CreateInventoryUI(lastLevelState^.map.inventory);
 				end;
 			end;
+
 		end;
-		
+
 	end;
 
 	procedure MenuUpdate(var thisState: ActiveState);
 	begin
-		UpdateUI(thisState.displayedUI);		
+		UpdateUI(thisState.displayedUI);
 	end;
 
 	procedure MenuDraw(var thisState: ActiveState);
@@ -174,7 +178,7 @@ implementation
 	begin
 		lastLevelState := GetState(thisState.manager, 1);
 
-		lastLevelState^.Draw(lastLevelState^);		
+		lastLevelState^.Draw(lastLevelState^);
 		DrawUI(thisState.displayedUI);
 	end;
 
