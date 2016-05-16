@@ -1,7 +1,7 @@
 unit GameUI;
 
 interface
-	uses Swingame;
+	uses Swingame, Map;
 
     type
 		UIElement = record
@@ -12,11 +12,13 @@ interface
 			y: Single;
 			id: String;
 			setFont: Font;
+			attachedInventory: Item;
 		end;
 
 		type UICollection = array of UIElement;
 
 		UI = record
+			name: String;
 			items: UICollection;
 			currentItem: Integer;
 			previousItem: Integer;

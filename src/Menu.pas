@@ -80,7 +80,7 @@ implementation
 
 		if Length(itemNames) < 0 then
 		begin
-			result.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_blue'), 100, 50,  'No Items', 'PrStartSmall');
+			result.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), 100, 50,  'No Items', 'PrStartSmall');
 		end
 		else
 		begin
@@ -89,14 +89,12 @@ implementation
 			for i := 0 to High(result.items) do
 			begin
 				itemStr := itemNames[i] + ': ' + IntToStr(itemAmts[i]);
-				result.items[i] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_blue'), 100, (50 + (50 * i)), itemStr, 'PrStartSmall');
+				result.items[i] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), 100, (50 + (50 * i)), itemStr, 'PrStartSmall');
 			end;
 		end;
 
-		SetLength(result.items, Length(result.items) + 1);
-		result.items[High(result.items)] := CreateUIElement(BitmapNamed('hidden'), BitmapNamed('hidden'), -100, 50,  'Inventory List', 'PrStartSmall');
-
 		result.currentItem := High(result.items);
+		result.name := 'Inventory';
 	end;
 
 	function CreateMenuUI(): UI;
@@ -110,6 +108,7 @@ implementation
 		result.items[1] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 250, 'Settings');
 		result.items[2] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 400, 'Exit');
 		result.currentItem := 0;
+		result.name := 'Main Menu';
 	end;
 
 	procedure MenuInit(var newState: ActiveState);
@@ -123,16 +122,27 @@ implementation
 	procedure MenuHandleInput(var thisState: ActiveState; var inputs: InputMap);
 	var
 		lastLevelState: StatePtr;
-		// For some reason the game crashes if I remove this redundant variable declaration
+		//
+		//	For some reason the game crashes if I remove
+		//	this redundant variable declaration for a new UI record
+		//
 		newUI: UI;
 	begin
 		lastLevelState := GetState(thisState.manager, 1);
 
-		if UISelectedID(thisState.displayedUI) = 'Inventory List' then
+		if thisState.displayedUI.name = 'Inventory' then
 		begin
 			if KeyTyped(inputs.Menu) then
 			begin
 				thisState.displayedUI := CreateMenuUI();
+			end
+			else if KeyTyped(inputs.Select) then
+			begin
+				lastLevelState^.map.player.hunger += 1;
+				if lastLevelState^.map.player.hunger > 100 then
+				begin
+					lastLevelState^.map.player.hunger := 100;
+				end;
 			end;
 		end
 		else
@@ -152,6 +162,7 @@ implementation
 			end
 			else if KeyTyped(inputs.Select) then
 			begin
+
 				if UISelectedID(thisState.displayedUI) = 'Exit' then
 				begin
 					StateChange(thisState.manager^, QuitState);
@@ -160,6 +171,7 @@ implementation
 				begin
 					thisState.displayedUI := CreateInventoryUI(lastLevelState^.map.inventory);
 				end;
+
 			end;
 
 		end;

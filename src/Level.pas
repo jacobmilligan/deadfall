@@ -105,6 +105,7 @@ implementation
 
 		// Setup player stats
 		newState.map.player.hp := 100;
+		newState.map.player.hunger := 100;
 		newState.map.player.attackTimeout := 0;
 		SetLength(newState.map.inventory, 0);
 
@@ -198,6 +199,21 @@ implementation
 		UpdateSpawns(thisState.map);
 		UpdateNPCS(thisState.map);
 		UpdateSprite(thisState.map.player.sprite);
+
+		thisState.map.player.hunger -= 0.01;
+		if thisState.map.player.hunger < 0 then
+		begin
+			thisState.map.player.hunger := 0;
+			WriteLn('Dead');
+		end;
+
+	end;
+
+	procedure DrawHUD(var player: Entity);
+	begin
+		// Handle health, hunger, and money UI elements
+		DrawBitmap(BitmapNamed('empty bar'), CameraX() + 10, CameraY() + 10);
+		FillRectangle(RGBAColor(224, 51, 51, 150), CameraX() + 15, CameraY() + 15, Round(player.hunger * 2) - 8, 23);
 	end;
 
 	procedure LevelDraw(var thisState: ActiveState);
@@ -234,13 +250,11 @@ implementation
 		DrawSprite(thisState.map.player.sprite);
 
 		for x := 0 to High(thisState.map.npcs) do
-        begin
-            DrawSprite(thisState.map.npcs[x].sprite);
-        end;
+    begin
+        DrawSprite(thisState.map.npcs[x].sprite);
+    end;
 
-		// Handle health, hunger, and money UI elements
-		DrawBitmap(BitmapNamed('empty bar'), CameraX() + 10, CameraY() + 10);
-		FillRectangle(RGBAColor(224, 51, 51, 150), CameraX() + 15, CameraY() + 15, Round(thisState.map.player.hp * 2) - 8, 23);
+		DrawHUD(thisState.map.player);
 	end;
 
 end.
