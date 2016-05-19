@@ -52,10 +52,6 @@ implementation
 
 		newState.displayedUI := CreateTitleUI();
 
-		LoadMusicNamed('baws', 'baws.wav');
-		LoadSoundEffectNamed('select', 'select.wav');
-		LoadSoundEffectNamed('click', 'click.wav');
-		LoadSoundEffectNamed('confirm', 'confirm.wav');
 		SetMusicVolume(1);
 		PlayMusic(MusicNamed('baws'));
 	end;

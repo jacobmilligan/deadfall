@@ -204,7 +204,7 @@ implementation
 				PlaySoundEffect(SoundEffectNamed('confirm'), 0.2);
 				if UISelectedID(thisState.displayedUI) = 'Exit' then
 				begin
-					StateChange(thisState.manager^, QuitState);
+					StateChange(thisState.manager^, TitleState);
 				end
 				else if UISelectedID(thisState.displayedUI) = 'Inventory' then
 				begin

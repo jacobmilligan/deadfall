@@ -3,7 +3,6 @@ BITMAP,bunny,bunny.png,28,28,4,4,16
 BITMAP,ui_blue,UIBlue.png
 BITMAP,ui_red,UIRed.png
 BITMAP,hidden,hidden.png
-BITMAP,title_back,title_back.jpg
 
 FONT,PrStart,PrStart.ttf,20
 FONT,PrStartSmall,PrStart.ttf,12
