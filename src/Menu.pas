@@ -92,7 +92,7 @@ implementation
 		result.items[1].attachedInventory := @inventory.bandage;
 
 		itemStr := inventory.trinket.name + ': ' + IntToStr(inventory.trinket.count);
-		result.items[2] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), 100, (50 + (50 * 3)), itemStr, 'PrStartSmall');
+		result.items[2] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), 100, (50 + (50 * 4)), itemStr, 'PrStartSmall');
 		result.items[2].attachedInventory := @inventory.trinket;
 
 		result.currentItem := 0;

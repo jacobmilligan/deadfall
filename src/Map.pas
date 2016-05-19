@@ -419,8 +419,6 @@ implementation
 	var
 		x, y: Integer;
 	begin
-		LoadResources();
-
 		for x := 0 to High(map.tiles) do
 		begin
 			for y := 0 to High(map.tiles) do
@@ -716,7 +714,7 @@ implementation
 			DrawText('Finalizing Map', ColorWhite, 300, 200);
 			RefreshScreen(60);
 
-			{mapBmp := CreateBitmap(size, size);
+			mapBmp := CreateBitmap(size, size);
 			opts.dest := mapBmp;
 
 			for x := 0 to High(newMap.tiles) do
@@ -740,7 +738,7 @@ implementation
 					DrawPixel(clr, x, y, opts);
 				end;
 			end;
-			SaveBitmap(mapBmp, 'new_map.png');}
+			SaveBitmap(mapBmp, 'new_map.png');
 		end
 		else
 		begin

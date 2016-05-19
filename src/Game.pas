@@ -7,7 +7,7 @@
 //  Created By Jacob Milligan
 //  On 21/04/2016
 //  Student ID: 100660682
-//  
+//
 
 unit Game;
 
@@ -30,9 +30,9 @@ interface
 	// as well, delegating responsibility for drawing state-local objects (sprites, shapes etc.)
 	//
 	procedure GameDraw(var states: StateArray);
-	
+
 	procedure RequestQuit(var states: StateArray);
-	
+
 	procedure QuitGame(var states: StateArray);
 
 	//
@@ -71,16 +71,18 @@ implementation
 	procedure GameInit(caption: String; width, height: Integer; var states: StateArray);
 	begin
 		OpenGraphicsWindow(caption, width, height);
-		
+
+		LoadResources();
+
 		SetLength(states, 0);
-		StateChange(states, LevelState);
+		StateChange(states, TitleState);
 	end;
 
 	procedure GameUpdate(var states: StateArray; var inputs: InputMap);
 	begin
 
 		ProcessEvents();
-		
+
 		if Length(states) > 0 then
 		begin
 			// Current state handles input
@@ -97,19 +99,19 @@ implementation
 		if Length(states) > 0 then
 		begin
 			ClearScreen(ColorBlack);
-			
+
 			// Current state draws itself to the window
 			states[High(states)].Draw(states[High(states)]);
-			
+
 			RefreshScreen(60);
 		end;
 	end;
-	
+
 	procedure RequestQuit(var states: StateArray);
 	begin
 		states[High(states)].quitRequested := true;
 	end;
-	
+
 	procedure QuitGame(var states: StateArray);
 	var
 		i, j: Integer;
