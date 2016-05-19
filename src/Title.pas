@@ -96,9 +96,9 @@ implementation
 		titleWidth := TextWidth(FontNamed('Vermin'), titleTxt) / 2;
 		horizontalCenter := ScreenWidth() / 2;
 
-		DrawBitmap(BitmapNamed('title_back'), 0, 0);
+		DrawBitmap(BitmapNamed('title_back'), CameraX(), CameraY());
 		DrawUI(thisState.displayedUI);
-		DrawText(titleTxt, ColorYellow, FontNamed('Vermin'), horizontalCenter - titleWidth, 10);
+		DrawText(titleTxt, ColorYellow, FontNamed('Vermin'), CameraX() + (horizontalCenter - titleWidth), CameraY() + 10);
 	end;
 
 end.
