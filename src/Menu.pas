@@ -75,51 +75,28 @@ implementation
 	//	Creates the inventory UI elements and returns it to replace the currently
 	//	displayed UI on the menu state
 	//
-	function CreateInventoryUI(constref inventory: InventoryCollection): UI;
+	function CreateInventoryUI(constref inventory: InventoryTemp): UI;
+	const
+		UI_SIZE = 3;
 	var
-		currItemIndex, i: Integer;
-		itemNames: DynamicStringArray;
-		itemAmts: array of Integer;
 		itemStr: String;
 	begin
+		InitUI(result, inventory.numItems);
 
-		SetLength(itemNames, 0);
-		SetLength(itemAmts, 0);
+		itemStr := inventory.rabbitLeg.name + ': ' + IntToStr(inventory.rabbitLeg.count);
+		result.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), 100, (50 + (50 * 0)), itemStr, 'PrStartSmall');
+		result.items[0].attachedInventory := @inventory.rabbitLeg;
 
-		for i := 0 to High(inventory) do
-		begin
-			currItemIndex := ItemIndex(itemNames, inventory[i].name);
+		itemStr := inventory.bandage.name + ': ' + IntToStr(inventory.bandage.count);
+		result.items[1] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), 100, (50 + (50 * 2)), itemStr, 'PrStartSmall');
+		result.items[1].attachedInventory := @inventory.bandage;
 
-			if currItemIndex < 0 then
-			begin
-				SetLength(itemNames, Length(itemNames) + 1);
-				SetLength(itemAmts, Length(itemAmts) + 1);
-				itemNames[High(itemNames)] := inventory[i].name;
-				itemAmts[High(itemAmts)] := 1;
-			end
-			else
-			begin
-				itemAmts[currItemIndex] += 1;
-			end;
+		itemStr := inventory.trinket.name + ': ' + IntToStr(inventory.trinket.count);
+		result.items[2] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), 100, (50 + (50 * 3)), itemStr, 'PrStartSmall');
+		result.items[2].attachedInventory := @inventory.trinket;
 
-		end;
-
-		if Length(itemNames) < 0 then
-		begin
-			result.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), 100, 50,  'No Items', 'PrStartSmall');
-		end
-		else
-		begin
-			InitUI(result, Length(itemNames));
-
-			for i := 0 to High(result.items) do
-			begin
-				itemStr := itemNames[i] + ': ' + IntToStr(itemAmts[i]);
-				result.items[i] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), 100, (50 + (50 * i)), itemStr, 'PrStartSmall');
-			end;
-		end;
-
-		result.currentItem := High(result.items);
+		result.currentItem := 0;
+		result.previousItem := 0;
 		result.name := 'Inventory';
 	end;
 
@@ -128,16 +105,19 @@ implementation
 	//	displayed UI on the menu state
 	//
 	function CreateMenuUI(): UI;
+	const
+		UI_SIZE = 3;
 	var
 		horizontalCenter: Single;
 	begin
 		horizontalCenter := ( ScreenWidth() - BitmapWidth(BitmapNamed('ui_blue')) ) / 2;
 
-		InitUI(result, 3);
+		InitUI(result, UI_SIZE);
 		result.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 100, 'Inventory');
 		result.items[1] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 250, 'Settings');
 		result.items[2] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 400, 'Exit');
 		result.currentItem := 0;
+		result.previousItem := 0;
 		result.name := 'Main Menu';
 	end;
 
@@ -149,14 +129,20 @@ implementation
 		newState.displayedUI := CreateMenuUI();
 	end;
 
+	procedure ReduceItemCount(var itemToReduce: UIElement);
+	begin
+		itemToReduce.attachedInventory^.count -= 1;
+		if itemToReduce.attachedInventory^.count < 0 then
+		begin
+			itemToReduce.attachedInventory^.count := 0;
+		end;
+		itemToReduce.id := itemToReduce.attachedInventory^.name + ': ' + IntToStr(itemToReduce.attachedInventory^.count);
+	end;
+
 	procedure MenuHandleInput(var thisState: ActiveState; var inputs: InputMap);
 	var
 		lastLevelState: StatePtr;
-		//
-		//	For some reason the game crashes if I remove
-		//	this redundant variable declaration for a new UI record
-		//
-		newUI: UI;
+		currItem: ^UIElement;
 	begin
 		lastLevelState := GetState(thisState.manager, 1);
 
@@ -164,15 +150,30 @@ implementation
 		begin
 			if KeyTyped(inputs.Menu) then
 			begin
+				InitUI(thisState.displayedUI, 0);
 				thisState.displayedUI := CreateMenuUI();
+			end
+			else if KeyTyped(inputs.MoveUp) then
+			begin
+				ChangeElement(thisState.displayedUI, UI_PREV);
+			end
+			else if KeyTyped(inputs.MoveDown) then
+			begin
+				ChangeElement(thisState.displayedUI, UI_NEXT);
 			end
 			else if KeyTyped(inputs.Select) then
 			begin
-				lastLevelState^.map.player.hunger += 1;
-				if lastLevelState^.map.player.hunger > 100 then
+				currItem := @thisState.displayedUI.items[thisState.displayedUI.currentItem];
+
+				if currItem^.attachedInventory^.count > 0 then
 				begin
-					lastLevelState^.map.player.hunger := 100;
+					RestoreHunger(lastLevelState^.map.player.hunger, currItem^.attachedInventory^.hungerPlus);
+					RestoreHealth(lastLevelState^.map.player.hp, currItem^.attachedInventory^.healthPlus);
+					//ListOnEbay(lastLevelState^.map.player.hunger, currItem^.attachedInventory^.hungerPlus);
+
+					ReduceItemCount(currItem^);
 				end;
+
 			end;
 		end
 		else
@@ -199,6 +200,7 @@ implementation
 				end
 				else if UISelectedID(thisState.displayedUI) = 'Inventory' then
 				begin
+					InitUI(thisState.displayedUI, 0);
 					thisState.displayedUI := CreateInventoryUI(lastLevelState^.map.inventory);
 				end;
 

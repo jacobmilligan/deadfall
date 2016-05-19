@@ -226,7 +226,7 @@ implementation
                 end
                 else
                 begin
-                    AddToInventory(map.inventory, Food, 'Rabbit leg');
+                    map.inventory.rabbitLeg.count += 1;
                 end;
             end;
         end;

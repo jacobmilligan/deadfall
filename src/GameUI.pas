@@ -12,7 +12,7 @@ interface
 			y: Single;
 			id: String;
 			setFont: Font;
-			attachedInventory: Item;
+			attachedInventory: ItemPtr;
 		end;
 
 		type UICollection = array of UIElement;
@@ -125,6 +125,7 @@ implementation
 	var
 		i: Integer;
 		itemCenterX, itemCenterY: Single;
+		textToDraw: String;
 	begin
 
 		for i := 0 to High(currentUI.items) do

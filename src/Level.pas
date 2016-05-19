@@ -107,11 +107,12 @@ implementation
 		newState.map.player.hp := 100;
 		newState.map.player.hunger := 100;
 		newState.map.player.attackTimeout := 0;
-		SetLength(newState.map.inventory, 0);
+
+		newState.map.inventory := InitInventory();
 
 		for i := 0 to 100 do
 		begin
-			AddToInventory(newState.map.inventory, Food, 'Test Food');
+			newState.map.inventory.rabbitLeg.count += 1;
 		end;
 
 
@@ -200,20 +201,32 @@ implementation
 		UpdateNPCS(thisState.map);
 		UpdateSprite(thisState.map.player.sprite);
 
-		thisState.map.player.hunger -= 0.01;
+		thisState.map.player.hunger -= 0.1;
 		if thisState.map.player.hunger < 0 then
 		begin
 			thisState.map.player.hunger := 0;
-			WriteLn('Dead');
+			thisState.map.player.hp -= 0.05;
+		end;
+
+		if thisState.map.player.hp <= 0 then
+		begin
+			StateChange(thisState.manager^, QuitState);
 		end;
 
 	end;
 
 	procedure DrawHUD(var player: Entity);
+	var
+		emptyWidth, emptyHeight: Single;
 	begin
+		emptyWidth := BitmapWidth(BitmapNamed('empty bar'));
+		emptyHeight := BitmapHeight(BitmapNamed('empty bar'));
 		// Handle health, hunger, and money UI elements
 		DrawBitmap(BitmapNamed('empty bar'), CameraX() + 10, CameraY() + 10);
-		FillRectangle(RGBAColor(224, 51, 51, 150), CameraX() + 15, CameraY() + 15, Round(player.hunger * 2) - 8, 23);
+		FillRectangle(RGBAColor(224, 51, 51, 150), CameraX() + 10, CameraY() + 10, (player.hp / 100) * emptyWidth, emptyHeight);
+
+		DrawBitmap(BitmapNamed('empty bar'), CameraX() + 10, CameraY() + 40);
+		FillRectangle(RGBAColor(99, 203, 97, 150), CameraX() + 10, CameraY() + 40, (player.hunger / 100) * emptyWidth, emptyHeight);
 	end;
 
 	procedure LevelDraw(var thisState: ActiveState);
