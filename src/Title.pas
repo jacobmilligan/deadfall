@@ -51,20 +51,30 @@ implementation
 		newState.Draw := @TitleDraw;
 
 		newState.displayedUI := CreateTitleUI();
+
+		LoadMusicNamed('baws', 'baws.wav');
+		LoadSoundEffectNamed('select', 'select.wav');
+		LoadSoundEffectNamed('click', 'click.wav');
+		LoadSoundEffectNamed('confirm', 'confirm.wav');
+		SetMusicVolume(1);
+		PlayMusic(MusicNamed('baws'));
 	end;
 
 	procedure TitleHandleInput(var thisState: ActiveState; var inputs: InputMap);
 	begin
 		if KeyTyped(inputs.MoveDown) then
 		begin
+			PlaySoundEffect(SoundEffectNamed('click'));
 			ChangeElement(thisState.displayedUI, UI_NEXT);
 		end
 		else if KeyTyped(inputs.MoveUp) then
 		begin
+			PlaySoundEffect(SoundEffectNamed('click'));
 			ChangeElement(thisState.displayedUI, UI_PREV);
 		end
 		else if KeyTyped(inputs.Select) then
 		begin
+			PlaySoundEffect(SoundEffectNamed('confirm'), 0.5);
 			case UISelectedID(thisState.displayedUI) of
 				'Quit': StateChange(thisState.manager^, QuitState);
 				'New Map': StateChange(thisState.manager^, LevelState);
@@ -81,8 +91,18 @@ implementation
 	end;
 
 	procedure TitleDraw(var thisState: ActiveState);
+	var
+		horizontalCenter: Single;
+		titleTxt: String;
+		titleWidth: Single;
 	begin
+		titleTxt := 'Deadfall';
+		titleWidth := TextWidth(FontNamed('Vermin'), titleTxt) / 2;
+		horizontalCenter := ScreenWidth() / 2;
+
+		DrawBitmap(BitmapNamed('title_back'), 0, 0);
 		DrawUI(thisState.displayedUI);
+		DrawText(titleTxt, ColorYellow, FontNamed('Vermin'), horizontalCenter - titleWidth, 10);
 	end;
 
 end.

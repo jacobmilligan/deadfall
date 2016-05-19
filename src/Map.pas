@@ -695,6 +695,10 @@ implementation
 	begin
 		if ( (size - 1) mod 2 = 0 ) then
 		begin
+			LoadMusicNamed('main', 'main.wav');
+			FadeMusicIn(MusicNamed('main'), 1000);
+			SetMusicVolume(0.5);
+
 			ClearScreen(ColorBlack);
 			DrawText('Generating Heightmap', ColorWhite, 300, 200);
 			RefreshScreen(60);

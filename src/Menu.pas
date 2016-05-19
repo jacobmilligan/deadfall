@@ -150,19 +150,23 @@ implementation
 		begin
 			if KeyTyped(inputs.Menu) then
 			begin
+				PlaySoundEffect(SoundEffectNamed('select'), 0.2);
 				InitUI(thisState.displayedUI, 0);
 				thisState.displayedUI := CreateMenuUI();
 			end
 			else if KeyTyped(inputs.MoveUp) then
 			begin
+				PlaySoundEffect(SoundEffectNamed('click'));
 				ChangeElement(thisState.displayedUI, UI_PREV);
 			end
 			else if KeyTyped(inputs.MoveDown) then
 			begin
+				PlaySoundEffect(SoundEffectNamed('click'));
 				ChangeElement(thisState.displayedUI, UI_NEXT);
 			end
 			else if KeyTyped(inputs.Select) then
 			begin
+				PlaySoundEffect(SoundEffectNamed('confirm'), 0.2);
 				currItem := @thisState.displayedUI.items[thisState.displayedUI.currentItem];
 
 				if currItem^.attachedInventory^.count > 0 then
@@ -181,19 +185,23 @@ implementation
 
 			if KeyTyped(inputs.MoveUp) then
 			begin
+				PlaySoundEffect(SoundEffectNamed('click'));
 				ChangeElement(thisState.displayedUI, UI_PREV);
 			end
 			else if KeyTyped(inputs.MoveDown) then
 			begin
+				PlaySoundEffect(SoundEffectNamed('click'));
 				ChangeElement(thisState.displayedUI, UI_NEXT);
 			end
 			else if KeyTyped(inputs.Menu) then
 			begin
+				PlaySoundEffect(SoundEffectNamed('select'), 0.2);
 				StateChange(thisState.manager^, LevelState);
 			end
 			else if KeyTyped(inputs.Select) then
 			begin
 
+				PlaySoundEffect(SoundEffectNamed('confirm'), 0.2);
 				if UISelectedID(thisState.displayedUI) = 'Exit' then
 				begin
 					StateChange(thisState.manager^, QuitState);

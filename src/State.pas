@@ -84,6 +84,10 @@ implementation
 		newActiveState.stateName := newState;
 		newActiveState.manager := @states;
 		newActiveState.quitRequested := false;
+		if (newState = LevelState) and ( states[High(states)].stateName = TitleState ) then
+		begin
+			FadeMusicOut(1000);
+		end;
 
 		if newState = TitleState then
 		begin

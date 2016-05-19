@@ -210,6 +210,7 @@ implementation
 
 		if thisState.map.player.hp <= 0 then
 		begin
+			PlaySoundEffect(SoundEffectNamed('confirm'), 0.2);
 			StateChange(thisState.manager^, QuitState);
 		end;
 
