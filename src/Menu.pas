@@ -17,23 +17,45 @@ interface
 	type
 		DynamicStringArray = array of String;
 
+	//
+	//	Initializes the menu state and creates the UI elements
+	//
 	procedure MenuInit(var newState: ActiveState);
 
+	//
+	//	Handles all input in the menu state, handles changing to different
+	//	sub-menus, i.e. Inventory. Handles changing state to Quit or Level
+	//
 	procedure MenuHandleInput(var thisState: ActiveState; var inputs: InputMap);
 
+	//
+	//	Updates the menu and UI
+	//
 	procedure MenuUpdate(var thisState: ActiveState);
 
+	//
+	//	Draws the last level state then draws the menu UI over the top.
+	//	This way the level is paused underneath the menu.
+	//
 	procedure MenuDraw(var thisState: ActiveState);
 
 implementation
 	uses SwinGame, Map, GameUI, SysUtils, typinfo;
 
+	//
+	//	Retrieves a state at a given offset to the left from the current state in
+	//	the state manager. Use in situations with stacked states to access other states
+	//	Update, Input, and Draw functions.
+	//
 	function GetState(manager: StateArrayPtr; stateIndex: Integer): StatePtr;
 	begin
 		stateIndex := High(manager^) - stateIndex;
 		result := @manager^[stateIndex];
 	end;
 
+	//
+	//	Returns the index of an item searched in the players inventory
+	//
 	function ItemIndex(var itemNames: DynamicStringArray; name: String): Integer;
 	var
 		i: Integer;
@@ -49,6 +71,10 @@ implementation
 		end;
 	end;
 
+	//
+	//	Creates the inventory UI elements and returns it to replace the currently
+	//	displayed UI on the menu state
+	//
 	function CreateInventoryUI(constref inventory: InventoryCollection): UI;
 	var
 		currItemIndex, i: Integer;
@@ -97,6 +123,10 @@ implementation
 		result.name := 'Inventory';
 	end;
 
+	//
+	//	Creates the menu UI elements and returns it to replace the currently
+	//	displayed UI on the menu state
+	//
 	function CreateMenuUI(): UI;
 	var
 		horizontalCenter: Single;
