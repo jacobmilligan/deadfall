@@ -258,10 +258,17 @@ implementation
 				DrawBitmap(BitmapNamed('snowy tree'), x, y);
 			end;
 		end;
+
 		if currTile.feature = Food then
 		begin
 			DrawBitmap(BitmapNamed('meat'), x, y);
 		end;
+
+		if currTile.feature = Treasure then
+		begin
+			DrawBitmap(BitmapNamed('treasure'), x, y);
+		end;
+
 	end;
 
 	procedure GetHeightMap(var map: MapData; maxHeight, smoothness: Integer);
@@ -517,11 +524,12 @@ implementation
 		tile.collidable := collidable;
 	end;
 
-	procedure SeedTrees(var map: MapData);
+	procedure SeedFeatures(var map: MapData);
 	var
 		treeCount, x, y: Integer;
 		hasTree: Boolean;
 	begin
+
 		for x := 0 to High(map.tiles) do
 		begin
 			for y := 0 to High(map.tiles) do
@@ -538,10 +546,20 @@ implementation
 				if hasTree then
 				begin
 					SetFeature(map.tiles[x, y], Tree, true);
+				end
+				else
+				begin
+
+					if (Random(100) > 10) then
+					begin
+						SetFeature(map.tiles[x, y], Treasure, true);
+					end;
+
 				end;
 			end;
 		end;
 
+		// Creates groups of trees based of the previous random seed
 		for x := 0 to High(map.tiles) do
 		begin
 			for y := 0 to High(map.tiles) do
@@ -711,7 +729,7 @@ implementation
 			RefreshScreen(60);
 
 			GenerateTerrain(newMap);
-			SeedTrees(newMap);
+			SeedFeatures(newMap);
 
 			ClearScreen(ColorBlack);
 			DrawText('Finalizing Map', ColorWhite, 300, 200);
