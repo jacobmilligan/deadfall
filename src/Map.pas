@@ -130,7 +130,7 @@ interface
 	//	Checks if a given entity is about to collide with anything on the
 	//	given map based off its projected delta movement
 	//
-	procedure CheckCollision(var map: MapData; var toCheck: Sprite; dir: Direction; var hasCollision: Boolean);
+	procedure CheckCollision(var map: MapData; var toCheck: Sprite; dir: Direction; var hasCollision: Boolean; pickup: Boolean);
 
 	//
 	//	Checks to see if a given point is out of the bounds of the passed in TileGrid. Returns
@@ -258,10 +258,17 @@ implementation
 				DrawBitmap(BitmapNamed('snowy tree'), x, y);
 			end;
 		end;
+
 		if currTile.feature = Food then
 		begin
 			DrawBitmap(BitmapNamed('meat'), x, y);
 		end;
+
+		if currTile.feature = Treasure then
+		begin
+			DrawBitmap(BitmapNamed('treasure'), x, y);
+		end;
+
 	end;
 
 	procedure GetHeightMap(var map: MapData; maxHeight, smoothness: Integer);
@@ -517,11 +524,12 @@ implementation
 		tile.collidable := collidable;
 	end;
 
-	procedure SeedTrees(var map: MapData);
+	procedure SeedFeatures(var map: MapData);
 	var
 		treeCount, x, y: Integer;
 		hasTree: Boolean;
 	begin
+
 		for x := 0 to High(map.tiles) do
 		begin
 			for y := 0 to High(map.tiles) do
@@ -538,10 +546,20 @@ implementation
 				if hasTree then
 				begin
 					SetFeature(map.tiles[x, y], Tree, true);
+				end
+				else
+				begin
+
+					if (Random(1000) > 990) and ( not map.tiles[x, y].collidable ) then
+					begin
+						SetFeature(map.tiles[x, y], Treasure, true);
+					end;
+
 				end;
 			end;
 		end;
 
+		// Creates groups of trees based of the previous random seed
 		for x := 0 to High(map.tiles) do
 		begin
 			for y := 0 to High(map.tiles) do
@@ -592,7 +610,7 @@ implementation
 		end;
 	end;
 
-	procedure CheckCollision(var map: MapData; var toCheck: Sprite; dir: Direction; var hasCollision: Boolean);
+	procedure CheckCollision(var map: MapData; var toCheck: Sprite; dir: Direction; var hasCollision: Boolean; pickup: Boolean);
 	var
 		tileX, tileY, i, j, startX, finishX, startY, finishY: Integer;
 		x, y: Single;
@@ -678,6 +696,15 @@ implementation
 						map.inventory.rabbitLeg.count += 1;
 						map.tiles[i, j].feature := None;
 					end;
+					if not OutOfBounds(map.tiles, i, j) and (map.tiles[i, j].feature = Treasure) then
+					begin
+						if pickup then
+						begin
+							map.inventory.trinket.count += 1;
+							map.tiles[i, j].feature := None;
+							map.tiles[i, j].collidable := false;
+						end;
+					end;
 				end;
 
 			end;
@@ -711,7 +738,7 @@ implementation
 			RefreshScreen(60);
 
 			GenerateTerrain(newMap);
-			SeedTrees(newMap);
+			SeedFeatures(newMap);
 
 			ClearScreen(ColorBlack);
 			DrawText('Finalizing Map', ColorWhite, 300, 200);

@@ -59,21 +59,16 @@ implementation
 		LoadBitmapNamed('pine tree', 'pine_tree.png');
 		LoadBitmapNamed('palm tree', 'palm_tree.png');
 		LoadBitmapNamed('snowy tree', 'snowy_tree.png');
-
 		LoadBitmapNamed('title_back', 'title_back.png');
-
 		LoadBitmapNamed('meat', 'meat.png');
-
+		LoadBitmapNamed('treasure', 'treasure.png');
 		LoadBitmapNamed('empty bar', 'empty_bar.png');
 		LoadBitmapNamed('health bar', 'health_bar.png');
-
 		LoadMusicNamed('baws', 'baws.wav');
 		LoadMusicNamed('main', 'main.wav');
-		
 		LoadSoundEffectNamed('select', 'select.wav');
 		LoadSoundEffectNamed('click', 'click.wav');
 		LoadSoundEffectNamed('confirm', 'confirm.wav');
-
 		LoadResourceBundle('md.txt');
 	end;
 
