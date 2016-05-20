@@ -653,11 +653,13 @@ implementation
 							Left: SpriteSetDX(toCheck, 0);
 						end;
 					end;
+
 					if not OutOfBounds(map.tiles, i, j) and (map.tiles[i, j].feature = Food) then
 					begin
 						map.inventory.rabbitLeg.count += 1;
 						SetFeature(map.tiles[i, j], None, false);
 					end;
+
 					if not OutOfBounds(map.tiles, i, j) and (map.tiles[i, j].feature = Treasure) then
 					begin
 						if pickup then
@@ -673,13 +675,44 @@ implementation
 
 	end;
 
+	procedure DrawMapCartography(var newMap: MapData; size: Integer);
+	var
+		mapBmp: Bitmap;
+		opts: DrawingOptions;
+		clr: Color;
+		x, y: Integer;
+	begin
+		mapBmp := CreateBitmap(size, size);
+		opts.dest := mapBmp;
+
+		for x := 0 to High(newMap.tiles) do
+		begin
+			for y := 0 to High(newMap.tiles) do
+			begin
+				case newMap.tiles[x, y].flag of
+					Water: clr := RGBColor(42, 76, 211); // Blue
+					Sand: clr := RGBColor(241, 249, 101); // Sandy yellow
+					Grass: clr := RGBColor(139, 230, 128); // Light green
+					Dirt: clr := RGBColor(148, 92, 53); // Brown
+					MediumGrass: clr := RGBColor(57, 167, 63); // darker green
+					HighGrass: clr := RGBColor(23, 125, 29); // Dark green
+					SnowyGrass: clr := ColorWhite;
+					Mountain: clr := RGBColor(119, 119, 119); // Grey
+				end;
+				if newMap.tiles[x, y].feature = Tree then
+				begin
+					clr := RGBColor(113, 149, 48);
+				end;
+				DrawPixel(clr, x, y, opts);
+			end;
+		end;
+		SaveBitmap(mapBmp, 'new_map.png');
+	end;
+
 	function GenerateNewMap(size: Integer): MapData;
 	var
 		newMap: MapData;
 		x, y: Integer;
-		mapBmp: Bitmap;
-		opts: DrawingOptions;
-		clr: Color;
 	begin
 		if ( (size - 1) mod 2 = 0 ) then
 		begin
@@ -705,31 +738,7 @@ implementation
 			DrawText('Finalizing Map', ColorWhite, 300, 200);
 			RefreshScreen(60);
 
-			{mapBmp := CreateBitmap(size, size);
-			opts.dest := mapBmp;
-
-			for x := 0 to High(newMap.tiles) do
-			begin
-				for y := 0 to High(newMap.tiles) do
-				begin
-					case newMap.tiles[x, y].flag of
-						Water: clr := RGBColor(42, 76, 211); // Blue
-						Sand: clr := RGBColor(241, 249, 101); // Sandy yellow
-						Grass: clr := RGBColor(139, 230, 128); // Light green
-						Dirt: clr := RGBColor(148, 92, 53); // Brown
-						MediumGrass: clr := RGBColor(57, 167, 63); // darker green
-						HighGrass: clr := RGBColor(23, 125, 29); // Dark green
-						SnowyGrass: clr := ColorWhite;
-						Mountain: clr := RGBColor(119, 119, 119); // Grey
-					end;
-					if newMap.tiles[x, y].feature = Tree then
-					begin
-						clr := RGBColor(113, 149, 48);
-					end;
-					DrawPixel(clr, x, y, opts);
-				end;
-			end;
-			SaveBitmap(mapBmp, 'new_map.png');}
+			//DrawMapCartography(newMap, size);
 		end
 		else
 		begin
