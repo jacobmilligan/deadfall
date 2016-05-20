@@ -75,6 +75,7 @@ interface
 
 			// tiles base bitmap
 			bmp: Bitmap;
+			treeBmp: Bitmap;
 		end;
 
 		//
@@ -241,22 +242,7 @@ implementation
 
 		if currTile.feature = Tree then
 		begin
-			if (currTile.flag = Grass) then
-			begin
-				DrawBitmap(BitmapNamed('tree'), x, y);
-			end
-			else if (currTile.flag = Sand) then
-			begin
-				DrawBitmap(BitmapNamed('palm tree'), x, y);
-			end
-			else if (currTile.flag > Grass) and (currTile.flag < SnowyGrass) then
-			begin
-				DrawBitmap(BitmapNamed('pine tree'), x, y);
-			end
-			else
-			begin
-				DrawBitmap(BitmapNamed('snowy tree'), x, y);
-			end;
+			DrawBitmap(currTile.treeBmp, x, y);
 		end;
 
 		if currTile.feature = Food then
@@ -420,6 +406,17 @@ implementation
 		newTile.flag := flag;
 		newTile.bmp := BitmapNamed(bmp);
 		newTile.collidable := collidable;
+
+		case flag of
+			Water: newTile.treeBmp := BitmapNamed('hidden');
+			Sand: newTile.treeBmp := BitmapNamed('palm tree');
+			Dirt: newTile.treeBmp := BitmapNamed('tree');
+			Grass: newTile.treeBmp := BitmapNamed('tree');
+			MediumGrass: newTile.treeBmp := BitmapNamed('pine tree');
+			HighGrass: newTile.treeBmp := BitmapNamed('pine tree');
+			SnowyGrass: newTile.treeBmp := BitmapNamed('snowy tree');
+			Mountain: newTile.treeBmp := BitmapNamed('hidden');
+		end;
 	end;
 
 	procedure GenerateTerrain(var map: MapData);
