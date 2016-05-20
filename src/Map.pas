@@ -391,20 +391,6 @@ implementation
 		newTile.flag := flag;
 		newTile.bmp := BitmapNamed(bmp);
 		newTile.collidable := collidable;
-
-		if flag = Tree then
-		begin
-			case flag of
-				Water: newTile.featureBmp := BitmapNamed('hidden');
-				Sand: newTile.featureBmp := BitmapNamed('palm tree');
-				Dirt: newTile.featureBmp := BitmapNamed('tree');
-				Grass: newTile.featureBmp := BitmapNamed('tree');
-				MediumGrass: newTile.featureBmp := BitmapNamed('pine tree');
-				HighGrass: newTile.featureBmp := BitmapNamed('pine tree');
-				SnowyGrass: newTile.featureBmp := BitmapNamed('snowy tree');
-				Mountain: newTile.featureBmp := BitmapNamed('hidden');
-			end;
-		end;
 	end;
 
 	procedure GenerateTerrain(var map: MapData);
@@ -507,9 +493,27 @@ implementation
 	begin
 		tile.feature := feature;
 		tile.collidable := collidable;
-		case feature of
-			Treasure: tile.featureBmp := BitmapNamed('treasure');
-			Food: tile.featureBmp := BitmapNamed('meat');
+
+		if feature = Tree then
+		begin
+			case tile.flag of
+				Water: tile.featureBmp := BitmapNamed('hidden');
+				Sand: tile.featureBmp := BitmapNamed('palm tree');
+				Dirt: tile.featureBmp := BitmapNamed('tree');
+				Grass: tile.featureBmp := BitmapNamed('tree');
+				MediumGrass: tile.featureBmp := BitmapNamed('pine tree');
+				HighGrass: tile.featureBmp := BitmapNamed('pine tree');
+				SnowyGrass: tile.featureBmp := BitmapNamed('snowy tree');
+				Mountain: tile.featureBmp := BitmapNamed('hidden');
+			end;
+		end
+		else
+		begin
+			case feature of
+				Treasure: tile.featureBmp := BitmapNamed('treasure');
+				Food: tile.featureBmp := BitmapNamed('meat');
+				None: tile.featureBmp := BitmapNamed('hidden');
+			end;
 		end;
 	end;
 
@@ -683,15 +687,14 @@ implementation
 					if not OutOfBounds(map.tiles, i, j) and (map.tiles[i, j].feature = Food) then
 					begin
 						map.inventory.rabbitLeg.count += 1;
-						map.tiles[i, j].feature := None;
+						SetFeature(map.tiles[i, j], None, false);
 					end;
 					if not OutOfBounds(map.tiles, i, j) and (map.tiles[i, j].feature = Treasure) then
 					begin
 						if pickup then
 						begin
 							map.inventory.trinket.count += 1;
-							map.tiles[i, j].feature := None;
-							map.tiles[i, j].collidable := false;
+							SetFeature(map.tiles[i, j], None, false);
 						end;
 					end;
 				end;
