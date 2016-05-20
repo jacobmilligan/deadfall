@@ -84,7 +84,7 @@ implementation
 		newActiveState.stateName := newState;
 		newActiveState.manager := @states;
 		newActiveState.quitRequested := false;
-		
+
 		if (newState = LevelState) and ( states[High(states)].stateName = TitleState ) then
 		begin
 			FadeMusicOut(1000);
@@ -121,7 +121,8 @@ implementation
 		end
 		else if newState = QuitState then
 		begin
-			RequestQuit(states);
+			FadeMusicOut(800);
+			states[High(states)].quitRequested := true;
 		end
 		else
 		begin
@@ -129,6 +130,5 @@ implementation
 		end;
 
 	end;
-
 
 end.

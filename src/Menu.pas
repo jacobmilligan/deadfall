@@ -75,7 +75,7 @@ implementation
 	//	Creates the inventory UI elements and returns it to replace the currently
 	//	displayed UI on the menu state
 	//
-	function CreateInventoryUI(constref inventory: InventoryTemp): UI;
+	function CreateInventoryUI(constref inventory: InventoryCollection): UI;
 	const
 		UI_SIZE = 3;
 	var
@@ -146,6 +146,8 @@ implementation
 	begin
 		lastLevelState := GetState(thisState.manager, 1);
 
+		UINavigate(thisState.displayedUI, inputs);
+
 		if thisState.displayedUI.name = 'Inventory' then
 		begin
 			if KeyTyped(inputs.Menu) then
@@ -154,16 +156,6 @@ implementation
 				InitUI(thisState.displayedUI, 0);
 				thisState.displayedUI := CreateMenuUI();
 			end
-			else if KeyTyped(inputs.MoveUp) then
-			begin
-				PlaySoundEffect(SoundEffectNamed('click'));
-				ChangeElement(thisState.displayedUI, UI_PREV);
-			end
-			else if KeyTyped(inputs.MoveDown) then
-			begin
-				PlaySoundEffect(SoundEffectNamed('click'));
-				ChangeElement(thisState.displayedUI, UI_NEXT);
-			end
 			else if KeyTyped(inputs.Select) then
 			begin
 				PlaySoundEffect(SoundEffectNamed('confirm'), 0.2);
@@ -171,8 +163,8 @@ implementation
 
 				if currItem^.attachedInventory^.count > 0 then
 				begin
-					RestoreHunger(lastLevelState^.map.player.hunger, currItem^.attachedInventory^.hungerPlus);
-					RestoreHealth(lastLevelState^.map.player.hp, currItem^.attachedInventory^.healthPlus);
+					RestoreStat(lastLevelState^.map.player.hunger, currItem^.attachedInventory^.hungerPlus);
+					RestoreStat(lastLevelState^.map.player.hp, currItem^.attachedInventory^.healthPlus);
 					//ListOnEbay(lastLevelState^.map.player.hunger, currItem^.attachedInventory^.hungerPlus);
 
 					ReduceItemCount(currItem^);
@@ -182,18 +174,7 @@ implementation
 		end
 		else
 		begin
-
-			if KeyTyped(inputs.MoveUp) then
-			begin
-				PlaySoundEffect(SoundEffectNamed('click'));
-				ChangeElement(thisState.displayedUI, UI_PREV);
-			end
-			else if KeyTyped(inputs.MoveDown) then
-			begin
-				PlaySoundEffect(SoundEffectNamed('click'));
-				ChangeElement(thisState.displayedUI, UI_NEXT);
-			end
-			else if KeyTyped(inputs.Menu) then
+			if KeyTyped(inputs.Menu) then
 			begin
 				PlaySoundEffect(SoundEffectNamed('select'), 0.2);
 				StateChange(thisState.manager^, LevelState);
@@ -211,11 +192,8 @@ implementation
 					InitUI(thisState.displayedUI, 0);
 					thisState.displayedUI := CreateInventoryUI(lastLevelState^.map.inventory);
 				end;
-
 			end;
-
 		end;
-
 	end;
 
 	procedure MenuUpdate(var thisState: ActiveState);

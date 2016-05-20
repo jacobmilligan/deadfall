@@ -58,17 +58,8 @@ implementation
 
 	procedure TitleHandleInput(var thisState: ActiveState; var inputs: InputMap);
 	begin
-		if KeyTyped(inputs.MoveDown) then
-		begin
-			PlaySoundEffect(SoundEffectNamed('click'));
-			ChangeElement(thisState.displayedUI, UI_NEXT);
-		end
-		else if KeyTyped(inputs.MoveUp) then
-		begin
-			PlaySoundEffect(SoundEffectNamed('click'));
-			ChangeElement(thisState.displayedUI, UI_PREV);
-		end
-		else if KeyTyped(inputs.Select) then
+		UINavigate(thisState.displayedUI, inputs);
+		if KeyTyped(inputs.Select) then
 		begin
 			PlaySoundEffect(SoundEffectNamed('confirm'), 0.5);
 			case UISelectedID(thisState.displayedUI) of

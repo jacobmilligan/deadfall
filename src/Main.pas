@@ -7,7 +7,7 @@
 //  Created By Jacob Milligan
 //  On 21/04/2016
 //  Student ID: 100660682
-//  
+//
 
 program DeadFall;
 uses SwinGame, Game, State, Input;
@@ -18,7 +18,7 @@ var
 	inputs: InputMap;
 	dtStart: Double;
 begin
-	
+
 	GameInit('Deadfall', 800, 600, states);
 	SetDefaultInput(inputs);
 
@@ -28,7 +28,6 @@ begin
 		GameDraw(states);
 	end;
 	
-	QuitGame(states);
 end;
 
 begin

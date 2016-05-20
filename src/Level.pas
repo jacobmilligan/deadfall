@@ -65,24 +65,24 @@ implementation
 		offsetY := 0;
 
 
+		// Left edge of the map
 		if CameraX() < (ScreenWidth() / 2) + halfSprite then
 		begin
-			// Left edge of the map
 			offsetX := ( ScreenWidth() - SpriteX(map.player.sprite) ) / 2;
 		end;
+		// Right edge of map
 		if ( SpriteX(map.player.sprite) + (ScreenWidth() / 2) ) > mapSizeToPixel then
 		begin
-			// Right edge of map
 			offsetX := -( (ScreenWidth() / 2) - rightEdgeDistance);
 		end;
+		// Top edge of map
 		if CameraY() < (ScreenHeight() / 2) + halfSprite then
 		begin
-			// Top edge of map
 			offsetY := ( ScreenHeight() - SpriteY(map.player.sprite) ) / 2;
 		end;
+		// Bottom edge of map
 		if ( SpriteY(map.player.sprite) + (ScreenHeight() / 2) ) > mapSizeToPixel then
 		begin
-			// Bottom edge of map
 			offsetY := -( (ScreenHeight() / 2) - bottomEdgeDistance);
 		end;
 
@@ -110,16 +110,9 @@ implementation
 
 		newState.map.inventory := InitInventory();
 
-		for i := 0 to 100 do
-		begin
-			newState.map.inventory.rabbitLeg.count += 1;
-		end;
-
-
-
 		// Setup player sprite and animation
 		newState.map.player.sprite := CreateSprite('player', BitmapNamed('eng'), AnimationScriptNamed('player'));
-		SpriteSetCollisionBitmap(newState.map.player.sprite, BitmapNamed('player_collision'));
+		//SpriteSetCollisionBitmap(newState.map.player.sprite, BitmapNamed('player_collision'));
 		SwitchAnimation(newState.map.player.sprite, 'entity_down_idle');
 
 		//
@@ -127,23 +120,23 @@ implementation
 		//	thus spawning the player on a beach
 		//
 		spawnFound := false;
-		i := 0;
-		while ( i < High(newState.map.tiles) ) and not spawnFound do
+		for i := 0 to High(newState.map.tiles) do
 		begin
+			if spawnFound then
+				break;
 
-			j := 0;
-			while j < High(newState.map.tiles) do
+			for j := 0 to High(newState.map.tiles) do
 			begin
+				if spawnFound then
+					break;
+
 				if (i > 1) and (newState.map.tiles[i, j].flag = Sand) and (newState.map.tiles[i, j].feature = None) then
 				begin
 					SpriteSetX(newState.map.player.sprite, i * 32);
 					SpriteSetY(newState.map.player.sprite, j * 32);
 					spawnFound := true;
 				end;
-				j += 1;
 			end;
-
-			i += 1;
 		end;
 
 		CenterCameraOn(newState.map.player.sprite, ScreenWidth() / 2, ScreenHeight() / 2);
@@ -151,15 +144,14 @@ implementation
 
 	procedure LevelHandleInput(var thisState: ActiveState; var inputs: InputMap);
 	var
-		pickup: Boolean;
+		isPickup: Boolean;
 	begin
-		pickup := false;
+		isPickup := false;
 
 		if KeyTyped(inputs.Select) then
 		begin
-			pickup := true;
+			isPickup := true;
 		end;
-
 
 		if KeyTyped(inputs.Menu) then
 		begin
@@ -168,19 +160,19 @@ implementation
 
 		if KeyDown(inputs.MoveUp) then
 		begin
-			MoveEntity(thisState.map, thisState.map.player, Up, 3, pickup);
+			MoveEntity(thisState.map, thisState.map.player, Up, 3, isPickup);
 		end
 		else if KeyDown(inputs.MoveRight) then
 		begin
-			MoveEntity(thisState.map, thisState.map.player, Right, 3, pickup);
+			MoveEntity(thisState.map, thisState.map.player, Right, 3, isPickup);
 		end
 		else if KeyDown(inputs.MoveDown) then
 		begin
-			MoveEntity(thisState.map, thisState.map.player, Down, 3, pickup);
+			MoveEntity(thisState.map, thisState.map.player, Down, 3, isPickup);
 		end
 		else if KeyDown(inputs.MoveLeft) then
 		begin
-			MoveEntity(thisState.map, thisState.map.player, Left, 3, pickup);
+			MoveEntity(thisState.map, thisState.map.player, Left, 3, isPickup);
 		end
 		else
 		begin
@@ -188,7 +180,7 @@ implementation
 			//	Move with 0 speed based off previously assigned direction
 			//	(i.e. whatever way the player was facing last)
 			//
-			MoveEntity(thisState.map, thisState.map.player, thisState.map.player.direction, 0, pickup);
+			MoveEntity(thisState.map, thisState.map.player, thisState.map.player.direction, 0, isPickup);
 		end;
 
 		if KeyDown(inputs.Attack) then
@@ -243,20 +235,8 @@ implementation
 	procedure LevelDraw(var thisState: ActiveState);
 	var
 		x, y: LongInt;
-		tileScreenWidth, tileScreenHeight: Integer;
-		barRect: Rectangle;
 		currentTileView: TileView;
-	const
-		X_TEST = 100;
-		Y_TEST = 100;
 	begin
-
-		// Translate pixel values into tilemap values
-		tileScreenWidth := Round(ScreenWidth() / 32);
-		tileScreenHeight := Round(ScreenHeight() / 32);
-		x := Round(CameraPos.x / 32);
-		y := Round(CameraPos.y / 32);
-
 		currentTileView := CreateTileView();
 
 		for x := currentTileView.x to currentTileView.right do
@@ -264,7 +244,7 @@ implementation
 			for y := currentTileView.y to currentTileView.bottom do
 			begin
 				// Only draw tile if y and x index are within map bounds
-				if not OutOfBounds(thisState.map.tiles, x, y) then
+				if IsInMap(thisState.map, x, y) then
 				begin
 					DrawTile(thisState.map.tiles[x, y], x * 32, y * 32);
 				end;

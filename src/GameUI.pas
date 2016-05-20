@@ -1,9 +1,14 @@
 unit GameUI;
 
 interface
-	uses Swingame, Map;
+	uses Swingame, Input, Map;
 
-    type
+	const
+		UI_NEXT = 'UI_NEXT_ELEMENT';
+		UI_PREV = 'UI_PREV_ELEMENT';
+		UI_CURRENT = 'UI_CURRENT_ELEMENT';
+
+  type
 		UIElement = record
 			inactiveBmp: Bitmap;
 			activeBmp: Bitmap;
@@ -15,7 +20,7 @@ interface
 			attachedInventory: ItemPtr;
 		end;
 
-		type UICollection = array of UIElement;
+		UICollection = array of UIElement;
 
 		UI = record
 			name: String;
@@ -24,14 +29,11 @@ interface
 			previousItem: Integer;
 		end;
 
-	const
-		UI_NEXT = 'UI_NEXT_ELEMENT';
-		UI_PREV = 'UI_PREV_ELEMENT';
-		UI_CURRENT = 'UI_CURRENT_ELEMENT';
-
 	procedure InitUI(var newUI: UI; numElements: Integer);
 
 	function CreateUIElement(inactiveBmp, activeBmp: Bitmap; x, y: Single; id: String = ''; setFont: String = 'PrStart'): UIElement;
+
+	procedure UINavigate(var currentUI: UI; var inputs: InputMap);
 
 	procedure UpdateUI(var currentUI: UI);
 
@@ -111,6 +113,21 @@ implementation
 				currentUI.currentItem := currentUI.previousItem;
 				WriteLn('Unable to find UI Element "', id, '."');
 			end;
+		end;
+
+	end;
+
+	procedure UINavigate(var currentUI: UI; var inputs: InputMap);
+	begin
+		if KeyTyped(inputs.MoveUp) then
+		begin
+			PlaySoundEffect(SoundEffectNamed('click'));
+			ChangeElement(currentUI, UI_PREV);
+		end;
+		if KeyTyped(inputs.MoveDown) then
+		begin
+			PlaySoundEffect(SoundEffectNamed('click'));
+			ChangeElement(currentUI, UI_NEXT);
 		end;
 
 	end;

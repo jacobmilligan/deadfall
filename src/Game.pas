@@ -31,8 +31,6 @@ interface
 	//
 	procedure GameDraw(var states: StateArray);
 
-	procedure RequestQuit(var states: StateArray);
-
 	procedure QuitGame(var states: StateArray);
 
 	//
@@ -111,16 +109,12 @@ implementation
 		end;
 	end;
 
-	procedure RequestQuit(var states: StateArray);
-	begin
-		states[High(states)].quitRequested := true;
-	end;
-
 	procedure QuitGame(var states: StateArray);
 	var
 		i, j: Integer;
 	begin
 		ReleaseAllResources();
+		Delay(1000);
 	end;
 
 end.

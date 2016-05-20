@@ -54,16 +54,16 @@ implementation
     var
         i: KeyCode;
     begin
-        result := UnknownKey;
+      result := UnknownKey;
 
-        for i := Low(KeyCode) to High(KeyCode) do
+      for i := Low(KeyCode) to High(KeyCode) do
+      begin
+        if KeyDown(i) then
         begin
-            if KeyDown(i) then
-            begin
-                result := i;
-                Exit;
-            end;
+          result := i;
+          break;
         end;
+      end;
     end;
 
     procedure SetDefaultInput(var inputs: InputMap);

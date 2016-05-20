@@ -45,11 +45,10 @@ interface
 
 		ItemPtr = ^Item;
 
-		InventoryTemp = record
+		InventoryCollection = record
 			rabbitLeg: Item;
 			bandage: Item;
 			trinket: Item;
-
 			numItems: Integer;
 		end;
 
@@ -75,6 +74,7 @@ interface
 
 			// tiles base bitmap
 			bmp: Bitmap;
+			// bitmap for whatever feature is on top of the tiles
 			featureBmp: Bitmap;
 		end;
 
@@ -105,10 +105,14 @@ interface
 		MapData = record
 			tiles: TileGrid;
 			player: Entity;
-			inventory: InventoryTemp;
+			inventory: InventoryCollection;
 			npcs: EntityCollection;
 		end;
 
+		//
+		//	Represents the current camera position in tile-based sizing, i.e.
+		//	32px = a single tile.
+		//
 		TileView = record
 			x, y, right, bottom: LongInt;
 		end;
@@ -137,7 +141,7 @@ interface
 	//	Checks to see if a given point is out of the bounds of the passed in TileGrid. Returns
 	//	true or false
 	//
-	function OutOfBounds(var tiles: TileGrid; x, y: Integer): Boolean;
+	function IsInMap(var map: MapData; x, y: Integer): Boolean;
 
 	//
 	//	Draws a given tiles bitmap and any features it contains to the screen.
@@ -146,16 +150,15 @@ interface
 
 	//
 	//	Creates a new TileView record from the view currently within the
-	//	games camera bounds
+	//	games camera bounds.
 	//
 	function CreateTileView(): TileView;
 
 	procedure SetFeature(var tile: Tile; feature: FeatureType; collidable: Boolean);
 
-	function InitInventory(): InventoryTemp;
+	function InitInventory(): InventoryCollection;
 
-	procedure RestoreHunger(var hunger: Single; plus: Single);
-	procedure RestoreHealth(var health: Single; plus: Single);
+	procedure RestoreStat(var stat: Single; plus: Single);
 
 implementation
 	uses SwinGame, Game, Math;
@@ -163,7 +166,7 @@ implementation
 	const
 		TILESIZE = 32;
 
-	function InitInventory(): InventoryTemp;
+	function InitInventory(): InventoryCollection;
 	begin
 		result.numItems := 3;
 
@@ -186,41 +189,15 @@ implementation
 		result.trinket.dollarValue := 5;
 	end;
 
-	procedure RestoreHunger(var hunger: Single; plus: Single);
+	procedure RestoreStat(var stat: Single; plus: Single);
 	begin
-		if hunger + plus > 100 then
+		if stat + plus > 100 then
 		begin
-			hunger := 100;
+			stat := 100;
 		end
 		else
 		begin
-			hunger += plus;
-		end;
-	end;
-
-	procedure RestoreHealth(var health: Single; plus: Single);
-	begin
-		if health + plus > 100 then
-		begin
-			health := 100;
-		end
-		else
-		begin
-			health += plus;
-		end;
-	end;
-
-	function OutOfBounds(var tiles: TileGrid; x, y: Integer): Boolean;
-	begin
-		result := false;
-
-		if (x < 1) or (y < 1) then
-		begin
-			result := true;
-		end;
-		if ( x >= High(tiles) ) or ( y >= High(tiles) ) then
-		begin
-			result := true;
+			stat += plus;
 		end;
 	end;
 
@@ -643,7 +620,8 @@ implementation
 
 				if SpriteBitmapCollision(toCheck, map.tiles[i, j].bmp, i * TILESIZE, j * TILESIZE) then
 				begin
-					if OutOfBounds(map.tiles, i, j) or (map.tiles[i, j].collidable) then
+
+					if ( not IsInMap(map, i, j) ) or ( map.tiles[i, j].collidable ) then
 					begin
 						hasCollision := true;
 						case dir of
@@ -654,13 +632,13 @@ implementation
 						end;
 					end;
 
-					if not OutOfBounds(map.tiles, i, j) and (map.tiles[i, j].feature = Food) then
+					if not ( not IsInMap(map, i, j) ) and ( map.tiles[i, j].feature = Food ) then
 					begin
 						map.inventory.rabbitLeg.count += 1;
 						SetFeature(map.tiles[i, j], None, false);
 					end;
 
-					if not OutOfBounds(map.tiles, i, j) and (map.tiles[i, j].feature = Treasure) then
+					if not ( not IsInMap(map, i, j) ) and ( map.tiles[i, j].feature = Treasure ) then
 					begin
 						if pickup then
 						begin
