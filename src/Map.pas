@@ -75,7 +75,7 @@ interface
 
 			// tiles base bitmap
 			bmp: Bitmap;
-			treeBmp: Bitmap;
+			featureBmp: Bitmap;
 		end;
 
 		//
@@ -239,22 +239,7 @@ implementation
 	procedure DrawTile(var currTile: Tile; x, y: Integer);
 	begin
 		DrawBitmap(currTile.bmp, x, y);
-
-		if currTile.feature = Tree then
-		begin
-			DrawBitmap(currTile.treeBmp, x, y);
-		end;
-
-		if currTile.feature = Food then
-		begin
-			DrawBitmap(BitmapNamed('meat'), x, y);
-		end;
-
-		if currTile.feature = Treasure then
-		begin
-			DrawBitmap(BitmapNamed('treasure'), x, y);
-		end;
-
+		DrawBitmap(currTile.featureBmp, x, y);
 	end;
 
 	procedure GetHeightMap(var map: MapData; maxHeight, smoothness: Integer);
@@ -407,15 +392,18 @@ implementation
 		newTile.bmp := BitmapNamed(bmp);
 		newTile.collidable := collidable;
 
-		case flag of
-			Water: newTile.treeBmp := BitmapNamed('hidden');
-			Sand: newTile.treeBmp := BitmapNamed('palm tree');
-			Dirt: newTile.treeBmp := BitmapNamed('tree');
-			Grass: newTile.treeBmp := BitmapNamed('tree');
-			MediumGrass: newTile.treeBmp := BitmapNamed('pine tree');
-			HighGrass: newTile.treeBmp := BitmapNamed('pine tree');
-			SnowyGrass: newTile.treeBmp := BitmapNamed('snowy tree');
-			Mountain: newTile.treeBmp := BitmapNamed('hidden');
+		if flag = Tree then
+		begin
+			case flag of
+				Water: newTile.featureBmp := BitmapNamed('hidden');
+				Sand: newTile.featureBmp := BitmapNamed('palm tree');
+				Dirt: newTile.featureBmp := BitmapNamed('tree');
+				Grass: newTile.featureBmp := BitmapNamed('tree');
+				MediumGrass: newTile.featureBmp := BitmapNamed('pine tree');
+				HighGrass: newTile.featureBmp := BitmapNamed('pine tree');
+				SnowyGrass: newTile.featureBmp := BitmapNamed('snowy tree');
+				Mountain: newTile.featureBmp := BitmapNamed('hidden');
+			end;
 		end;
 	end;
 
@@ -519,6 +507,10 @@ implementation
 	begin
 		tile.feature := feature;
 		tile.collidable := collidable;
+		case feature of
+			Treasure: tile.featureBmp := BitmapNamed('treasure');
+			Food: tile.featureBmp := BitmapNamed('meat');
+		end;
 	end;
 
 	procedure SeedFeatures(var map: MapData);
