@@ -38,7 +38,7 @@ interface
 			category: FeatureType;
 			hungerPlus: Single;
 			healthPlus: Single;
-			dollarValue: Double;
+			dollarValue: Single;
 			name: String;
 			count: Integer;
 		end;
@@ -49,6 +49,7 @@ interface
 			rabbitLeg: Item;
 			bandage: Item;
 			trinket: Item;
+			dollars: Single;
 			numItems: Integer;
 		end;
 
@@ -160,6 +161,8 @@ interface
 
 	procedure RestoreStat(var stat: Single; plus: Single);
 
+	procedure SellItem(var toSell: Item; var inventory: InventoryCollection);
+
 implementation
 	uses SwinGame, Game, Math;
 
@@ -169,10 +172,11 @@ implementation
 	function InitInventory(): InventoryCollection;
 	begin
 		result.numItems := 3;
+		result.dollars := 0.0;
 
 		result.rabbitLeg.name := 'Rabbit Leg';
 		result.rabbitLeg.count := 0;
-		result.rabbitLeg.hungerPlus := 5;
+		result.rabbitLeg.hungerPlus := 7;
 		result.rabbitLeg.healthPlus := 1;
 		result.rabbitLeg.dollarValue := 5;
 
@@ -184,9 +188,9 @@ implementation
 
 		result.trinket.name := 'Trinket';
 		result.trinket.count := 0;
-		result.trinket.hungerPlus := 5;
-		result.trinket.healthPlus := -5;
-		result.trinket.dollarValue := 5;
+		result.trinket.hungerPlus := 2;
+		result.trinket.healthPlus := -15;
+		result.trinket.dollarValue := 5.3;
 	end;
 
 	procedure RestoreStat(var stat: Single; plus: Single);
@@ -199,6 +203,11 @@ implementation
 		begin
 			stat += plus;
 		end;
+	end;
+
+	procedure SellItem(var toSell: Item; var inventory: InventoryCollection);
+	begin
+		inventory.dollars += toSell.dollarValue;
 	end;
 
 	function CreateTileView(): TileView;

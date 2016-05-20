@@ -58,7 +58,7 @@ implementation
 
 	procedure TitleHandleInput(var thisState: ActiveState; var inputs: InputMap);
 	begin
-		UINavigate(thisState.displayedUI, inputs);
+		UINavigate(thisState.displayedUI, inputs, thisState.map);
 		if KeyTyped(inputs.Select) then
 		begin
 			PlaySoundEffect(SoundEffectNamed('confirm'), 0.5);

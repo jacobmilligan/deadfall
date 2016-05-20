@@ -49,7 +49,7 @@ interface
 
 
 implementation
-	uses SwinGame, NPC;
+	uses SwinGame, NPC, SysUtils;
 
 	procedure UpdateCamera(constref map: MapData);
 	var
@@ -218,18 +218,23 @@ implementation
 
 	end;
 
-	procedure DrawHUD(var player: Entity);
+	procedure DrawHUD(var player: Entity; dollars: Double);
 	var
 		emptyWidth, emptyHeight: Single;
+		dollarStr: String;
 	begin
 		emptyWidth := BitmapWidth(BitmapNamed('empty bar'));
 		emptyHeight := BitmapHeight(BitmapNamed('empty bar'));
+		dollarStr := FloatToStr(dollars);
 		// Handle health, hunger, and money UI elements
 		DrawBitmap(BitmapNamed('empty bar'), CameraX() + 10, CameraY() + 10);
 		FillRectangle(RGBAColor(224, 51, 51, 150), CameraX() + 10, CameraY() + 10, (player.hp / 100) * emptyWidth, emptyHeight);
 
 		DrawBitmap(BitmapNamed('empty bar'), CameraX() + 10, CameraY() + 40);
 		FillRectangle(RGBAColor(99, 203, 97, 150), CameraX() + 10, CameraY() + 40, (player.hunger / 100) * emptyWidth, emptyHeight);
+
+		DrawBitmap(BitmapNamed('dollars'), CameraX() + 10, CameraY() + 75);
+		DrawText(dollarStr, ColorWhite, FontNamed('PrStartSmall'), CameraX() + BitmapWidth(BitmapNamed('dollars')) + 15, CameraY() + 85);
 	end;
 
 	procedure LevelDraw(var thisState: ActiveState);
@@ -258,7 +263,7 @@ implementation
         DrawSprite(thisState.map.npcs[x].sprite);
     end;
 
-		DrawHUD(thisState.map.player);
+		DrawHUD(thisState.map.player, thisState.map.inventory.dollars);
 	end;
 
 end.

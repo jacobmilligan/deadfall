@@ -9,6 +9,7 @@ interface
 		UI_CURRENT = 'UI_CURRENT_ELEMENT';
 
   type
+
 		UIElement = record
 			inactiveBmp: Bitmap;
 			activeBmp: Bitmap;
@@ -27,13 +28,15 @@ interface
 			items: UICollection;
 			currentItem: Integer;
 			previousItem: Integer;
+			previousUI: function(var map: MapData): UI;
+			nextUI: function(var map: MapData): UI;
 		end;
 
 	procedure InitUI(var newUI: UI; numElements: Integer);
 
 	function CreateUIElement(inactiveBmp, activeBmp: Bitmap; x, y: Single; id: String = ''; setFont: String = 'PrStart'): UIElement;
 
-	procedure UINavigate(var currentUI: UI; var inputs: InputMap);
+	procedure UINavigate(var currentUI: UI; var inputs: InputMap; var map: MapData);
 
 	procedure UpdateUI(var currentUI: UI);
 
@@ -43,13 +46,17 @@ interface
 
 	function UISelectedID(var currentUI: UI): String;
 
+	procedure ReduceItemCount(var itemToReduce: UIElement);
+
 implementation
-	uses State;
+	uses State, SysUtils;
 
 	procedure InitUI(var newUI: UI; numElements: Integer);
 	begin
 		SetLength(newUI.items, numElements);
 		newUI.currentItem := 0;
+		newUI.previousUI := nil;
+		newUI.nextUI := nil;
 	end;
 
 	function CreateUIElement(inactiveBmp, activeBmp: Bitmap; x, y: Single; id: String = ''; setFont: String = 'PrStart'): UIElement;
@@ -61,6 +68,7 @@ implementation
 		result.y := y;
 		result.id := id;
 		result.setFont := FontNamed(setFont);
+		result.attachedInventory := nil;
 	end;
 
 	function FindUIElement(var currentUI: UI; id: String): Integer;
@@ -117,18 +125,56 @@ implementation
 
 	end;
 
-	procedure UINavigate(var currentUI: UI; var inputs: InputMap);
+	procedure ReduceItemCount(var itemToReduce: UIElement);
 	begin
+		itemToReduce.attachedInventory^.count -= 1;
+		if itemToReduce.attachedInventory^.count < 0 then
+		begin
+			itemToReduce.attachedInventory^.count := 0;
+		end;
+		itemToReduce.id := itemToReduce.attachedInventory^.name + ': ' + IntToStr(itemToReduce.attachedInventory^.count);
+	end;
+
+	procedure UINavigate(var currentUI: UI; var inputs: InputMap; var map: MapData);
+	var
+		currItem: ^UIElement;
+	begin
+		currItem := @currentUI.items[currentUI.currentItem];
+
 		if KeyTyped(inputs.MoveUp) then
 		begin
 			PlaySoundEffect(SoundEffectNamed('click'));
 			ChangeElement(currentUI, UI_PREV);
-		end;
-		if KeyTyped(inputs.MoveDown) then
+		end
+		else if KeyTyped(inputs.MoveDown) then
 		begin
 			PlaySoundEffect(SoundEffectNamed('click'));
 			ChangeElement(currentUI, UI_NEXT);
-		end;
+		end
+		else if KeyTyped(inputs.Select) then
+		begin
+			PlaySoundEffect(SoundEffectNamed('confirm'), 0.2);
+
+			if currItem^.attachedInventory <> nil then
+			begin
+				if currItem^.attachedInventory^.count > 0 then
+				begin
+					RestoreStat(map.player.hunger, currItem^.attachedInventory^.hungerPlus);
+					RestoreStat(map.player.hp, currItem^.attachedInventory^.healthPlus);
+
+					ReduceItemCount(currItem^);
+				end;
+			end;
+			if currentUI.nextUI <> nil then
+			begin
+				currentUI := currentUI.nextUI(map);
+			end;
+		end
+		else if ( KeyTyped(inputs.Menu) ) and ( currentUI.previousUI <> nil ) then
+		begin
+			PlaySoundEffect(SoundEffectNamed('select'), 0.2);
+			currentUI := currentUI.previousUI(map);
+		end
 
 	end;
 

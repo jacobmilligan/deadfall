@@ -12,7 +12,7 @@
 unit Menu;
 
 interface
-	uses State, Game, Input;
+	uses State, Game, Input, GameUI, Map;
 
 	type
 		DynamicStringArray = array of String;
@@ -39,8 +39,11 @@ interface
 	//
 	procedure MenuDraw(var thisState: ActiveState);
 
+	function CreateMenuUI(var map: MapData): UI;
+	function CreateInventoryUI(var map: MapData): UI;
+
 implementation
-	uses SwinGame, Map, GameUI, SysUtils, typinfo;
+	uses SwinGame, SysUtils, typinfo;
 
 	//
 	//	Retrieves a state at a given offset to the left from the current state in
@@ -71,32 +74,41 @@ implementation
 		end;
 	end;
 
+	function TestUI(var map: MapData): UI;
+	begin
+		InitUI(result, 1);
+		result.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), 100, (50 + (50 * 0)), 'Test', 'PrStartSmall');
+		result.currentItem := 0;
+		result.previousItem := 0;
+		result.previousUI := @CreateInventoryUI;
+	end;
 	//
 	//	Creates the inventory UI elements and returns it to replace the currently
 	//	displayed UI on the menu state
 	//
-	function CreateInventoryUI(constref inventory: InventoryCollection): UI;
+	function CreateInventoryUI(var map: MapData): UI;
 	const
 		UI_SIZE = 3;
 	var
 		itemStr: String;
 	begin
-		InitUI(result, inventory.numItems);
+		InitUI(result, map.inventory.numItems);
 
-		itemStr := inventory.rabbitLeg.name + ': ' + IntToStr(inventory.rabbitLeg.count);
+		itemStr := map.inventory.rabbitLeg.name + ': ' + IntToStr(map.inventory.rabbitLeg.count);
 		result.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), 100, (50 + (50 * 0)), itemStr, 'PrStartSmall');
-		result.items[0].attachedInventory := @inventory.rabbitLeg;
+		result.items[0].attachedInventory := @map.inventory.rabbitLeg;
 
-		itemStr := inventory.bandage.name + ': ' + IntToStr(inventory.bandage.count);
+		itemStr := map.inventory.bandage.name + ': ' + IntToStr(map.inventory.bandage.count);
 		result.items[1] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), 100, (50 + (50 * 2)), itemStr, 'PrStartSmall');
-		result.items[1].attachedInventory := @inventory.bandage;
+		result.items[1].attachedInventory := @map.inventory.bandage;
 
-		itemStr := inventory.trinket.name + ': ' + IntToStr(inventory.trinket.count);
+		itemStr := map.inventory.trinket.name + ': ' + IntToStr(map.inventory.trinket.count);
 		result.items[2] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), 100, (50 + (50 * 4)), itemStr, 'PrStartSmall');
-		result.items[2].attachedInventory := @inventory.trinket;
+		result.items[2].attachedInventory := @map.inventory.trinket;
 
 		result.currentItem := 0;
 		result.previousItem := 0;
+		result.previousUI := @CreateMenuUI;
 		result.name := 'Inventory';
 	end;
 
@@ -104,7 +116,7 @@ implementation
 	//	Creates the menu UI elements and returns it to replace the currently
 	//	displayed UI on the menu state
 	//
-	function CreateMenuUI(): UI;
+	function CreateMenuUI(var map: MapData): UI;
 	const
 		UI_SIZE = 3;
 	var
@@ -114,6 +126,7 @@ implementation
 
 		InitUI(result, UI_SIZE);
 		result.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 100, 'Inventory');
+		result.nextUI := @CreateInventoryUI;
 		result.items[1] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 250, 'Settings');
 		result.items[2] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 400, 'Exit');
 		result.currentItem := 0;
@@ -126,17 +139,7 @@ implementation
 		newState.HandleInput := @MenuHandleInput;
 		newState.Update := @MenuUpdate;
 		newState.Draw := @MenuDraw;
-		newState.displayedUI := CreateMenuUI();
-	end;
-
-	procedure ReduceItemCount(var itemToReduce: UIElement);
-	begin
-		itemToReduce.attachedInventory^.count -= 1;
-		if itemToReduce.attachedInventory^.count < 0 then
-		begin
-			itemToReduce.attachedInventory^.count := 0;
-		end;
-		itemToReduce.id := itemToReduce.attachedInventory^.name + ': ' + IntToStr(itemToReduce.attachedInventory^.count);
+		newState.displayedUI := CreateMenuUI( GetState(newState.manager, 1)^.map );
 	end;
 
 	procedure MenuHandleInput(var thisState: ActiveState; var inputs: InputMap);
@@ -145,55 +148,31 @@ implementation
 		currItem: ^UIElement;
 	begin
 		lastLevelState := GetState(thisState.manager, 1);
+		currItem := @thisState.displayedUI.items[thisState.displayedUI.currentItem];
 
-		UINavigate(thisState.displayedUI, inputs);
-
-		if thisState.displayedUI.name = 'Inventory' then
+		if ( KeyTyped(inputs.Menu) ) and ( thisState.displayedUI.name = 'Main Menu' ) then
 		begin
-			if KeyTyped(inputs.Menu) then
+			PlaySoundEffect(SoundEffectNamed('select'), 0.2);
+			StateChange(thisState.manager^, LevelState);
+		end
+		else if KeyTyped(inputs.Select) and ( UISelectedID(thisState.displayedUI) = 'Exit' ) then
+		begin
+			PlaySoundEffect(SoundEffectNamed('confirm'), 0.2);
+			StateChange(thisState.manager^, TitleState);
+		end
+		else if KeyTyped(inputs.Attack) and ( thisState.displayedUI.name = 'Inventory' ) then
+		begin
+			if currItem^.attachedInventory^.count > 0 then
 			begin
-				PlaySoundEffect(SoundEffectNamed('select'), 0.2);
-				InitUI(thisState.displayedUI, 0);
-				thisState.displayedUI := CreateMenuUI();
-			end
-			else if KeyTyped(inputs.Select) then
-			begin
-				PlaySoundEffect(SoundEffectNamed('confirm'), 0.2);
-				currItem := @thisState.displayedUI.items[thisState.displayedUI.currentItem];
-
-				if currItem^.attachedInventory^.count > 0 then
-				begin
-					RestoreStat(lastLevelState^.map.player.hunger, currItem^.attachedInventory^.hungerPlus);
-					RestoreStat(lastLevelState^.map.player.hp, currItem^.attachedInventory^.healthPlus);
-					//ListOnEbay(lastLevelState^.map.player.hunger, currItem^.attachedInventory^.hungerPlus);
-
-					ReduceItemCount(currItem^);
-				end;
-
+				SellItem(currItem^.attachedInventory^, lastLevelState^.map.inventory);
+				ReduceItemCount(currItem^);
 			end;
 		end
 		else
 		begin
-			if KeyTyped(inputs.Menu) then
-			begin
-				PlaySoundEffect(SoundEffectNamed('select'), 0.2);
-				StateChange(thisState.manager^, LevelState);
-			end
-			else if KeyTyped(inputs.Select) then
-			begin
-
-				PlaySoundEffect(SoundEffectNamed('confirm'), 0.2);
-				if UISelectedID(thisState.displayedUI) = 'Exit' then
-				begin
-					StateChange(thisState.manager^, TitleState);
-				end
-				else if UISelectedID(thisState.displayedUI) = 'Inventory' then
-				begin
-					InitUI(thisState.displayedUI, 0);
-					thisState.displayedUI := CreateInventoryUI(lastLevelState^.map.inventory);
-				end;
-			end;
+			UINavigate(thisState.displayedUI, inputs, lastLevelState^.map);
 		end;
+
 	end;
 
 	procedure MenuUpdate(var thisState: ActiveState);

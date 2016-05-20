@@ -62,11 +62,14 @@ implementation
 		LoadBitmapNamed('treasure', 'treasure.png');
 		LoadBitmapNamed('empty bar', 'empty_bar.png');
 		LoadBitmapNamed('health bar', 'health_bar.png');
+		LoadBitmapNamed('dollars', 'dollars.png');
+
 		LoadMusicNamed('baws', 'baws.wav');
 		LoadMusicNamed('main', 'main.wav');
 		LoadSoundEffectNamed('select', 'select.wav');
 		LoadSoundEffectNamed('click', 'click.wav');
 		LoadSoundEffectNamed('confirm', 'confirm.wav');
+
 		LoadResourceBundle('md.txt');
 	end;
 
@@ -103,7 +106,7 @@ implementation
 			ClearScreen(ColorBlack);
 
 			// Current state draws itself to the window
-			states[High(states)].Draw(states[High(states)]);
+			states[High(states)].Draw( states[High(states)] );
 
 			RefreshScreen(60);
 		end;
