@@ -119,6 +119,7 @@ implementation
 
 		// Setup player sprite and animation
 		newState.map.player.sprite := CreateSprite('player', BitmapNamed('eng'), AnimationScriptNamed('player'));
+		SpriteSetCollisionBitmap(newState.map.player.sprite, BitmapNamed('player_collision'));
 		SwitchAnimation(newState.map.player.sprite, 'entity_down_idle');
 
 		//
@@ -153,7 +154,7 @@ implementation
 		pickup: Boolean;
 	begin
 		pickup := false;
-		
+
 		if KeyTyped(inputs.Select) then
 		begin
 			pickup := true;
@@ -220,7 +221,7 @@ implementation
 		if thisState.map.player.hp <= 0 then
 		begin
 			PlaySoundEffect(SoundEffectNamed('confirm'), 0.2);
-			StateChange(thisState.manager^, QuitState);
+			StateChange(thisState.manager^, TitleState);
 		end;
 
 	end;

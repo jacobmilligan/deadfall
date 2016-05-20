@@ -218,11 +218,11 @@ implementation
                 RemoveNPC(i, map.npcs);
                 if map.tiles[Floor(npcPos.x / 32), Floor(npcPos.y / 32)].feature = None then
                 begin
-                    map.tiles[Floor(npcPos.x / 32), Floor(npcPos.y / 32)].feature := Food;
+                    SetFeature(map.tiles[Floor(npcPos.x / 32), Floor(npcPos.y / 32)], Food, false);
                 end
                 else if map.tiles[Ceil(npcPos.x / 32), Ceil(npcPos.y / 32)].feature = None then
                 begin
-                    map.tiles[Ceil(npcPos.x / 32), Ceil(npcPos.y / 32)].feature := Food;
+                    SetFeature(map.tiles[Ceil(npcPos.x / 32), Ceil(npcPos.y / 32)], Food, false);
                 end
                 else
                 begin

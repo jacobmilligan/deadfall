@@ -150,6 +150,8 @@ interface
 	//
 	function CreateTileView(): TileView;
 
+	procedure SetFeature(var tile: Tile; feature: FeatureType; collidable: Boolean);
+
 	function InitInventory(): InventoryTemp;
 
 	procedure RestoreHunger(var hunger: Single; plus: Single);
@@ -600,26 +602,26 @@ implementation
 		begin
 			startX := tileX - 1;
 			finishX := tileX + 1;
-			startY := Floor(y / 32);
+			startY := Floor(y / TILESIZE);
 			finishY := startY;
 		end
 		else if dir = Right then
 		begin
-		  	startX := Ceil(x / 32);
+		  startX := Ceil(x / TILESIZE);
 			finishX := startX;
 			startY := tileY - 1;
 			finishY := tileY + 1;
 		end
 		else if dir = Down then
 		begin
-		  	startX := tileX - 1;
+		  startX := tileX - 1;
 			finishX := tileX + 1;
-			startY := Floor(y / 32);
+			startY := Floor(y / TILESIZE);
 			finishY := startY;
 		end
 		else if dir = Left then
 		begin
-		  	startX := Floor(x / 32);
+		  startX := Floor(x / TILESIZE);
 			finishX := startX;
 			startY := tileY - 1;
 			finishY := tileY + 1;
@@ -703,7 +705,7 @@ implementation
 			DrawText('Finalizing Map', ColorWhite, 300, 200);
 			RefreshScreen(60);
 
-			mapBmp := CreateBitmap(size, size);
+			{mapBmp := CreateBitmap(size, size);
 			opts.dest := mapBmp;
 
 			for x := 0 to High(newMap.tiles) do
@@ -727,7 +729,7 @@ implementation
 					DrawPixel(clr, x, y, opts);
 				end;
 			end;
-			SaveBitmap(mapBmp, 'new_map.png');
+			SaveBitmap(mapBmp, 'new_map.png');}
 		end
 		else
 		begin

@@ -1,17 +1,15 @@
 ld: warning: object file (./tmp/mac/Debug/Main.o) was built for newer OSX version (10.11) than being linked (10.7)
-ld: warning: object file (./tmp/mac/Debug/SwinGame.o) was built for newer OSX version (10.11) than being linked (10.7)
 ld: warning: object file (./tmp/mac/Debug/Game.o) was built for newer OSX version (10.11) than being linked (10.7)
-ld: warning: ld: warning: object file (./tmp/mac/Debug/State.o) was built for newer OSX version (10.11) than being linked (10.7)object file (./tmp/mac/Debug/Input.o) was built for newer OSX version (10.11) than being linked (10.7)
-
+ld: warning: object file (./tmp/mac/Debug/SwinGame.o) was built for newer OSX version (10.11) than being linked (10.7)
+ld: warning: object file (./tmp/mac/Debug/State.o) was built for newer OSX version (10.11) than being linked (10.7)
+ld: warning: object file (./tmp/mac/Debug/Input.o) was built for newer OSX version (10.11) than being linked (10.7)
 ld: warning: object file (./tmp/mac/Debug/sgTypes.o) was built for newer OSX version (10.11) than being linked (10.7)
-ld: warning: object file (./tmp/mac/Debug/sgAnimations.o) was built for ne778 lines compiled, 0.4 sec 
-2 warning(s) issued
-6 note(s) issued
-ct file (./tmp/mac/Debug/sgAudio.o) was built for newer OSX version (10.11) than being linked (10.7)ld: warning: 
-object file (./tmp/mac/Debug/sgCamera.o) was built for newer OSX version (10.11) than being linked (10.7)ld: warning: 
-object file (./tmp/mac/Debug/sgGeometry.o) was built for newer OSX version (10.11) than being linked (10.7)
-ld: warning: object file (./tmp/mac/Debug/sgGraphics.o) was built for newer OSX version (10.11) than being linked (10.7)
-ld: warning: object file (./tmp/mac/Debug/sgImages.o) was built for newer OSX version (10.11) than being linked (10.7)
+ld: warning: object file (./tmp/mac/Debug/sgAnimations.o) was built for newer OSX version (10.11) than being linked (10.7)
+ld: warning: object file (./tmp/mac/Debug/sgAudio.o) was built for newer OSX version (10.11) than being linked (10.7)
+ld: warning: object file (./tmp/mac/Debug/sgCamera.o) was built for newer OSX version (10.11) than being linked (10.7)
+ld: warning: object file (./tmp/mac/Debug/sgGeometry.o) was built for newer OSX version (10.11) than being linked (10.7)
+ld: warning: ld: warning: object file (./tmp/mac/Debug/sgGraphics.o) was built for newer OSX version (10.11) than being linked (10.7)object file (./tmp/mac/Debug/sgImages.o) was built for newer OSX version (10.11) than being linked (10.7)
+
 ld: warning: object file (./tmp/mac/Debug/sgInput.o) was built for newer OSX version (10.11) than being linked (10.7)
 ld: warning: object file (./tmp/mac/Debug/sgNetworking.o) was built for newer OSX version (10.11) than being linked (10.7)
 ld: warning: object file (./tmp/mac/Debug/sgWeb.o) was built for newer OSX version (10.11) than being linked (10.7)
@@ -19,46 +17,48 @@ ld: warning: object file (./tmp/mac/Debug/sgPhysics.o) was built for newer OSX v
 ld: warning: object file (./tmp/mac/Debug/sgResources.o) was built for newer OSX version (10.11) than being linked (10.7)
 ld: warning: object file (./tmp/mac/Debug/sgSprites.o) was built for newer OSX version (10.11) than being linked (10.7)
 ld: warning: object file (./tmp/mac/Debug/sgText.o) was built for newer OSX version (10.11) than being linked (10.7)
-ld: warning: object file (./tmp/mac/Debug/sgTimers.o) was built for newer OSX version (10.11) than being linked (10.7)ld: warning: 
-ld: warning: object file (./tmp/mac/Debug/sgUtils.o) was built for newer OSX version (10.11) than being linked (10.7)object file (./tmp/mac/Debug/sgUserInterface.o) was built for newer OSX version (10.11) than being linked (10.7)
+ld: warning: object file (./tmp/mac/Debug/sgTimers.o) 1971 lines compiled, 0.6 sec 
+2 warning(s) issued
+25 note(s) issued
+ warning: object file (./tmp/mac/Debug/sgUtils.o) was built for newer OSX version (10.11) than being linked (10.7)
+ld: warning: object file (./tmp/mac/Debug/sgUserInterface.o) was built for newer OSX version (10.11) than being linked (10.7)
+ld: warning: object file (./tmp/mac/Debug/sgArduino.o) was built for newer OSX version (10.11) than being linked (10.7)
+ld: warning: object file (./tmp/mac/Debug/sgDrawingOptions.o) was built for newer OSX version (10.11) than being linked (10.7)
+ld: warning: object file (./tmp/mac/Debug/sgWindowManager.o) was built for newer OSX version (10.11) than being linked (10.7)
+ld: warning: ld: warning: object file (./tmp/mac/Debug/sgShared.o) was built for newer OSX version (10.11) than being linked (10.7)object file (./tmp/mac/Debug/stringhash.o) was built for newer OSX version (10.11) than being linked (10.7)
 
-ld: warning: ld: warning: object file (./tmp/mac/Debug/sgDrawingOptions.o) was built for newer OSX version (10.11) than being linked (10.7)object file (./tmp/mac/Debug/sgArduino.o) was built for newer OSX version (10.11) than being linked (10.7)
+ld: warning: ld: warning: ld: warning: object file (./tmp/mac/Debug/sgInputBackend.o) was built for newer OSX version (10.11) than being linked (10.7)object file (./tmp/mac/Debug/sgBackendTypes.o) was built for newer OSX version (10.11) than being linked (10.7)object file (./tmp/mac/Debug/hashtable.o) was built for newer OSX version (10.11) than being linked (10.7)ld: warning: 
+
+
+object file (./tmp/mac/Debug/comparable.o) was built for newer OSX version (10.11) than being linked (10.7)
+ld: warning: ld: warning: object file (./tmp/mac/Debug/sgDriverSDL2Types.o) was built for newer OSX version (10.11) than being linked (10.7)ld: warning: object file (./tmp/mac/Debug/sgNamedIndexCollection.o) was built for newer OSX version (10.11) than being linked (10.7)
+object file (./tmp/mac/Debug/sgDriverGraphics.o) was built for newer OSX version (10.11) than being linked (10.7)
 ld: warning: 
-ld: warning: object file (./tmp/mac/Debug/sgWindowManager.o) was built for newer OSX version (10.11) than being linked (10.7)object file (./tmp/mac/Debug/sgShared.o) was built for newer OSX version (10.11) than being linked (10.7)ld: warning: 
-
-ld: warning: object file (./tmp/mac/Debug/stringhash.o) was built for newer OSX version (10.11) than being linked (10.7)ld: warning: object file (./tmp/mac/Debug/sgInputBackend.o) was built for newer OSX version (10.11) than being linked (10.7)
-object file (./tmp/mac/Debug/sgBackendTypes.o) was built for newer OSX version (10.11) than being linked (10.7)
+ld: warning: object file (./tmp/mac/Debug/sgDriverImages.o) was built for newer OSX version (10.11) than being linked (10.7)ld: warning: object file (./tmp/mac/Debug/sgDriverInput.o) was built for newer OSX version (10.11) than being linked (10.7)
+object file (./tmp/mac/Debug/sgSharedUtils.o) was built for newer OSX version (10.11) than being linked (10.7)
 ld: warning: 
-ld: warning: object file (./tmp/mac/Debug/hashtable.o) was built for newer OSX version (10.11) than being linked (10.7)object file (./tmp/mac/Debug/comparable.o) was built for newer OSX version (10.11) than being linked (10.7)
+ld: warning: object file (./tmp/mac/Debug/sgDriverTimer.o) was built for newer OSX version (10.11) than being linked (10.7)ld: warning: object file (./tmp/mac/Debug/sgTrace.o) was built for newer OSX version (10.11) than being linked (10.7)
+object file (./tmp/mac/Debug/sgDriver.o) was built for newer OSX version (10.11) than being linked (10.7)
+ld: warning: 
+ld: warning: object file (./tmp/mac/Debug/sgDriverText.o) was built for newer OSX version (10.11) than being linked (10.7)ld: warning: object file (./tmp/mac/Debug/GeometryHelper.o) was built for newer OSX version (10.11) than being linked (10.7)
+object file (./tmp/mac/Debug/sgDriverSDL2.o) was built for newer OSX version (10.11) than being linked (10.7)
+ld: warning: 
+ld: warning: ld: warning: object file (./tmp/mac/Debug/sgMinSDL2.o) was built for newer OSX version (10.11) than being linked (10.7)object file (./tmp/mac/Debug/SpritePack.o) was built for newer OSX version (10.11) than being linked (10.7)object file (./tmp/mac/Debug/sgDriverAudio.o) was built for newer OSX version (10.11) than being linked (10.7)
 
-ld: warning: object file (./tmp/mac/Debug/sgDriverSDL2Types.o) was built for newer OSX version (10.11) than being linked (10.7)
-ld: warning: object file (./tmp/mac/Debug/sgNamedIndexCollection.o) was built for newer OSX version (10.11) than being linked (10.7)
-ld: warning: object file (./tmp/mac/Debug/sgDriverGraphics.o) was built for newer OSX version (10.11) than being linked (10.7)ld: warning: 
-object file (./tmp/mac/Debug/sgDriverImages.o) was built for newer OSX version (10.11) than being linked (10.7)
-ld: warning: object file (./tmp/mac/Debug/sgDriverInput.o) was built for newer OSX version (10.11) than being linked (10.7)
-ld: warning: object file (./tmp/mac/Debug/sgSharedUtils.o) was built for newer OSX version (10.11) than being linked (10.7)
-ld: warning: object file (./tmp/mac/Debug/sgDriverTimer.o) was built for newer OSX version (10.11) than being linked (10.7)
-ld: warning: object file (./tmp/mac/Debug/sgTrace.o) was built for newer OSX version (10.11) than being linked (10.7)
-ld: warning: object file (./tmp/mac/Debug/sgDriver.o) was built for newer OSX version (10.11) than being linked (10.7)
-ld: warning: object file (./tmp/mac/Debug/sgDriverText.o) was built for newer OSX version (10.11) than being linked (10.7)
-ld: warning: object file (./tmp/mac/Debug/GeometryHelper.o) was built for newer OSX version (10.11) than being linked (10.7)
-ld: warning: object file (./tmp/mac/Debug/sgDriverSDL2.o) was built for newer OSX version (10.11) than being linked (10.7)ld: warning: 
-object file (./tmp/mac/Debug/sgMinSDL2.o) was built for newer OSX version (10.11) than being linked (10.7)
-ld: warning: object file (./tmp/mac/Debug/SpritePack.o) was built for newer OSX version (10.11) than being linked (10.7)
-ld: warning: object file (./tmp/mac/Debug/sgDriverAudio.o) was built for newer OSX version (10.11) than being linked (10.7)
-ld: warning: object file (./tmp/mac/Debug/sgDriverAudioSDL2.o) was built for newer OSX version (10.11) than being linked (10.7)
-ld: warning: object file (./tmp/mac/Debug/sgDriverTimerSDL2.o) was built for newer OSX version (10.11) than being linked (10.7)
-ld: warning: object file (./tmp/mac/Debug/sgDriverTextSDL2.o) was built for newer OSX version (10.11) than being linked (10.7)
-ld: warning: object file (./tmp/mac/Debug/synaser.o) was built for newer OSX version (10.11) than being linked (10.7)
-ld: warning: object file (./tmp/mac/Debug/synafpc.o) was built for newer OSX version (10.11) than being linked (10.7)
-ld: warning: object file (./tmp/mac/Debug/synautil.o) was built for newer OSX version (10.11) than being linked (10.7)
-ld: warning: object file (./tmp/mac/Debug/sgDriverWeb.o) was built for newer OSX version (10.11) than being linked (10.7)
-ld: warning: object file (./tmp/mac/Debug/Map.o) was built for newer OSX version (10.11) than being linked (10.7)
-ld: warning: object file (./tmp/mac/Debug/GameUI.o) was built for newer OSX version (10.11) than being linked (10.7)ld: warning: 
-object file (./tmp/mac/Debug/Title.o) was built for newer OSX version (10.11) than being linked (10.7)ld: warning: 
-object file (./tmp/mac/Debug/Level.o) was built for newer OSX version (10.11) than being linked (10.7)
-ld: warning: object file (./tmp/mac/Debug/Menu.o) was built for newer OSX version (10.11) than being linked (10.7)
-ld: warning: object file (./tmp/mac/Debug/NPC.o) was built for newer OSX version (10.11) than being linked (10.7)
+
+ld: warning: ld: warning: ld: warning: object file (./tmp/mac/Debug/sgDriverAudioSDL2.o) was built for newer OSX version (10.11) than being linked (10.7)object file (./tmp/mac/Debug/sgDriverTimerSDL2.o) was built for newer OSX version (10.11) than being linked (10.7)object file (./tmp/mac/Debug/sgDriverTextSDL2.o) was built for newer OSX version (10.11) than being linked (10.7)
+
+
+ld: warning: ld: warning: ld: warning: object file (./tmp/mac/Debug/synaser.o) was built for newer OSX version (10.11) than being linked (10.7)object file (./tmp/mac/Debug/synafpc.o) was built for newer OSX version (10.11) than being linked (10.7)object file (./tmp/mac/Debug/synautil.o) was built for newer OSX version (10.11) than being linked (10.7)
+
+
+ld: warning: ld: warning: ld: warning: object file (./tmp/mac/Debug/sgDriverWeb.o) was built for newer OSX version (10.11) than being linked (10.7)object file (./tmp/mac/Debug/Map.o) was built for newer OSX version (10.11) than being linked (10.7)object file (./tmp/mac/Debug/GameUI.o) was built for newer OSX version (10.11) than being linked (10.7)
+
+
+ld: warning: ld: warning: object file (./tmp/mac/Debug/Title.o) was built for newer OSX version (10.11) than being linked (10.7)object file (./tmp/mac/Debug/Level.o) was built for newer OSX version (10.11) than being linked (10.7)ld: warning: ld: warning: 
+
+object file (./tmp/mac/Debug/NPC.o) was built for newer OSX version (10.11) than being linked (10.7)object file (./tmp/mac/Debug/Menu.o) was built for newer OSX version (10.11) than being linked (10.7)
+
 ld: warning: object file (./lib/mac//libsgsdl2.a(SGSDL2Core.o)) was built for newer OSX version (10.9) than being linked (10.7)
 ld: warning: object file (./lib/mac//libsgsdl2.a(SDL_dynapi.o)) was built for newer OSX version (10.9) than being linked (10.7)
 ld: warning: object file (./lib/mac//libsgsdl2.a(SGSDL2Web.o)) was built for newer OSX version (10.9) than being linked (10.7)
