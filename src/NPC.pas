@@ -100,7 +100,7 @@ implementation
                     if (localX = 1) or (localY = 1) then
                     begin
                         currentPath := PointPointDistance(PointAt(i * 32, j * 32), npc.currentGoal);
-                        CheckCollision(map, npc.sprite, GetDir(localX, localY), hasCollision);
+                        CheckCollision(map, npc.sprite, GetDir(localX, localY), hasCollision, false);
 
                         if (hasCollision = false) and (currentPath < newPath.cost) then
                         begin
@@ -126,11 +126,11 @@ implementation
         FindOpenPath(map, npc);
         if PointPointDistance(npc.currentGoal, PointAt(SpriteX(npc.sprite), SpriteY(npc.sprite))) <= 64 then
         begin
-            MoveEntity(map, npc, npc.direction, 0);
+            MoveEntity(map, npc, npc.direction, 0, false);
         end
         else
         begin
-            MoveEntity(map, npc, npc.direction, 1);
+            MoveEntity(map, npc, npc.direction, 1, false);
         end;
         UpdateSprite(npc.sprite);
     end;

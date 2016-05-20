@@ -130,7 +130,7 @@ interface
 	//	Checks if a given entity is about to collide with anything on the
 	//	given map based off its projected delta movement
 	//
-	procedure CheckCollision(var map: MapData; var toCheck: Sprite; dir: Direction; var hasCollision: Boolean);
+	procedure CheckCollision(var map: MapData; var toCheck: Sprite; dir: Direction; var hasCollision: Boolean; pickup: Boolean);
 
 	//
 	//	Checks to see if a given point is out of the bounds of the passed in TileGrid. Returns
@@ -550,7 +550,7 @@ implementation
 				else
 				begin
 
-					if (Random(100) > 10) then
+					if (Random(1000) > 990) and ( not map.tiles[x, y].collidable ) then
 					begin
 						SetFeature(map.tiles[x, y], Treasure, true);
 					end;
@@ -610,7 +610,7 @@ implementation
 		end;
 	end;
 
-	procedure CheckCollision(var map: MapData; var toCheck: Sprite; dir: Direction; var hasCollision: Boolean);
+	procedure CheckCollision(var map: MapData; var toCheck: Sprite; dir: Direction; var hasCollision: Boolean; pickup: Boolean);
 	var
 		tileX, tileY, i, j, startX, finishX, startY, finishY: Integer;
 		x, y: Single;
@@ -695,6 +695,15 @@ implementation
 					begin
 						map.inventory.rabbitLeg.count += 1;
 						map.tiles[i, j].feature := None;
+					end;
+					if not OutOfBounds(map.tiles, i, j) and (map.tiles[i, j].feature = Treasure) then
+					begin
+						if pickup then
+						begin
+							map.inventory.trinket.count += 1;
+							map.tiles[i, j].feature := None;
+							map.tiles[i, j].collidable := false;
+						end;
 					end;
 				end;
 

@@ -149,7 +149,16 @@ implementation
 	end;
 
 	procedure LevelHandleInput(var thisState: ActiveState; var inputs: InputMap);
+	var
+		pickup: Boolean;
 	begin
+		pickup := false;
+		
+		if KeyTyped(inputs.Select) then
+		begin
+			pickup := true;
+		end;
+
 
 		if KeyTyped(inputs.Menu) then
 		begin
@@ -158,19 +167,19 @@ implementation
 
 		if KeyDown(inputs.MoveUp) then
 		begin
-			MoveEntity(thisState.map, thisState.map.player, Up, 3);
+			MoveEntity(thisState.map, thisState.map.player, Up, 3, pickup);
 		end
 		else if KeyDown(inputs.MoveRight) then
 		begin
-			MoveEntity(thisState.map, thisState.map.player, Right, 3);
+			MoveEntity(thisState.map, thisState.map.player, Right, 3, pickup);
 		end
 		else if KeyDown(inputs.MoveDown) then
 		begin
-			MoveEntity(thisState.map, thisState.map.player, Down, 3);
+			MoveEntity(thisState.map, thisState.map.player, Down, 3, pickup);
 		end
 		else if KeyDown(inputs.MoveLeft) then
 		begin
-			MoveEntity(thisState.map, thisState.map.player, Left, 3);
+			MoveEntity(thisState.map, thisState.map.player, Left, 3, pickup);
 		end
 		else
 		begin
@@ -178,7 +187,7 @@ implementation
 			//	Move with 0 speed based off previously assigned direction
 			//	(i.e. whatever way the player was facing last)
 			//
-			MoveEntity(thisState.map, thisState.map.player, thisState.map.player.direction, 0);
+			MoveEntity(thisState.map, thisState.map.player, thisState.map.player.direction, 0, pickup);
 		end;
 
 		if KeyDown(inputs.Attack) then
