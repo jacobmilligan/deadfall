@@ -71,7 +71,7 @@ interface
 			//	Represents the tiles elevation - zero represents sea
 			//	level.
 			//
-			elevation: Double;
+			elevation: Integer;
 
 			// tiles base bitmap
 			bmp: Bitmap;
@@ -402,55 +402,22 @@ implementation
 			for y := 0 to High(map.tiles) do
 			begin
 
-				if ( map.tiles[x, y].elevation < 0 ) then
-				begin
-					SetTile(map.tiles[x, y], Water, 'dark water', true);
-				end
-				else if ( map.tiles[x, y].elevation >= 0 ) and ( map.tiles[x, y].elevation < 200 ) then
-				begin
-					SetTile(map.tiles[x, y], Water, 'water', true);
-				end
-				else if ( map.tiles[x, y].elevation >= 200 ) and ( map.tiles[x, y].elevation < 300 ) then
-				begin
-					SetTile(map.tiles[x, y], Sand, 'sand', false);
-				end
-				else
-				begin
-					SetTile(map.tiles[x, y], Grass, 'grass', false);
-
-					if ( map.tiles[x, y].elevation > 400 ) and ( map.tiles[x, y].elevation < 600 ) then
-					begin
-						SetTile(map.tiles[x, y], MediumGrass, 'dark grass', false);
-					end;
-
-					if ( map.tiles[x, y].elevation >= 600 ) and ( map.tiles[x, y].elevation < 800 ) then
-					begin
-						SetTile(map.tiles[x, y], HighGrass, 'darkest grass', false);
-					end;
-
-					if ( map.tiles[x, y].elevation >= 800 ) and ( map.tiles[x, y].elevation < 1000 ) then
-					begin
-
-						if Random(10) > 6 then
-						begin
-							SetTile(map.tiles[x, y], SnowyGrass, 'snowy grass', false);
-						end
+				case map.tiles[x, y].elevation of
+					0..199: SetTile(map.tiles[x, y], Water, 'water', true);
+					200..299: SetTile(map.tiles[x, y], Sand, 'sand', false);
+					300..399: SetTile(map.tiles[x, y], Grass, 'grass', false);
+					400..599: SetTile(map.tiles[x, y], MediumGrass, 'dark grass', false);
+					600..799: SetTile(map.tiles[x, y], HighGrass, 'darkest grass', false);
+					800..999: if Random(10) > 6 then
+											SetTile(map.tiles[x, y], SnowyGrass, 'snowy grass', false)
+										else
+											SetTile(map.tiles[x, y], HighGrass, 'darkest grass', false);
+					1000..1499: SetTile(map.tiles[x, y], SnowyGrass, 'snowy grass', false);
+					else
+						if map.tiles[x, y].elevation  < 0 then
+							SetTile(map.tiles[x, y], Water, 'dark water', true)
 						else
-						begin
-							SetTile(map.tiles[x, y], HighGrass, 'darkest grass', false);
-						end;
-					end;
-
-					if ( map.tiles[x, y].elevation >= 1000 ) and ( map.tiles[x, y].elevation < 1500 ) then
-					begin
-						SetTile(map.tiles[x, y], SnowyGrass, 'snowy grass', false);
-					end;
-
-					if ( map.tiles[x, y].elevation >= 1500 ) then
-					begin
-						SetTile(map.tiles[x, y], Mountain, 'mountain', true);
-					end;
-
+							SetTile(map.tiles[x, y], Mountain, 'mountain', true)
 				end;
 
 			end;
