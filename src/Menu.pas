@@ -179,7 +179,7 @@ implementation
 
 	procedure MenuUpdate(var thisState: ActiveState);
 	begin
-		UpdateUI(thisState.displayedUI);
+		UpdateUI(thisState.displayedUI, thisState.displayedUI.currentItem, thisState.displayedUI.previousItem);
 	end;
 
 	procedure MenuDraw(var thisState: ActiveState);

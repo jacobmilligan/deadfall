@@ -38,7 +38,7 @@ interface
 
 	procedure UINavigate(var currentUI: UI; var inputs: InputMap; var map: MapData);
 
-	procedure UpdateUI(var currentUI: UI);
+	procedure UpdateUI(var currentUI: UI; currentItem, previousItem: Integer);
 
 	procedure DrawUI(var currentUI: UI);
 
@@ -178,10 +178,10 @@ implementation
 
 	end;
 
-	procedure UpdateUI(var currentUI: UI);
+	procedure UpdateUI(var currentUI: UI; currentItem, previousItem: Integer);
 	begin
-		currentUI.items[currentUI.previousItem].currentBmp := currentUI.items[currentUI.previousItem].inactiveBmp;
-		currentUI.items[currentUI.currentItem].currentBmp := currentUI.items[currentUI.currentItem].activeBmp;
+		currentUI.items[previousItem].currentBmp := currentUI.items[previousItem].inactiveBmp;
+		currentUI.items[currentItem].currentBmp := currentUI.items[currentItem].activeBmp;
 	end;
 
 	procedure DrawUI(var currentUI: UI);
@@ -202,11 +202,13 @@ implementation
 
 			itemCenterX := currentUI.items[i].x + (BitmapWidth(currentUI.items[i].currentBmp) / 2);
 			itemCenterX := itemCenterX - ( TextWidth(currentUI.items[i].setFont, currentUI.items[i].id) / 2 );
+			itemCenterX := CameraX() + itemCenterX;
 
 			itemCenterY := currentUI.items[i].y + (BitmapHeight(currentUI.items[i].currentBmp) / 2);
 			itemCenterY := itemCenterY - ( TextHeight(currentUI.items[i].setFont, currentUI.items[i].id) / 2 );
+			itemCenterY := CameraY() + itemCenterY;
 
-			DrawText(currentUI.items[i].id, ColorBlack, currentUI.items[i].setFont, CameraX() + itemCenterX, CameraY() + itemCenterY);
+			DrawText(currentUI.items[i].id, ColorBlack, currentUI.items[i].setFont, itemCenterX, itemCenterY);
 		end;
 
 	end;

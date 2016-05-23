@@ -96,10 +96,10 @@ implementation
 		if Length(states) > 0 then
 		begin
 			// Current state handles input
-			states[High(states)].HandleInput(states[High(states)], inputs);
+			states[High(states)].HandleInput( states[High(states)], inputs );
 
 			// Current state updates the game
-			states[High(states)].Update(states[High(states)]);
+			states[High(states)].Update( states[High(states)] );
 		end;
 
 	end;

@@ -74,7 +74,7 @@ implementation
 
 	procedure TitleUpdate(var thisState: ActiveState);
 	begin
-		UpdateUI(thisState.displayedUI);
+		UpdateUI(thisState.displayedUI, thisState.displayedUI.currentItem, thisState.displayedUI.previousItem);
 	end;
 
 	procedure TitleDraw(var thisState: ActiveState);
