@@ -1,6 +1,8 @@
 BITMAP,eng,Engineer.png,28,28,4,4,16
+BITMAP,player,player.png,28,28,4,8,32
 BITMAP,player_collision,player_collision.png,28,25,4,4,16
 BITMAP,bunny,bunny.png,28,28,4,4,16
+BITMAP,bunny_hurt,bunny_hurt.png,28,28,4,4,16
 BITMAP,ui_blue,UIBlue.png
 BITMAP,ui_red,UIRed.png
 BITMAP,hidden,hidden.png

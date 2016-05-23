@@ -153,7 +153,7 @@ implementation
 		end
 		else if KeyTyped(inputs.Select) then
 		begin
-			PlaySoundEffect(SoundEffectNamed('confirm'), 0.2);
+			PlaySoundEffect(SoundEffectNamed('confirm'), 0.5);
 
 			if currItem^.attachedInventory <> nil then
 			begin
@@ -172,7 +172,7 @@ implementation
 		end
 		else if ( KeyTyped(inputs.Menu) ) and ( currentUI.previousUI <> nil ) then
 		begin
-			PlaySoundEffect(SoundEffectNamed('select'), 0.2);
+			PlaySoundEffect(SoundEffectNamed('back'), 0.8);
 			currentUI := currentUI.previousUI(map);
 		end
 

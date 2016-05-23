@@ -131,6 +131,12 @@ implementation
 	    SpriteSetDY(toMove.sprite, velocity.y);
 
       CheckCollision(map, toMove.sprite, dir, hasCollision, pickup);
+
+      if toMove.attackTimeout > 0 then
+      begin
+        SpriteSetDX(toMove.sprite, 0);
+  	    SpriteSetDY(toMove.sprite, 0);
+      end;
     end;
 
 end.

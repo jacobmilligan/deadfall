@@ -107,11 +107,13 @@ implementation
 		newState.map.player.hp := 100;
 		newState.map.player.hunger := 100;
 		newState.map.player.attackTimeout := 0;
+		newState.map.player.maxAttackSpeed := 10;
+		WriteLn(newState.map.player.maxAttackSpeed:0:4);
 
 		newState.map.inventory := InitInventory();
 
 		// Setup player sprite and animation
-		newState.map.player.sprite := CreateSprite('player', BitmapNamed('eng'), AnimationScriptNamed('player'));
+		newState.map.player.sprite := CreateSprite('player', BitmapNamed('player'), AnimationScriptNamed('player'));
 		//SpriteSetCollisionBitmap(newState.map.player.sprite, BitmapNamed('player_collision'));
 		SwitchAnimation(newState.map.player.sprite, 'entity_down_idle');
 
@@ -155,37 +157,49 @@ implementation
 
 		if KeyTyped(inputs.Menu) then
 		begin
+			PlaySoundEffect(SoundEffectNamed('confirm'), 0.5);
 			StateChange(thisState.manager^, MenuState);
 		end;
 
-		if KeyDown(inputs.MoveUp) then
+		if thisState.map.player.attackTimeout = 0 then
 		begin
-			MoveEntity(thisState.map, thisState.map.player, Up, 3, isPickup);
-		end
-		else if KeyDown(inputs.MoveRight) then
-		begin
-			MoveEntity(thisState.map, thisState.map.player, Right, 3, isPickup);
-		end
-		else if KeyDown(inputs.MoveDown) then
-		begin
-			MoveEntity(thisState.map, thisState.map.player, Down, 3, isPickup);
-		end
-		else if KeyDown(inputs.MoveLeft) then
-		begin
-			MoveEntity(thisState.map, thisState.map.player, Left, 3, isPickup);
-		end
-		else
-		begin
-			//
-			//	Move with 0 speed based off previously assigned direction
-			//	(i.e. whatever way the player was facing last)
-			//
-			MoveEntity(thisState.map, thisState.map.player, thisState.map.player.direction, 0, isPickup);
+			if KeyDown(inputs.MoveUp) then
+			begin
+				MoveEntity(thisState.map, thisState.map.player, Up, 3, isPickup);
+			end
+			else if KeyDown(inputs.MoveRight) then
+			begin
+				MoveEntity(thisState.map, thisState.map.player, Right, 3, isPickup);
+			end
+			else if KeyDown(inputs.MoveDown) then
+			begin
+				MoveEntity(thisState.map, thisState.map.player, Down, 3, isPickup);
+			end
+			else if KeyDown(inputs.MoveLeft) then
+			begin
+				MoveEntity(thisState.map, thisState.map.player, Left, 3, isPickup);
+			end
+			else
+			begin
+				//
+				//	Move with 0 speed based off previously assigned direction
+				//	(i.e. whatever way the player was facing last)
+				//
+				MoveEntity(thisState.map, thisState.map.player, thisState.map.player.direction, 0, isPickup);
+			end;
 		end;
 
-		if KeyDown(inputs.Attack) then
+		if KeyTyped(inputs.Attack) then
 		begin
-			thisState.map.player.attackTimeout := 3;
+			PlaySoundEffect(SoundEffectNamed('throw'), 0.5);
+			MoveEntity(thisState.map, thisState.map.player, thisState.map.player.direction, 0, isPickup);
+			case thisState.map.player.direction of
+				Up: SwitchAnimation(thisState.map.player.sprite, 'entity_up_attack');
+				Right: SwitchAnimation(thisState.map.player.sprite, 'entity_right_attack');
+				Down: SwitchAnimation(thisState.map.player.sprite, 'entity_down_attack');
+				Left: SwitchAnimation(thisState.map.player.sprite, 'entity_left_attack');
+			end;
+			thisState.map.player.attackTimeout := thisState.map.player.maxAttackSpeed;
 		end;
 	end;
 
@@ -203,7 +217,7 @@ implementation
 		UpdateNPCS(thisState.map);
 		UpdateSprite(thisState.map.player.sprite);
 
-		thisState.map.player.hunger -= 0.1;
+		thisState.map.player.hunger -= 0.01;
 		if thisState.map.player.hunger < 0 then
 		begin
 			thisState.map.player.hunger := 0;
@@ -212,7 +226,7 @@ implementation
 
 		if thisState.map.player.hp <= 0 then
 		begin
-			PlaySoundEffect(SoundEffectNamed('confirm'), 0.2);
+			PlaySoundEffect(SoundEffectNamed('confirm'), 0.5);
 			StateChange(thisState.manager^, TitleState);
 		end;
 

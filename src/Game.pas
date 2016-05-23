@@ -66,7 +66,12 @@ implementation
 
 		LoadMusicNamed('baws', 'baws.wav');
 		LoadMusicNamed('main', 'main.wav');
-		LoadSoundEffectNamed('select', 'select.wav');
+
+		LoadSoundEffectNamed('throw', 'throw.wav');
+		LoadSoundEffectNamed('bunny', 'bunny.wav');
+		LoadSoundEffectNamed('pickup', 'pickup.wav');
+		LoadSoundEffectNamed('punch', 'punch.wav');
+		LoadSoundEffectNamed('back', 'back.wav');
 		LoadSoundEffectNamed('click', 'click.wav');
 		LoadSoundEffectNamed('confirm', 'confirm.wav');
 

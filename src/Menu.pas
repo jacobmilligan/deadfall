@@ -91,19 +91,21 @@ implementation
 		UI_SIZE = 3;
 	var
 		itemStr: String;
+		horizontalCenter: Single;
 	begin
+		horizontalCenter := ( ScreenWidth() - BitmapWidth(BitmapNamed('ui_blue')) ) / 2;
 		InitUI(result, map.inventory.numItems);
 
 		itemStr := map.inventory.rabbitLeg.name + ': ' + IntToStr(map.inventory.rabbitLeg.count);
-		result.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), 100, (50 + (50 * 0)), itemStr, 'PrStartSmall');
+		result.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 50, itemStr, 'PrStartSmall');
 		result.items[0].attachedInventory := @map.inventory.rabbitLeg;
 
 		itemStr := map.inventory.bandage.name + ': ' + IntToStr(map.inventory.bandage.count);
-		result.items[1] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), 100, (50 + (50 * 2)), itemStr, 'PrStartSmall');
+		result.items[1] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 200, itemStr, 'PrStartSmall');
 		result.items[1].attachedInventory := @map.inventory.bandage;
 
 		itemStr := map.inventory.trinket.name + ': ' + IntToStr(map.inventory.trinket.count);
-		result.items[2] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), 100, (50 + (50 * 4)), itemStr, 'PrStartSmall');
+		result.items[2] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 350, itemStr, 'PrStartSmall');
 		result.items[2].attachedInventory := @map.inventory.trinket;
 
 		result.currentItem := 0;
@@ -152,12 +154,12 @@ implementation
 
 		if ( KeyTyped(inputs.Menu) ) and ( thisState.displayedUI.name = 'Main Menu' ) then
 		begin
-			PlaySoundEffect(SoundEffectNamed('select'), 0.2);
+			PlaySoundEffect(SoundEffectNamed('back'), 0.8);
 			StateChange(thisState.manager^, LevelState);
 		end
 		else if KeyTyped(inputs.Select) and ( UISelectedID(thisState.displayedUI) = 'Exit' ) then
 		begin
-			PlaySoundEffect(SoundEffectNamed('confirm'), 0.2);
+			PlaySoundEffect(SoundEffectNamed('confirm'), 0.5);
 			StateChange(thisState.manager^, TitleState);
 		end
 		else if KeyTyped(inputs.Attack) and ( thisState.displayedUI.name = 'Inventory' ) then

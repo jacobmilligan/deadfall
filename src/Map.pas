@@ -95,7 +95,8 @@ interface
 			hp: Single;
 			hunger: Single;
 			nextUpdate: Single;
-			attackTimeout: Integer;
+			attackTimeout: Single;
+			maxAttackSpeed: Single;
 		end;
 
 		EntityCollection = array of Entity;
@@ -643,6 +644,7 @@ implementation
 
 					if not ( not IsInMap(map, i, j) ) and ( map.tiles[i, j].feature = Food ) then
 					begin
+						PlaySoundEffect(SoundEffectNamed('pickup'), 0.5);
 						map.inventory.rabbitLeg.count += 1;
 						SetFeature(map.tiles[i, j], None, false);
 					end;
@@ -651,6 +653,7 @@ implementation
 					begin
 						if pickup then
 						begin
+							PlaySoundEffect(SoundEffectNamed('pickup'), 0.5);
 							map.inventory.trinket.count += 1;
 							SetFeature(map.tiles[i, j], None, false);
 						end;

@@ -38,6 +38,8 @@ implementation
     SetLength(map.npcs, Length(map.npcs) + 1);
 
     newNPC.sprite := CreateSprite(BitmapNamed('bunny'), AnimationScriptNamed('player'));
+    SpriteAddLayer(newNPC.sprite, BitmapNamed('bunny_hurt'), 'hurt');
+//    map.npcs[i].sprite := CreateSprite(BitmapNamed('bunny_hurt'), AnimationScriptNamed('player'));
     newNPC.direction := Down;
     newNPC.nextUpdate := 1;
     newNPC.hp := 100;
@@ -203,7 +205,7 @@ implementation
           end;
         end;
         // Handle attack interaction with the player
-        if (map.player.attackTimeout > 0) then
+        if (map.player.attackTimeout > map.player.maxAttackSpeed - 3) then
         begin
 
           //
@@ -220,8 +222,15 @@ implementation
           // Player is in contact with the NPC while attacking
           if SpriteRectCollision(map.npcs[i].sprite, attackRect) then
           begin
+            PlaySoundEffect(SoundEffectNamed('punch'), 0.2);
+            PlaySoundEffect(SoundEffectNamed('bunny'), 0.5);
+            SpriteShowLayer(map.npcs[i].sprite, 'hurt');
             map.npcs[i].hp -= 10;
-          end;
+          end
+        end
+        else if (map.player.attackTimeout = 0) then
+        begin
+          SpriteHideLayer(map.npcs[i].sprite, 'hurt');
         end;
       end
       //
@@ -241,6 +250,7 @@ implementation
         end
         else
         begin
+          PlaySoundEffect(SoundEffectNamed('pickup'), 0.5);
           map.inventory.rabbitLeg.count += 1;
         end;
       end;
