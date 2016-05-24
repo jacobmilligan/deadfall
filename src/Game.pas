@@ -149,6 +149,8 @@ implementation
 		LoadBitmapNamed('title_back', 'title_back.png');
 		LoadBitmapNamed('meat', 'meat.png');
 		LoadBitmapNamed('treasure', 'treasure.png');
+		LoadBitmapNamed('medium_treasure', 'medium_treasure.png');
+		LoadBitmapNamed('diamond', 'diamond.png');
 		LoadBitmapNamed('empty bar', 'empty_bar.png');
 		LoadBitmapNamed('health bar', 'health_bar.png');
 		LoadBitmapNamed('dollars', 'dollars.png');

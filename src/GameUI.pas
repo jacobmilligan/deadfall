@@ -284,7 +284,7 @@ implementation
 	procedure DrawUI(var currentUI: UI);
 	var
 		i: Integer;
-		itemCenterX, itemCenterY: Single;
+		itemCenterX, itemCenterY, tickerOffset: Single;
 		textToDraw, marketStr: String;
 	begin
 		marketStr := '';
@@ -329,17 +329,18 @@ implementation
 		end;
 		if marketStr <> '' then
 		begin
+			tickerOffset := TextWidth(FontNamed('PrStartSmall'), marketStr);
 			currentUI.tickerPos -= 2;
 
-			if CameraX() + currentUI.tickerPos <= CameraX() - ScreenWidth() then
+			if CameraX() + currentUI.tickerPos <= CameraX() - tickerOffset then
 			begin
-				currentUI.tickerPos := 200;
+				currentUI.tickerPos := 120;
 			end;
 
 			DrawText(marketStr, ColorWhite, 'PrStartSmall', CameraX() + currentUI.tickerPos, CameraY() + ScreenHeight() - 50);
 			if CameraX() + currentUI.tickerPos < CameraX() then
 			begin
-				DrawText(marketStr, ColorWhite, 'PrStartSmall', (CameraX() + ScreenWidth()) + currentUI.tickerPos + 200, CameraY() + ScreenHeight() - 50);
+				DrawText(marketStr, ColorWhite, 'PrStartSmall', (CameraX() + ScreenWidth()) + currentUI.tickerPos + ScreenWidth(), CameraY() + ScreenHeight() - 50);
 			end;
 		end;
 

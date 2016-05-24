@@ -32,7 +32,7 @@ interface
 		//	Represents a feature on top of a tile that can have a bitmap,
 		//	collision, and be interactive
 		//
-		FeatureType = (NoFeature, Tree, Food, Treasure);
+		FeatureType = (NoFeature, Tree, Food, Treasure, MediumTreasure, RareTreasure);
 
 		Item = record
 			category: FeatureType;
@@ -54,11 +54,7 @@ interface
 
 		InventoryCollection = record
 			items: ItemArray;
-			//rabbitLeg: Item;
-			//bandage: Item;
-			//trinket: Item;
 			dollars: Single;
-			numItems: Integer;
 		end;
 
 		//
@@ -198,14 +194,15 @@ implementation
 	var
 		i: Integer;
 	begin
-		result.numItems := 3;
 		result.dollars := 0;
 
-		SetLength(result.items, 3);
+		SetLength(result.items, 5);
 
 		result.items[0] := NewItem('Rabbit Leg', 7, 1, 10, 0.1);
 		result.items[1] := NewItem('Bandage', 0, 10, 30, 0.3);
-		result.items[2] := NewItem('Trinket', 1, -15, 50, 1);
+		result.items[2] := NewItem('Trinket', 1, -15, 50, 0.7);
+		result.items[3] := NewItem('Silver', 1, -15, 150, 0.9);
+		result.items[4] := NewItem('Diamond', 1, -30, 400, 1);
 
 		QuickSort(result.items, 0, Length(result.items) - 1);
 	end;
@@ -484,6 +481,8 @@ implementation
 		begin
 			case feature of
 				Treasure: tile.featureBmp := BitmapNamed('treasure');
+				MediumTreasure: tile.featureBmp := BitmapNamed('medium_treasure');
+				RareTreasure: tile.featureBmp := BitmapNamed('diamond');
 				Food: tile.featureBmp := BitmapNamed('meat');
 				NoFeature: tile.featureBmp := BitmapNamed('hidden');
 			end;
@@ -518,7 +517,11 @@ implementation
 
 					if (Random(1000) > 990) and ( not map.tiles[x, y].collidable ) then
 					begin
-						SetFeature(map.tiles[x, y], Treasure, true);
+						case Random(1000) of
+							0..799: SetFeature(map.tiles[x, y], Treasure, true);
+							800..974: SetFeature(map.tiles[x, y], MediumTreasure, true);
+							975..1000: SetFeature(map.tiles[x, y], RareTreasure, true);
+						end;
 					end;
 
 				end;
@@ -666,12 +669,16 @@ implementation
 						SetFeature(map.tiles[i, j], NoFeature, false);
 					end;
 
-					if not ( not IsInMap(map, i, j) ) and ( map.tiles[i, j].feature = Treasure ) then
+					if not ( not IsInMap(map, i, j) ) and ( map.tiles[i, j].feature >= Treasure ) then
 					begin
 						if pickup then
 						begin
 							PlaySoundEffect(SoundEffectNamed('pickup'), 0.5);
-							map.inventory.items[SearchInventory(map.inventory.items, 'Trinket')].count += 1;
+							case map.tiles[i, j].feature of
+								Treasure: map.inventory.items[SearchInventory(map.inventory.items, 'Trinket')].count += 1;
+								MediumTreasure: map.inventory.items[SearchInventory(map.inventory.items, 'Silver')].count += 1;
+								RareTreasure: map.inventory.items[SearchInventory(map.inventory.items, 'Diamond')].count += 1;
+							end;
 							SetFeature(map.tiles[i, j], NoFeature, false);
 						end;
 					end;

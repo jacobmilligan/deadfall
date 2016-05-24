@@ -85,7 +85,7 @@ implementation
 		itemStr: String;
 		i: Integer;
 	begin
-		InitUI(result, map.inventory.numItems, 'Inventory');
+		InitUI(result, Length(map.inventory.items), 'Inventory');
 		result.tickerPos := 100;
 
 		for i := 0 to High(map.inventory.items) do
