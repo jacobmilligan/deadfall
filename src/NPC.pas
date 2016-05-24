@@ -98,18 +98,21 @@ implementation
       for j := y - 1 to y + 1 do
       begin
 
-        if IsInMap(map, i, j) then
+        //
+        //  Only look at tiles that surround the entity in a cross-shaped manner:
+        //      *
+        //    * o *
+        //      *
+        //
+        if IsInMap(map, i, j) and ( (localX = 1) or (localY = 1) ) then
         begin
-          if (localX = 1) or (localY = 1) then
-          begin
-            currentPath := PointPointDistance(PointAt(i * 32, j * 32), npc.currentGoal);
-            CheckCollision(map, npc.sprite, GetDir(localX, localY), hasCollision, false);
+          currentPath := PointPointDistance(PointAt(i * 32, j * 32), npc.currentGoal);
+          CheckCollision(map, npc.sprite, GetDir(localX, localY), hasCollision, false);
 
-            if (hasCollision = false) and (currentPath < newPath.cost) then
-            begin
-              newPath.dir := GetDir(localX, localY);
-              newPath.cost := currentPath;
-            end;
+          if (hasCollision = false) and (currentPath < newPath.cost) then
+          begin
+            newPath.dir := GetDir(localX, localY);
+            newPath.cost := currentPath;
           end;
         end;
         localY += 1;
