@@ -28,7 +28,7 @@ interface
 
 
 implementation
-  uses Input, Math, sgTypes;
+  uses Game, Input, Math, sgTypes;
 
   procedure SpawnNPC(var map: MapData; x, y: LongInt);
   var
@@ -268,7 +268,7 @@ implementation
         else
         begin
           PlaySoundEffect(SoundEffectNamed('pickup'), 0.5);
-          map.inventory.rabbitLeg.count += 1;
+          map.inventory.items[SearchInventory(map.inventory.items, 'Rabbit Leg')].count += 1;
         end;
       end;
     end;

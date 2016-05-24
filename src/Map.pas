@@ -44,12 +44,15 @@ interface
 			listed: Integer;
 		end;
 
+		ItemArray = array of Item;
+
 		ItemPtr = ^Item;
 
 		InventoryCollection = record
-			rabbitLeg: Item;
-			bandage: Item;
-			trinket: Item;
+			items: ItemArray;
+			//rabbitLeg: Item;
+			//bandage: Item;
+			//trinket: Item;
 			dollars: Single;
 			numItems: Integer;
 		end;
@@ -174,30 +177,35 @@ implementation
 		TILESIZE = 32;
 
 	function InitInventory(): InventoryCollection;
+	var
+		i: Integer;
 	begin
 		result.numItems := 3;
 		result.dollars := 0.0;
+		SetLength(result.items, 3);
 
-		result.rabbitLeg.name := 'Rabbit Leg';
-		result.rabbitLeg.count := 0;
-		result.rabbitLeg.hungerPlus := 7;
-		result.rabbitLeg.healthPlus := 1;
-		result.rabbitLeg.dollarValue := 5;
-		result.rabbitLeg.listed := 0;
+		result.items[0].name := 'Rabbit Leg';
+		result.items[0].count := 0;
+		result.items[0].hungerPlus := 7;
+		result.items[0].healthPlus := 1;
+		result.items[0].dollarValue := 5;
+		result.items[0].listed := 0;
 
-		result.bandage.name := 'Bandage';
-		result.bandage.count := 0;
-		result.bandage.hungerPlus := 0;
-		result.bandage.healthPlus := 10;
-		result.bandage.dollarValue := 5;
-		result.bandage.listed := 0;
+		result.items[1].name := 'Bandage';
+		result.items[1].count := 0;
+		result.items[1].hungerPlus := 0;
+		result.items[1].healthPlus := 10;
+		result.items[1].dollarValue := 5;
+		result.items[1].listed := 0;
 
-		result.trinket.name := 'Trinket';
-		result.trinket.count := 0;
-		result.trinket.hungerPlus := 2;
-		result.trinket.healthPlus := -15;
-		result.trinket.dollarValue := 5.3;
-		result.trinket.listed := 0;
+		result.items[2].name := 'Trinket';
+		result.items[2].count := 0;
+		result.items[2].hungerPlus := 2;
+		result.items[2].healthPlus := -15;
+		result.items[2].dollarValue := 5.3;
+		result.items[2].listed := 0;
+
+		QuickSort(result.items, 0, Length(result.items) - 1);
 	end;
 
 	procedure RestoreStat(var stat: Single; plus: Single);
@@ -652,7 +660,7 @@ implementation
 					if not ( not IsInMap(map, i, j) ) and ( map.tiles[i, j].feature = Food ) then
 					begin
 						PlaySoundEffect(SoundEffectNamed('pickup'), 0.5);
-						map.inventory.rabbitLeg.count += 1;
+						map.inventory.items[SearchInventory(map.inventory.items, 'Rabbit Leg')].count += 1;
 						SetFeature(map.tiles[i, j], NoFeature, false);
 					end;
 
@@ -661,7 +669,7 @@ implementation
 						if pickup then
 						begin
 							PlaySoundEffect(SoundEffectNamed('pickup'), 0.5);
-							map.inventory.trinket.count += 1;
+							map.inventory.items[SearchInventory(map.inventory.items, 'Trinket')].count += 1;
 							SetFeature(map.tiles[i, j], NoFeature, false);
 						end;
 					end;

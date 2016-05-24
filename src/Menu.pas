@@ -83,23 +83,17 @@ implementation
 		UI_SIZE = 3;
 	var
 		itemStr: String;
+		i: Integer;
 	begin
 		InitUI(result, map.inventory.numItems, 'Inventory');
 
-		itemStr := 	map.inventory.rabbitLeg.name + ' (Stocked: ' + IntToStr(map.inventory.rabbitLeg.count) +
-								', For Sale: ' + IntToStr(map.inventory.rabbitLeg.listed) + ')';
-		result.items[0] := CreateUIElement(BitmapNamed('ui_blue_wide'), BitmapNamed('ui_red_wide'), HorizontalCenter('ui_blue_wide'), 50, itemStr, 'PrStartSmall');
-		result.items[0].attachedInventory := @map.inventory.rabbitLeg;
-
-		itemStr := 	map.inventory.bandage.name + ' (Stocked: ' + IntToStr(map.inventory.bandage.count) +
-								', For Sale: ' + IntToStr(map.inventory.bandage.listed) + ')';
-		result.items[1] := CreateUIElement(BitmapNamed('ui_blue_wide'), BitmapNamed('ui_red_wide'), HorizontalCenter('ui_blue_wide'), 150, itemStr, 'PrStartSmall');
-		result.items[1].attachedInventory := @map.inventory.bandage;
-
-		itemStr := 	map.inventory.trinket.name + ' (Stocked: ' + IntToStr(map.inventory.trinket.count) +
-								', For Sale: ' + IntToStr(map.inventory.trinket.listed) + ')';
-		result.items[2] := CreateUIElement(BitmapNamed('ui_blue_wide'), BitmapNamed('ui_red_wide'), HorizontalCenter('ui_blue_wide'), 250, itemStr, 'PrStartSmall');
-		result.items[2].attachedInventory := @map.inventory.trinket;
+		for i := 0 to High(map.inventory.items) do
+		begin
+			itemStr := 	map.inventory.items[i].name + ' (Stocked: ' + IntToStr(map.inventory.items[i].count) +
+									', For Sale: ' + IntToStr(map.inventory.items[i].listed) + ')';
+			result.items[i] := CreateUIElement(BitmapNamed('ui_blue_wide'), BitmapNamed('ui_red_wide'), HorizontalCenter('ui_blue_wide'), (100 * i) + 50, itemStr, 'PrStartSmall');
+			result.items[i].attachedInventory := @map.inventory.items[i];
+		end;
 
 		result.currentItem := 0;
 		result.previousItem := 0;
