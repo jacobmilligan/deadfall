@@ -627,13 +627,18 @@ implementation
 		begin
 			for j := startY to finishY do
 			begin
+				if SpriteName(toCheck) = 'player' then
+				begin
+					
+				end;
 
 				if SpriteBitmapCollision(toCheck, map.tiles[i, j].bmp, i * TILESIZE, j * TILESIZE) then
 				begin
 
 					if ( not IsInMap(map, i, j) ) or ( map.tiles[i, j].collidable ) then
 					begin
-						hasCollision := true;
+						//DrawRectangle(ColorRed, i * TILESIZE, j * TILESIZE, 32, 32);
+						//RefreshScreen(60);
 						case dir of
 							DirUp: SpriteSetDY(toCheck, 0);
 							DirRight: SpriteSetDX(toCheck, 0);

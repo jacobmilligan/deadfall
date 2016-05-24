@@ -113,8 +113,8 @@ implementation
 		newState.map.inventory := InitInventory();
 
 		// Setup player sprite and animation
-		newState.map.player.sprite := CreateSprite('player', BitmapNamed('player'), AnimationScriptNamed('player'));
-		//SpriteSetCollisionBitmap(newState.map.player.sprite, BitmapNamed('player_collision'));
+		newState.map.player.sprite := CreateSprite('player', BitmapNamed('player2'), AnimationScriptNamed('player'));
+		//SpriteSetCollisionKind(newState.map.player.sprite, AABBCollisions);
 		SwitchAnimation(newState.map.player.sprite, 'entity_down_idle');
 
 		//
