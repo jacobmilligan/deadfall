@@ -176,34 +176,28 @@ implementation
 	const
 		TILESIZE = 32;
 
+	function NewItem(name: String; hungerPlus, healthPlus, dollarValue: Single): Item;
+	begin
+		result.name := name;
+		result.hungerPlus := hungerPlus;
+		result.healthPlus := healthPlus;
+		result.dollarValue := dollarValue;
+		result.count := 0;
+		result.listed := 0;
+	end;
+
 	function InitInventory(): InventoryCollection;
 	var
 		i: Integer;
 	begin
 		result.numItems := 3;
 		result.dollars := 0.0;
+
 		SetLength(result.items, 3);
 
-		result.items[0].name := 'Rabbit Leg';
-		result.items[0].count := 0;
-		result.items[0].hungerPlus := 7;
-		result.items[0].healthPlus := 1;
-		result.items[0].dollarValue := 5;
-		result.items[0].listed := 0;
-
-		result.items[1].name := 'Bandage';
-		result.items[1].count := 0;
-		result.items[1].hungerPlus := 0;
-		result.items[1].healthPlus := 10;
-		result.items[1].dollarValue := 5;
-		result.items[1].listed := 0;
-
-		result.items[2].name := 'Trinket';
-		result.items[2].count := 0;
-		result.items[2].hungerPlus := 2;
-		result.items[2].healthPlus := -15;
-		result.items[2].dollarValue := 5.3;
-		result.items[2].listed := 0;
+		result.items[0] := NewItem('Rabbit Leg', 7, 1, 2);
+		result.items[1] := NewItem('Bandage', 0, 10, 5);
+		result.items[2] := NewItem('Trinket', 1, -15, 5.5);
 
 		QuickSort(result.items, 0, Length(result.items) - 1);
 	end;
