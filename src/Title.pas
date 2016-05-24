@@ -56,8 +56,24 @@ implementation
 
 	procedure TitleHandleInput(var thisState: ActiveState; var inputs: InputMap);
 	begin
+		if ( KeyTyped(inputs.Select) ) and ( thisState.displayedUI.name = 'Controls' ) then
+		begin
+			PlaySoundEffect(SoundEffectNamed('confirm'), 0.8);
+			Delay(50);
+			while not AnyKeyPressed() do
+			begin
+				ProcessEvents();
+				ClearScreen(ColorBlack);
+				TitleDraw(thisState);
+				DrawText('Press the new key to change control', ColorWhite, FontNamed('PrStartSmall'), CameraX() + HorizontalCenter('ui_blue'), CameraY() + 10);
+				RefreshScreen(60);
+			end;
+
+			ChangeKeyTo(inputs, thisState.displayedUI.items[thisState.displayedUI.currentItem].id);
+		end;
+
 		UINavigate(thisState.displayedUI, inputs, thisState.map);
-		if KeyTyped(inputs.Select) then
+		if KeyTyped(inputs.Select) and ( thisState.displayedUI.name = 'Title' ) then
 		begin
 			PlaySoundEffect(SoundEffectNamed('confirm'), 0.5);
 			case UISelectedID(thisState.displayedUI) of
@@ -71,6 +87,7 @@ implementation
 				'Load Map': WriteLn('Load Map');
 			end;
 		end;
+
 		if thisState.displayedUI.name = 'Settings' then
 		begin
 			thisState.displayedUI.previousUI := @CreateTitleUI;
@@ -78,6 +95,7 @@ implementation
 				'Change Controls': thisState.displayedUI.nextUI := @CreateChangeControlsUI;
 			end;
 		end;
+
 	end;
 
 	procedure TitleUpdate(var thisState: ActiveState);
