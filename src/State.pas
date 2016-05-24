@@ -84,6 +84,7 @@ implementation
 		newActiveState.stateName := newState;
 		newActiveState.manager := @states;
 		newActiveState.quitRequested := false;
+		newActiveState.map.blank := true;
 
 		if (newState = LevelState) and ( states[High(states)].stateName = TitleState ) then
 		begin

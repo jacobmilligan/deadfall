@@ -27,17 +27,13 @@ implementation
 	uses SwinGame, GameUI;
 
 	function CreateTitleUI(): UI;
-	var
-		horizontalCenter: Single;
 	begin
 		InitUI(result, 4, 'Title');
 
-		horizontalCenter := ( ScreenWidth() - BitmapWidth(BitmapNamed('ui_blue')) ) / 2;
-
-		result.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 150, 'New Map', 'PrStartSmall');
-		result.items[1] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 260, 'Load Map', 'PrStartSmall');
-		result.items[2] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 370, 'Settings', 'PrStartSmall');
-		result.items[3] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 480, 'Quit', 'PrStartSmall');
+		result.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 150, 'New Map', 'PrStartSmall');
+		result.items[1] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 260, 'Load Map', 'PrStartSmall');
+		result.items[2] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 370, 'Settings', 'PrStartSmall');
+		result.items[3] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 480, 'Quit', 'PrStartSmall');
 
 		result.currentItem := 0;
 		result.previousItem := 0;
@@ -78,17 +74,15 @@ implementation
 
 	procedure TitleDraw(var thisState: ActiveState);
 	var
-		horizontalCenter: Single;
 		titleTxt: String;
 		titleWidth: Single;
 	begin
 		titleTxt := 'Deadfall';
 		titleWidth := TextWidth(FontNamed('Vermin'), titleTxt) / 2;
-		horizontalCenter := ScreenWidth() / 2;
 
 		DrawBitmap(BitmapNamed('title_back'), CameraX(), CameraY());
 		DrawUI(thisState.displayedUI);
-		DrawText(titleTxt, ColorYellow, FontNamed('Vermin'), CameraX() + (horizontalCenter - titleWidth), CameraY() + 10);
+		DrawText(titleTxt, ColorYellow, FontNamed('Vermin'), (CameraX() + HorizontalCenter('ui_blue')) - (titleWidth / 4), CameraY() + 10);
 	end;
 
 end.

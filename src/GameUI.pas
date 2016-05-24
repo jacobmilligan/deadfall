@@ -4,9 +4,9 @@ interface
 	uses Swingame, Input, Map;
 
 	const
-		UI_NEXT = 'UI_NEXT_ELEMENT';
-		UI_PREV = 'UI_PREV_ELEMENT';
-		UI_CURRENT = 'UI_CURRENT_ELEMENT';
+		UI_NEXT 		= 	'UI_NEXT_ELEMENT';
+		UI_PREV 		= 	'UI_PREV_ELEMENT';
+		UI_CURRENT 	= 	'UI_CURRENT_ELEMENT';
 
   type
 
@@ -28,8 +28,8 @@ interface
 			items: UICollection;
 			currentItem: Integer;
 			previousItem: Integer;
-			previousUI: function(var map: MapData): UI;
-			nextUI: function(var map: MapData): UI;
+			previousUI: function(var map: MapData; var inputs: InputMap): UI;
+			nextUI: function(var map: MapData; var inputs: InputMap): UI;
 		end;
 
 	procedure InitUI(var newUI: UI; numElements: Integer; name: String);
@@ -48,8 +48,27 @@ interface
 
 	procedure ReduceItemCount(var itemToReduce: UIElement);
 
+	function HorizontalCenter(bmp: String): Single;
+
+	function CreateSettingsUI(var map: MapData; var inputs: InputMap): UI;
+
 implementation
-	uses State, SysUtils;
+	uses State, SysUtils, Menu;
+
+
+	function CreateSettingsUI(var map: MapData; var inputs: InputMap): UI;
+	begin
+		InitUI(result, 1, 'Settings');
+		result.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 50, 'Change Controls', 'PrStartSmall');
+		result.currentItem := 0;
+		result.previousItem := 0;
+		result.previousUI := @CreateMenuUI;
+	end;
+
+	function HorizontalCenter(bmp: String): Single;
+	begin
+		result := ( ScreenWidth() - BitmapWidth(BitmapNamed(bmp)) ) / 2;
+	end;
 
 	procedure InitUI(var newUI: UI; numElements: Integer; name: String);
 	begin
@@ -168,13 +187,13 @@ implementation
 			end;
 			if currentUI.nextUI <> nil then
 			begin
-				currentUI := currentUI.nextUI(map);
+				currentUI := currentUI.nextUI(map, inputs);
 			end;
 		end
 		else if ( KeyTyped(inputs.Menu) ) and ( currentUI.previousUI <> nil ) then
 		begin
 			PlaySoundEffect(SoundEffectNamed('back'), 0.8);
-			currentUI := currentUI.previousUI(map);
+			currentUI := currentUI.previousUI(map, inputs);
 		end
 
 	end;

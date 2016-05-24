@@ -39,8 +39,8 @@ interface
 	//
 	procedure MenuDraw(var thisState: ActiveState);
 
-	function CreateMenuUI(var map: MapData): UI;
-	function CreateInventoryUI(var map: MapData): UI;
+	function CreateMenuUI(var map: MapData; var inputs: InputMap): UI;
+	function CreateInventoryUI(var map: MapData; var inputs: InputMap): UI;
 
 implementation
 	uses SwinGame, SysUtils, typinfo;
@@ -74,38 +74,68 @@ implementation
 		end;
 	end;
 
-	function CreateSettingsUI(var map: MapData): UI;
+	function CreateChangeControlsUI(var map: MapData; var inputs: InputMap): UI;
+	var
+		controlStr: String;
 	begin
-		InitUI(result, 1, 'Settings');
-		result.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), 100, (50 + (50 * 0)), 'Test', 'PrStartSmall');
+		InitUI(result, 7, 'Controls');
+
+		WriteStr(controlStr, inputs.MoveUp);
+		controlStr := StringReplace(controlStr, 'Key', ' Key' ,[rfReplaceAll]);
+		result.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue') - (BitmapWidth(BitmapNamed('ui_blue')) / 2), 50, 'Move Up: ' + controlStr, 'PrStartSmall');
+
+		WriteStr(controlStr, inputs.MoveRight);
+		controlStr := StringReplace(controlStr, 'Key', ' Key' ,[rfReplaceAll]);
+		result.items[1] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue') - (BitmapWidth(BitmapNamed('ui_blue')) / 2), 150, 'Move Right: ' + controlStr, 'PrStartSmall');
+
+		WriteStr(controlStr, inputs.MoveDown);
+		controlStr := StringReplace(controlStr, 'Key', ' Key' ,[rfReplaceAll]);
+		result.items[2] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue') - (BitmapWidth(BitmapNamed('ui_blue')) / 2), 250, 'Move Down: ' + controlStr, 'PrStartSmall');
+
+		WriteStr(controlStr, inputs.MoveLeft);
+		controlStr := StringReplace(controlStr, 'Key', ' Key' ,[rfReplaceAll]);
+		result.items[3] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue') + (BitmapWidth(BitmapNamed('ui_blue')) / 2), 50, 'Move Left: ' + controlStr, 'PrStartSmall');
+
+		WriteStr(controlStr, inputs.Attack);
+		controlStr := StringReplace(controlStr, 'Key', ' Key' ,[rfReplaceAll]);
+		result.items[4] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue') + (BitmapWidth(BitmapNamed('ui_blue')) / 2), 150, 'Attack: ' + controlStr, 'PrStartSmall');
+
+		WriteStr(controlStr, inputs.Select);
+		controlStr := StringReplace(controlStr, 'Key', ' Key' ,[rfReplaceAll]);
+		result.items[5] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue') + (BitmapWidth(BitmapNamed('ui_blue')) / 2), 250, 'Select: ' + controlStr, 'PrStartSmall');
+
+		WriteStr(controlStr, inputs.Menu);
+		controlStr := StringReplace(controlStr, 'Key', ' Key' ,[rfReplaceAll]);
+		result.items[6] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue') + (BitmapWidth(BitmapNamed('ui_blue')) / 2), 350, 'Menu: ' + controlStr, 'PrStartSmall');
+
 		result.currentItem := 0;
 		result.previousItem := 0;
-		result.previousUI := @CreateMenuUI;
+		result.previousUI := @CreateSettingsUI;
+		result.nextUI := nil;
 	end;
+
 	//
 	//	Creates the inventory UI elements and returns it to replace the currently
 	//	displayed UI on the menu state
 	//
-	function CreateInventoryUI(var map: MapData): UI;
+	function CreateInventoryUI(var map: MapData; var inputs: InputMap): UI;
 	const
 		UI_SIZE = 3;
 	var
 		itemStr: String;
-		horizontalCenter: Single;
 	begin
-		horizontalCenter := ( ScreenWidth() - BitmapWidth(BitmapNamed('ui_blue')) ) / 2;
 		InitUI(result, map.inventory.numItems, 'Inventory');
 
 		itemStr := map.inventory.rabbitLeg.name + ': ' + IntToStr(map.inventory.rabbitLeg.count);
-		result.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 50, itemStr, 'PrStartSmall');
+		result.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 50, itemStr, 'PrStartSmall');
 		result.items[0].attachedInventory := @map.inventory.rabbitLeg;
 
 		itemStr := map.inventory.bandage.name + ': ' + IntToStr(map.inventory.bandage.count);
-		result.items[1] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 200, itemStr, 'PrStartSmall');
+		result.items[1] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 200, itemStr, 'PrStartSmall');
 		result.items[1].attachedInventory := @map.inventory.bandage;
 
 		itemStr := map.inventory.trinket.name + ': ' + IntToStr(map.inventory.trinket.count);
-		result.items[2] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 350, itemStr, 'PrStartSmall');
+		result.items[2] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 350, itemStr, 'PrStartSmall');
 		result.items[2].attachedInventory := @map.inventory.trinket;
 
 		result.currentItem := 0;
@@ -117,35 +147,34 @@ implementation
 	//	Creates the menu UI elements and returns it to replace the currently
 	//	displayed UI on the menu state
 	//
-	function CreateMenuUI(var map: MapData): UI;
+	function CreateMenuUI(var map: MapData; var inputs: InputMap): UI;
 	const
 		UI_SIZE = 3;
-	var
-		horizontalCenter: Single;
 	begin
-		horizontalCenter := ( ScreenWidth() - BitmapWidth(BitmapNamed('ui_blue')) ) / 2;
-
 		InitUI(result, UI_SIZE, 'Main Menu');
-		result.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 100, 'Inventory');
+		result.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 100, 'Inventory');
 		result.nextUI := @CreateInventoryUI;
-		result.items[1] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 250, 'Settings');
-		result.items[2] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 400, 'Exit');
+		result.items[1] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 250, 'Settings');
+		result.items[2] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 400, 'Exit');
 		result.currentItem := 0;
 		result.previousItem := 0;
 	end;
 
 	procedure MenuInit(var newState: ActiveState);
+	var
+		tempInputs: InputMap;
 	begin
 		newState.HandleInput := @MenuHandleInput;
 		newState.Update := @MenuUpdate;
 		newState.Draw := @MenuDraw;
-		newState.displayedUI := CreateMenuUI( GetState(newState.manager, 1)^.map );
+		newState.displayedUI := CreateMenuUI( GetState(newState.manager, 1)^.map, tempInputs );
 	end;
 
 	procedure MenuHandleInput(var thisState: ActiveState; var inputs: InputMap);
 	var
 		lastLevelState: StatePtr;
 		currItem: ^UIElement;
+		keyStr: String;
 	begin
 		lastLevelState := GetState(thisState.manager, 1);
 		currItem := @thisState.displayedUI.items[thisState.displayedUI.currentItem];
@@ -157,11 +186,33 @@ implementation
 				'Settings': thisState.displayedUI.nextUI := @CreateSettingsUI;
 			end;
 		end;
+		if thisState.displayedUI.name = 'Settings' then
+		begin
+			case UISelectedID(thisState.displayedUI) of
+				'Change Controls': thisState.displayedUI.nextUI := @CreateChangeControlsUI;
+			end;
+		end;
 
 		if ( KeyTyped(inputs.Menu) ) and ( thisState.displayedUI.name = 'Main Menu' ) then
 		begin
 			PlaySoundEffect(SoundEffectNamed('back'), 0.8);
 			StateChange(thisState.manager^, LevelState);
+		end
+		else if ( KeyTyped(inputs.Select) ) and ( thisState.displayedUI.name = 'Controls' ) then
+		begin
+			PlaySoundEffect(SoundEffectNamed('back'), 0.8);
+
+			Delay(50);
+			while not AnyKeyPressed() do
+			begin
+				ProcessEvents();
+				ClearScreen(ColorBlack);
+				MenuDraw(thisState);
+				DrawText('Press the new key to change control', ColorWhite, FontNamed('PrStartSmall'), CameraX() + HorizontalCenter('ui_blue'), CameraY() + 10);
+				RefreshScreen(60);
+			end;
+
+			ChangeKeyTo(inputs, thisState.displayedUI.items[thisState.displayedUI.currentItem].id);
 		end
 		else if KeyTyped(inputs.Select) and ( UISelectedID(thisState.displayedUI) = 'Exit' ) then
 		begin

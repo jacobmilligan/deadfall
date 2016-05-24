@@ -110,6 +110,7 @@ interface
 			player: Entity;
 			inventory: InventoryCollection;
 			npcs: EntityCollection;
+			blank: Boolean;
 		end;
 
 		//
@@ -737,6 +738,7 @@ implementation
 		end;
 
 		// Todo: Return an invalid map and handle this error properly
+		newMap.blank := false;
 		result := newMap;
 
 	end;

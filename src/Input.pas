@@ -48,7 +48,10 @@ interface
     //
     procedure MoveEntity(var map: MapData; var toMove: Entity; dir: Direction; speed: Single; pickup: Boolean);
 
+    procedure ChangeKeyTo(var inputs: InputMap; var keyToChange: String);
+
 implementation
+  uses GameUI, typinfo, SysUtils;
 
     function GetKeyCode(): KeyCode;
     var
@@ -64,6 +67,35 @@ implementation
           break;
         end;
       end;
+    end;
+
+    procedure ChangeKeyTo(var inputs: InputMap; var keyToChange: String);
+    var
+      keyPos: Integer;
+      keyStr, controlStr: String;
+      newKey: KeyCode;
+    begin
+      WriteLn(keyStr);
+      keyStr := keyToChange;
+			keyPos := Pos(': ', keyStr);
+			keyStr := Copy(keyStr, 0, keyPos - 1);
+			keyStr := StringReplace(keyStr, ' ', '', [rfReplaceAll]);
+      newKey := GetKeyCode();
+      case keyStr of
+        'MoveUp': inputs.MoveUp := newKey;
+        'MoveRight': inputs.MoveRight := newKey;
+        'MoveDown': inputs.MoveDown := newKey;
+        'MoveLeft': inputs. MoveLeft := newKey;
+        'Attack': inputs.Attack := newKey;
+        'Menu': inputs.Menu := newKey;
+        'Select': inputs.Select := newKey;
+      end;
+
+      WriteStr(controlStr, newKey);
+			keyStr := Copy(keyToChange, keyPos + 2, Length(keyToChange));
+      keyStr := StringReplace(keyToChange, keyStr, controlStr, [rfReplaceAll]);
+      keyToChange := StringReplace(keyStr, 'Key', ' Key' ,[rfReplaceAll]);
+      WriteLn(keyToChange);
     end;
 
     procedure SetDefaultInput(var inputs: InputMap);
