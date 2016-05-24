@@ -30,7 +30,7 @@ implementation
 	var
 		horizontalCenter: Single;
 	begin
-		InitUI(result, 4);
+		InitUI(result, 4, 'Title');
 
 		horizontalCenter := ( ScreenWidth() - BitmapWidth(BitmapNamed('ui_blue')) ) / 2;
 
@@ -41,7 +41,6 @@ implementation
 
 		result.currentItem := 0;
 		result.previousItem := 0;
-		result.name := 'Title';
 	end;
 
 	procedure TitleInit(var newState: ActiveState);

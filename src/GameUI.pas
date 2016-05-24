@@ -32,7 +32,7 @@ interface
 			nextUI: function(var map: MapData): UI;
 		end;
 
-	procedure InitUI(var newUI: UI; numElements: Integer);
+	procedure InitUI(var newUI: UI; numElements: Integer; name: String);
 
 	function CreateUIElement(inactiveBmp, activeBmp: Bitmap; x, y: Single; id: String = ''; setFont: String = 'PrStart'): UIElement;
 
@@ -51,12 +51,13 @@ interface
 implementation
 	uses State, SysUtils;
 
-	procedure InitUI(var newUI: UI; numElements: Integer);
+	procedure InitUI(var newUI: UI; numElements: Integer; name: String);
 	begin
 		SetLength(newUI.items, numElements);
 		newUI.currentItem := 0;
 		newUI.previousUI := nil;
 		newUI.nextUI := nil;
+		newUI.name := name;
 	end;
 
 	function CreateUIElement(inactiveBmp, activeBmp: Bitmap; x, y: Single; id: String = ''; setFont: String = 'PrStart'): UIElement;

@@ -74,13 +74,13 @@ implementation
 		end;
 	end;
 
-	function TestUI(var map: MapData): UI;
+	function CreateSettingsUI(var map: MapData): UI;
 	begin
-		InitUI(result, 1);
+		InitUI(result, 1, 'Settings');
 		result.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), 100, (50 + (50 * 0)), 'Test', 'PrStartSmall');
 		result.currentItem := 0;
 		result.previousItem := 0;
-		result.previousUI := @CreateInventoryUI;
+		result.previousUI := @CreateMenuUI;
 	end;
 	//
 	//	Creates the inventory UI elements and returns it to replace the currently
@@ -94,7 +94,7 @@ implementation
 		horizontalCenter: Single;
 	begin
 		horizontalCenter := ( ScreenWidth() - BitmapWidth(BitmapNamed('ui_blue')) ) / 2;
-		InitUI(result, map.inventory.numItems);
+		InitUI(result, map.inventory.numItems, 'Inventory');
 
 		itemStr := map.inventory.rabbitLeg.name + ': ' + IntToStr(map.inventory.rabbitLeg.count);
 		result.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 50, itemStr, 'PrStartSmall');
@@ -111,7 +111,6 @@ implementation
 		result.currentItem := 0;
 		result.previousItem := 0;
 		result.previousUI := @CreateMenuUI;
-		result.name := 'Inventory';
 	end;
 
 	//
@@ -126,14 +125,13 @@ implementation
 	begin
 		horizontalCenter := ( ScreenWidth() - BitmapWidth(BitmapNamed('ui_blue')) ) / 2;
 
-		InitUI(result, UI_SIZE);
+		InitUI(result, UI_SIZE, 'Main Menu');
 		result.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 100, 'Inventory');
 		result.nextUI := @CreateInventoryUI;
 		result.items[1] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 250, 'Settings');
 		result.items[2] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), horizontalCenter, 400, 'Exit');
 		result.currentItem := 0;
 		result.previousItem := 0;
-		result.name := 'Main Menu';
 	end;
 
 	procedure MenuInit(var newState: ActiveState);
@@ -151,6 +149,14 @@ implementation
 	begin
 		lastLevelState := GetState(thisState.manager, 1);
 		currItem := @thisState.displayedUI.items[thisState.displayedUI.currentItem];
+
+		if thisState.displayedUI.name = 'Main Menu' then
+		begin
+			case UISelectedID(thisState.displayedUI) of
+				'Inventory': thisState.displayedUI.nextUI := @CreateInventoryUI;
+				'Settings': thisState.displayedUI.nextUI := @CreateSettingsUI;
+			end;
+		end;
 
 		if ( KeyTyped(inputs.Menu) ) and ( thisState.displayedUI.name = 'Main Menu' ) then
 		begin
