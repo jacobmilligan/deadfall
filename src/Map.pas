@@ -39,6 +39,9 @@ interface
 			hungerPlus: Single;
 			healthPlus: Single;
 			dollarValue: Single;
+			adjustedDollarValue: Single;
+			demand: Single;
+			deltaDollarValue: Single;
 			name: String;
 			count: Integer;
 			listed: Integer;
@@ -184,6 +187,9 @@ implementation
 		result.dollarValue := dollarValue;
 		result.count := 0;
 		result.listed := 0;
+		result.demand := Random();
+		result.adjustedDollarValue := dollarValue * result.demand;
+		result.deltaDollarValue := 0;
 	end;
 
 	function InitInventory(): InventoryCollection;
@@ -195,9 +201,9 @@ implementation
 
 		SetLength(result.items, 3);
 
-		result.items[0] := NewItem('Rabbit Leg', 7, 1, 2);
-		result.items[1] := NewItem('Bandage', 0, 10, 5);
-		result.items[2] := NewItem('Trinket', 1, -15, 5.5);
+		result.items[0] := NewItem('Rabbit Leg', 7, 1, 10);
+		result.items[1] := NewItem('Bandage', 0, 10, 30);
+		result.items[2] := NewItem('Trinket', 1, -15, 50);
 
 		QuickSort(result.items, 0, Length(result.items) - 1);
 	end;

@@ -14,6 +14,12 @@ unit Level;
 interface
 	uses sgTypes, State, Map, Input;
 
+	type
+		Buyer = record
+			itemToBuy: Item;
+			itemInterest: Single;
+		end;
+
 	//
 	//	Updates the camera position relative to the players
 	//	position. Moves the offset according to how close the player
@@ -207,6 +213,9 @@ implementation
 	procedure LevelUpdate(var thisState: ActiveState);
 	var
 		i: Integer;
+		newBuyer: Buyer;
+		listedAmt, randItemIndex: Integer;
+		deltaDollarValue: Single;
 	begin
 		if thisState.map.player.attackTimeout > 0 then
 		begin
@@ -229,6 +238,43 @@ implementation
 		begin
 			PlaySoundEffect(SoundEffectNamed('confirm'), 0.5);
 			StateChange(thisState.manager^, TitleState);
+		end;
+
+		for i := 0 to High(thisState.map.inventory.items) do
+		begin
+			if Random(1000) > 997 then
+			begin
+				deltaDollarValue := thisState.map.inventory.items[i].adjustedDollarValue;
+				thisState.map.inventory.items[i].demand := Random();
+				thisState.map.inventory.items[i].adjustedDollarValue := thisState.map.inventory.items[i].dollarValue * thisState.map.inventory.items[i].demand;
+				thisState.map.inventory.items[i].deltaDollarValue := thisState.map.inventory.items[i].adjustedDollarValue - deltaDollarValue;
+				WriteLn(thisState.map.inventory.items[i].name, ' changed $', thisState.map.inventory.items[i].deltaDollarValue:0:4, ' to $', thisState.map.inventory.items[i].adjustedDollarValue:0:4);
+			end;
+
+			if thisState.map.inventory.items[i].listed = 0 then
+			begin
+				listedAmt := 1;
+			end
+			else
+			begin
+				listedAmt := thisState.map.inventory.items[i].listed;
+			end;
+			randItemIndex := Random( Round( (100 * (1 / thisState.map.inventory.items[i].demand)) / listedAmt ) );
+			if randItemIndex <= High(thisState.map.inventory.items) then
+			begin
+				newBuyer.itemToBuy := thisState.map.inventory.items[randItemIndex];
+				newBuyer.itemInterest := Random();
+				if ( thisState.map.inventory.items[i].name = newBuyer.itemToBuy.name ) and ( newBuyer.itemInterest > thisState.map.inventory.items[i].demand ) then
+				begin
+
+					if thisState.map.inventory.items[i].listed > 0 then
+					begin
+						thisState.map.inventory.items[i].listed -= 1;
+						thisState.map.inventory.dollars += thisState.map.inventory.items[i].adjustedDollarValue;
+					end;
+
+				end;
+			end;
 		end;
 
 	end;
