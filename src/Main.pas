@@ -27,7 +27,7 @@ begin
 		GameUpdate(states, inputs);
 		GameDraw(states);
 	end;
-	
+
 end;
 
 begin

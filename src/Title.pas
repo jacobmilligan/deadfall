@@ -12,7 +12,7 @@
 unit Title;
 
 interface
-	uses State, Game, Input;
+	uses State, Game, Input, GameUI, Map;
 
 	procedure TitleInit(var newState: ActiveState);
 
@@ -22,11 +22,12 @@ interface
 
 	procedure TitleDraw(var thisState: ActiveState);
 
+	function CreateTitleUI(var map: MapData; var inputs: InputMap): UI;
 
 implementation
-	uses SwinGame, GameUI;
+	uses SwinGame;
 
-	function CreateTitleUI(): UI;
+	function CreateTitleUI(var map: MapData; var inputs: InputMap): UI;
 	begin
 		InitUI(result, 4, 'Title');
 
@@ -40,12 +41,14 @@ implementation
 	end;
 
 	procedure TitleInit(var newState: ActiveState);
+	var
+		tempInputs: InputMap;
 	begin
 		newState.HandleInput := @TitleHandleInput;
 		newState.Update := @TitleUpdate;
 		newState.Draw := @TitleDraw;
 
-		newState.displayedUI := CreateTitleUI();
+		newState.displayedUI := CreateTitleUI(newState.map, tempInputs);
 
 		SetMusicVolume(1);
 		PlayMusic(MusicNamed('baws'));
@@ -60,11 +63,21 @@ implementation
 			case UISelectedID(thisState.displayedUI) of
 				'Quit': StateChange(thisState.manager^, QuitState);
 				'New Map': StateChange(thisState.manager^, LevelState);
-				'Settings': WriteLn('Settings');
+				'Settings':
+					begin
+						thisState.displayedUI.nextUI := @CreateSettingsUI;
+						UINavigate(thisState.displayedUI, inputs, thisState.map);
+					end;
 				'Load Map': WriteLn('Load Map');
 			end;
 		end;
-
+		if thisState.displayedUI.name = 'Settings' then
+		begin
+			thisState.displayedUI.previousUI := @CreateTitleUI;
+			case UISelectedID(thisState.displayedUI) of
+				'Change Controls': thisState.displayedUI.nextUI := @CreateChangeControlsUI;
+			end;
+		end;
 	end;
 
 	procedure TitleUpdate(var thisState: ActiveState);

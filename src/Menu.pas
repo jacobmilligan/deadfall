@@ -74,46 +74,6 @@ implementation
 		end;
 	end;
 
-	function CreateChangeControlsUI(var map: MapData; var inputs: InputMap): UI;
-	var
-		controlStr: String;
-	begin
-		InitUI(result, 7, 'Controls');
-
-		WriteStr(controlStr, inputs.MoveUp);
-		controlStr := StringReplace(controlStr, 'Key', ' Key' ,[rfReplaceAll]);
-		result.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue') - (BitmapWidth(BitmapNamed('ui_blue')) / 2), 50, 'Move Up: ' + controlStr, 'PrStartSmall');
-
-		WriteStr(controlStr, inputs.MoveRight);
-		controlStr := StringReplace(controlStr, 'Key', ' Key' ,[rfReplaceAll]);
-		result.items[1] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue') - (BitmapWidth(BitmapNamed('ui_blue')) / 2), 150, 'Move Right: ' + controlStr, 'PrStartSmall');
-
-		WriteStr(controlStr, inputs.MoveDown);
-		controlStr := StringReplace(controlStr, 'Key', ' Key' ,[rfReplaceAll]);
-		result.items[2] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue') - (BitmapWidth(BitmapNamed('ui_blue')) / 2), 250, 'Move Down: ' + controlStr, 'PrStartSmall');
-
-		WriteStr(controlStr, inputs.MoveLeft);
-		controlStr := StringReplace(controlStr, 'Key', ' Key' ,[rfReplaceAll]);
-		result.items[3] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue') + (BitmapWidth(BitmapNamed('ui_blue')) / 2), 50, 'Move Left: ' + controlStr, 'PrStartSmall');
-
-		WriteStr(controlStr, inputs.Attack);
-		controlStr := StringReplace(controlStr, 'Key', ' Key' ,[rfReplaceAll]);
-		result.items[4] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue') + (BitmapWidth(BitmapNamed('ui_blue')) / 2), 150, 'Attack: ' + controlStr, 'PrStartSmall');
-
-		WriteStr(controlStr, inputs.Select);
-		controlStr := StringReplace(controlStr, 'Key', ' Key' ,[rfReplaceAll]);
-		result.items[5] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue') + (BitmapWidth(BitmapNamed('ui_blue')) / 2), 250, 'Select: ' + controlStr, 'PrStartSmall');
-
-		WriteStr(controlStr, inputs.Menu);
-		controlStr := StringReplace(controlStr, 'Key', ' Key' ,[rfReplaceAll]);
-		result.items[6] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue') + (BitmapWidth(BitmapNamed('ui_blue')) / 2), 350, 'Menu: ' + controlStr, 'PrStartSmall');
-
-		result.currentItem := 0;
-		result.previousItem := 0;
-		result.previousUI := @CreateSettingsUI;
-		result.nextUI := nil;
-	end;
-
 	//
 	//	Creates the inventory UI elements and returns it to replace the currently
 	//	displayed UI on the menu state

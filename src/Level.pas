@@ -102,6 +102,7 @@ implementation
 
 		// Generate a new map with the passed-in size
 		newState.map := GenerateNewMap(513);
+		newState.map.blank := false;
 
 		// Setup player stats
 		newState.map.player.hp := 100;
