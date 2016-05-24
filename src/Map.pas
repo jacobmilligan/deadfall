@@ -41,6 +41,7 @@ interface
 			dollarValue: Single;
 			name: String;
 			count: Integer;
+			listed: Integer;
 		end;
 
 		ItemPtr = ^Item;
@@ -182,18 +183,21 @@ implementation
 		result.rabbitLeg.hungerPlus := 7;
 		result.rabbitLeg.healthPlus := 1;
 		result.rabbitLeg.dollarValue := 5;
+		result.rabbitLeg.listed := 0;
 
 		result.bandage.name := 'Bandage';
 		result.bandage.count := 0;
 		result.bandage.hungerPlus := 0;
 		result.bandage.healthPlus := 10;
 		result.bandage.dollarValue := 5;
+		result.bandage.listed := 0;
 
 		result.trinket.name := 'Trinket';
 		result.trinket.count := 0;
 		result.trinket.hungerPlus := 2;
 		result.trinket.healthPlus := -15;
 		result.trinket.dollarValue := 5.3;
+		result.trinket.listed := 0;
 	end;
 
 	procedure RestoreStat(var stat: Single; plus: Single);
@@ -210,7 +214,8 @@ implementation
 
 	procedure SellItem(var toSell: Item; var inventory: InventoryCollection);
 	begin
-		inventory.dollars += toSell.dollarValue;
+		//inventory.dollars += toSell.dollarValue;
+		toSell.listed += 1;
 	end;
 
 	function CreateTileView(): TileView;

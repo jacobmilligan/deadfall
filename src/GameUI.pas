@@ -205,7 +205,8 @@ implementation
 		begin
 			itemToReduce.attachedInventory^.count := 0;
 		end;
-		itemToReduce.id := itemToReduce.attachedInventory^.name + ': ' + IntToStr(itemToReduce.attachedInventory^.count);
+		itemToReduce.id := 	itemToReduce.attachedInventory^.name + ' (Stocked: ' + IntToStr(itemToReduce.attachedInventory^.count) +
+								', For Sale: ' + IntToStr(itemToReduce.attachedInventory^.listed) + ')';
 	end;
 
 	procedure UINavigate(var currentUI: UI; var inputs: InputMap; var map: MapData);
