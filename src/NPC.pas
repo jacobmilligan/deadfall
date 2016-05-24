@@ -43,6 +43,7 @@ implementation
     newNPC.direction := DirDown;
     newNPC.nextUpdate := 1;
     newNPC.hp := 100;
+    newNPC.stuckCounter := 0;
 
     SpriteSetPosition(newNPC.sprite, PointAt(x, y));
     //SpriteSetCollisionKind(newNPC.sprite, AABBCollisions);
@@ -115,10 +116,22 @@ implementation
             newPath.dir := GetDir(localX, localY);
             newPath.cost := currentPath;
           end;
+
+          if hasCollision then
+          begin
+            npc.stuckCounter += 1;
+          end;
+
         end;
         localY += 1;
       end;
       localX += 1;
+    end;
+
+    if npc.stuckCounter > 4 then
+    begin
+      npc.currentGoal := PointAt(Random(513) * 32, Random(513) * 32);
+      npc.stuckCounter := 0;
     end;
 
     npc.direction := newPath.dir;

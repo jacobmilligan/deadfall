@@ -89,6 +89,7 @@ interface
 		//	that possesses some sort of action logic
 		//
 		Entity = record
+			stuckCounter: Integer;
 			sprite: Sprite;
 			direction: Direction;
 			currentGoal: Point2D;
@@ -728,7 +729,7 @@ implementation
 			DrawText('Finalizing Map', ColorWhite, 300, 200);
 			RefreshScreen(60);
 
-			//DrawMapCartography(newMap, size);
+			DrawMapCartography(newMap, size);
 		end
 		else
 		begin
