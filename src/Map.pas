@@ -20,7 +20,7 @@ interface
 		//	Valid entity directions on the map. Used in movement and
 		//	collision detection
 		//
-		Direction = (Up, Right, Down, Left);
+		Direction = (DirUp, DirRight, DirDown, DirLeft);
 
 		//
 		//	Valid tile types for building maps with.
@@ -576,37 +576,37 @@ implementation
 		finishY := tileY + 1;
 
 		case dir of
-			Up: y -= TILESIZE / 2;
-			Right: x += TILESIZE / 2;
-			Down: y += TILESIZE;
-			Left: x -= TILESIZE / 2;
+			DirUp: y -= TILESIZE / 2;
+			DirRight: x += TILESIZE / 2;
+			DirDown: y += TILESIZE;
+			DirLeft: x -= TILESIZE / 2;
 		end;
 
 		tileX := Trunc(x / TILESIZE);
 		tileY := Trunc(y / TILESIZE);
 
-		if dir = Up then
+		if dir = DirUp then
 		begin
 			startX := tileX - 1;
 			finishX := tileX + 1;
 			startY := Floor(y / TILESIZE);
 			finishY := startY;
 		end
-		else if dir = Right then
+		else if dir = DirRight then
 		begin
 		  startX := Ceil(x / TILESIZE);
 			finishX := startX;
 			startY := tileY - 1;
 			finishY := tileY + 1;
 		end
-		else if dir = Down then
+		else if dir = DirDown then
 		begin
 		  startX := tileX - 1;
 			finishX := tileX + 1;
 			startY := Floor(y / TILESIZE);
 			finishY := startY;
 		end
-		else if dir = Left then
+		else if dir = DirLeft then
 		begin
 		  startX := Floor(x / TILESIZE);
 			finishX := startX;
@@ -635,10 +635,10 @@ implementation
 					begin
 						hasCollision := true;
 						case dir of
-							Up: SpriteSetDY(toCheck, 0);
-							Right: SpriteSetDX(toCheck, 0);
-							Down: SpriteSetDY(toCheck, 0);
-							Left: SpriteSetDX(toCheck, 0);
+							DirUp: SpriteSetDY(toCheck, 0);
+							DirRight: SpriteSetDX(toCheck, 0);
+							DirDown: SpriteSetDY(toCheck, 0);
+							DirLeft: SpriteSetDX(toCheck, 0);
 						end;
 					end;
 

@@ -96,22 +96,22 @@ implementation
 
       if speed > 0 then
       begin
-          if dir = Up then
+          if dir = DirUp then
           begin
               velocity.y -= speed;
               SwitchAnimation(toMove.sprite, 'entity_up');
           end
-          else if dir = Right then
+          else if dir = DirRight then
           begin
               velocity.x += speed;
               SwitchAnimation(toMove.sprite, 'entity_right');
           end
-          else if dir = Down then
+          else if dir = DirDown then
           begin
               velocity.y += speed;
               SwitchAnimation(toMove.sprite, 'entity_down');
           end
-          else if dir = Left then
+          else if dir = DirLeft then
           begin
               velocity.x -= speed;
               SwitchAnimation(toMove.sprite, 'entity_left');
@@ -120,10 +120,10 @@ implementation
       else
       begin
         case toMove.direction of
-  				Up: SwitchAnimation(toMove.sprite, 'entity_up_idle');
-  				Right: SwitchAnimation(toMove.sprite, 'entity_right_idle');
-  				Down: SwitchAnimation(toMove.sprite, 'entity_down_idle');
-  				Left: SwitchAnimation(toMove.sprite, 'entity_left_idle');
+  				DirUp: SwitchAnimation(toMove.sprite, 'entity_up_idle');
+  				DirRight: SwitchAnimation(toMove.sprite, 'entity_right_idle');
+  				DirDown: SwitchAnimation(toMove.sprite, 'entity_down_idle');
+  				DirLeft: SwitchAnimation(toMove.sprite, 'entity_left_idle');
 			  end;
       end;
 

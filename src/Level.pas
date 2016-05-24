@@ -70,7 +70,7 @@ implementation
 		begin
 			offsetX := ( ScreenWidth() - SpriteX(map.player.sprite) ) / 2;
 		end;
-		// Right edge of map
+		//Right edge of map
 		if ( SpriteX(map.player.sprite) + (ScreenWidth() / 2) ) > mapSizeToPixel then
 		begin
 			offsetX := -( (ScreenWidth() / 2) - rightEdgeDistance);
@@ -165,19 +165,19 @@ implementation
 		begin
 			if KeyDown(inputs.MoveUp) then
 			begin
-				MoveEntity(thisState.map, thisState.map.player, Up, 3, isPickup);
+				MoveEntity(thisState.map, thisState.map.player, DirUp, 3, isPickup);
 			end
 			else if KeyDown(inputs.MoveRight) then
 			begin
-				MoveEntity(thisState.map, thisState.map.player, Right, 3, isPickup);
+				MoveEntity(thisState.map, thisState.map.player, DirRight, 3, isPickup);
 			end
 			else if KeyDown(inputs.MoveDown) then
 			begin
-				MoveEntity(thisState.map, thisState.map.player, Down, 3, isPickup);
+				MoveEntity(thisState.map, thisState.map.player, DirDown, 3, isPickup);
 			end
 			else if KeyDown(inputs.MoveLeft) then
 			begin
-				MoveEntity(thisState.map, thisState.map.player, Left, 3, isPickup);
+				MoveEntity(thisState.map, thisState.map.player, DirLeft, 3, isPickup);
 			end
 			else
 			begin
@@ -194,10 +194,10 @@ implementation
 			PlaySoundEffect(SoundEffectNamed('throw'), 0.5);
 			MoveEntity(thisState.map, thisState.map.player, thisState.map.player.direction, 0, isPickup);
 			case thisState.map.player.direction of
-				Up: SwitchAnimation(thisState.map.player.sprite, 'entity_up_attack');
-				Right: SwitchAnimation(thisState.map.player.sprite, 'entity_right_attack');
-				Down: SwitchAnimation(thisState.map.player.sprite, 'entity_down_attack');
-				Left: SwitchAnimation(thisState.map.player.sprite, 'entity_left_attack');
+				DirUp: SwitchAnimation(thisState.map.player.sprite, 'entity_up_attack');
+				DirRight: SwitchAnimation(thisState.map.player.sprite, 'entity_right_attack');
+				DirDown: SwitchAnimation(thisState.map.player.sprite, 'entity_down_attack');
+				DirLeft: SwitchAnimation(thisState.map.player.sprite, 'entity_left_attack');
 			end;
 			thisState.map.player.attackTimeout := thisState.map.player.maxAttackSpeed;
 		end;

@@ -40,7 +40,7 @@ implementation
     newNPC.sprite := CreateSprite(BitmapNamed('bunny'), AnimationScriptNamed('player'));
     SpriteAddLayer(newNPC.sprite, BitmapNamed('bunny_hurt'), 'hurt');
 //    map.npcs[i].sprite := CreateSprite(BitmapNamed('bunny_hurt'), AnimationScriptNamed('player'));
-    newNPC.direction := Down;
+    newNPC.direction := DirDown;
     newNPC.nextUpdate := 1;
     newNPC.hp := 100;
 
@@ -56,23 +56,23 @@ implementation
 
   function GetDir(x, y: Integer): Direction;
   begin
-    result := Down;
+    result := DirDown;
 
     if (x = 0) and (y = 1) then
     begin
-      result := Left;
+      result := DirLeft;
     end
     else if (x = 1) and (y = 0) then
     begin
-      result := Up;
+      result := DirUp;
     end
     else if (x = 1) and (y = 2) then
     begin
-      result := Down;
+      result := DirDown;
     end
     else if (x = 2) and (y = 1) then
     begin
-      result := Right;
+      result := DirRight;
     end;
   end;
 
@@ -87,7 +87,7 @@ implementation
     x := Trunc(SpriteX(npc.sprite) / 32);
     y := Trunc(SpriteY(npc.sprite) / 32);
     bestPath := 0;
-    newPath.dir := Down;
+    newPath.dir := DirDown;
     newPath.cost := PointPointDistance(PointAt(x * 32, y * 32), npc.currentGoal);
 
     localX := 0;
@@ -201,10 +201,10 @@ implementation
         if SpriteCollision(map.npcs[i].sprite, map.player.sprite) then
         begin
           case map.player.direction of
-            Up: SpriteSetDY(map.player.sprite, 2);
-            Right: SpriteSetDX(map.player.sprite, -2);
-            Down: SpriteSetDY(map.player.sprite, -2);
-            Left: SpriteSetDX(map.player.sprite, 2);
+            DirUp: SpriteSetDY(map.player.sprite, 2);
+            DirRight: SpriteSetDX(map.player.sprite, -2);
+            DirDown: SpriteSetDY(map.player.sprite, -2);
+            DirLeft: SpriteSetDX(map.player.sprite, 2);
           end;
         end;
         // Handle attack interaction with the player
@@ -216,10 +216,10 @@ implementation
           //  the player is facing
           //
           case map.player.direction of
-            Up: attackRect := CreateRectangle(SpriteX(map.player.sprite), SpriteY(map.player.sprite) - 16, 28, 28);
-            Right:attackRect := CreateRectangle(SpriteX(map.player.sprite) + 16, SpriteY(map.player.sprite), 28, 28);
-            Down: attackRect := CreateRectangle(SpriteX(map.player.sprite), SpriteY(map.player.sprite) + 16, 28, 28);
-            Left: attackRect := CreateRectangle(SpriteX(map.player.sprite) - 16, SpriteY(map.player.sprite), 28, 28);
+            DirUp: attackRect := CreateRectangle(SpriteX(map.player.sprite), SpriteY(map.player.sprite) - 16, 28, 28);
+            DirRight: attackRect := CreateRectangle(SpriteX(map.player.sprite) + 16, SpriteY(map.player.sprite), 28, 28);
+            DirDown: attackRect := CreateRectangle(SpriteX(map.player.sprite), SpriteY(map.player.sprite) + 16, 28, 28);
+            DirLeft: attackRect := CreateRectangle(SpriteX(map.player.sprite) - 16, SpriteY(map.player.sprite), 28, 28);
           end;
 
           // Player is in contact with the NPC while attacking
