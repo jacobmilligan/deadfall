@@ -92,7 +92,7 @@ implementation
 		begin
 			itemStr := 	map.inventory.items[i].name + ' (Stocked: ' + IntToStr(map.inventory.items[i].count) +
 									', For Sale: ' + IntToStr(map.inventory.items[i].listed) + ')';
-			result.items[i] := CreateUIElement(BitmapNamed('ui_blue_wide'), BitmapNamed('ui_red_wide'), HorizontalCenter('ui_blue_wide'), (100 * i) + 50, itemStr, 'PrStartSmall');
+			result.items[i] := CreateUIElement(BitmapNamed('ui_blue_wide'), BitmapNamed('ui_red_wide'), HorizontalCenter('ui_blue_wide'), (100 * i) + 55, itemStr, 'PrStartSmall');
 			result.items[i].attachedInventory := @map.inventory.items[i];
 		end;
 
@@ -184,6 +184,10 @@ implementation
 				SellItem(currItem^.attachedInventory^, lastLevelState^.map.inventory);
 				ReduceItemCount(currItem^);
 			end;
+		end
+		else if KeyTyped(inputs.Special) and ( thisState.displayedUI.name = 'Inventory' ) then
+		begin
+			BuyItem(currItem^, lastLevelState^.map.inventory.dollars);
 		end
 		else
 		begin

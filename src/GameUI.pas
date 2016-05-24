@@ -49,6 +49,8 @@ interface
 
 	procedure ReduceItemCount(var itemToReduce: UIElement);
 
+	procedure BuyItem(var itemToBuy: UIElement; var dollars: Single);
+
 	function HorizontalCenter(bmp: String): Single;
 
 	function CreateSettingsUI(var map: MapData; var inputs: InputMap): UI;
@@ -81,7 +83,7 @@ implementation
 		controlStr: String;
 		negCenter, posCenter: Single;
 	begin
-		InitUI(result, 7, 'Controls');
+		InitUI(result, 8, 'Controls');
 		negCenter := HorizontalCenter('ui_blue') - (BitmapWidth(BitmapNamed('ui_blue')) / 2);
 		posCenter := HorizontalCenter('ui_blue') + (BitmapWidth(BitmapNamed('ui_blue')) / 2);
 
@@ -105,13 +107,17 @@ implementation
 		controlStr := StringReplace(controlStr, 'Key', ' Key' ,[rfReplaceAll]);
 		result.items[4] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), posCenter, 250, 'Attack: ' + controlStr, 'PrStartSmall');
 
+		WriteStr(controlStr, inputs.Special);
+		controlStr := StringReplace(controlStr, 'Key', ' Key' ,[rfReplaceAll]);
+		result.items[5] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), posCenter, 250, 'Attack: ' + controlStr, 'PrStartSmall');
+
 		WriteStr(controlStr, inputs.Select);
 		controlStr := StringReplace(controlStr, 'Key', ' Key' ,[rfReplaceAll]);
-		result.items[5] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), posCenter, 350, 'Select: ' + controlStr, 'PrStartSmall');
+		result.items[6] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), posCenter, 350, 'Select: ' + controlStr, 'PrStartSmall');
 
 		WriteStr(controlStr, inputs.Menu);
 		controlStr := StringReplace(controlStr, 'Key', ' Key' ,[rfReplaceAll]);
-		result.items[6] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), posCenter, 450, 'Menu: ' + controlStr, 'PrStartSmall');
+		result.items[7] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), posCenter, 450, 'Menu: ' + controlStr, 'PrStartSmall');
 
 		result.currentItem := 0;
 		result.previousItem := 0;
@@ -208,6 +214,22 @@ implementation
 		end;
 		itemToReduce.id := 	itemToReduce.attachedInventory^.name + ' (Stocked: ' + IntToStr(itemToReduce.attachedInventory^.count) +
 								', For Sale: ' + IntToStr(itemToReduce.attachedInventory^.listed) + ')';
+	end;
+
+	procedure BuyItem(var itemToBuy: UIElement; var dollars: Single);
+	begin
+		if dollars - itemToBuy.attachedInventory^.adjustedDollarValue >= 0 then
+		begin
+			PlaySoundEffect(SoundEffectNamed('buy'), 0.5);
+			itemToBuy.attachedInventory^.count += 1;
+			dollars -= itemToBuy.attachedInventory^.adjustedDollarValue;
+			itemToBuy.id := 	itemToBuy.attachedInventory^.name + ' (Stocked: ' + IntToStr(itemToBuy.attachedInventory^.count) +
+									', For Sale: ' + IntToStr(itemToBuy.attachedInventory^.listed) + ')';
+		end
+		else
+		begin
+			PlaySoundEffect(SoundEffectNamed('deny'), 0.5);
+		end;
 	end;
 
 	procedure UINavigate(var currentUI: UI; var inputs: InputMap; var map: MapData);
@@ -307,7 +329,6 @@ implementation
 		end;
 		if marketStr <> '' then
 		begin
-			WriteLn(marketStr);
 			currentUI.tickerPos -= 2;
 
 			if CameraX() + currentUI.tickerPos <= CameraX() - ScreenWidth() then
@@ -320,6 +341,12 @@ implementation
 			begin
 				DrawText(marketStr, ColorWhite, 'PrStartSmall', (CameraX() + ScreenWidth()) + currentUI.tickerPos + 200, CameraY() + ScreenHeight() - 50);
 			end;
+		end;
+
+		if (currentUI.name = 'Inventory') then
+		begin
+			DrawText('Select - Eat Item | Attack - List Item on eBay', ColorWhite, 'PrStartSmall', CameraX(), CameraY() + 10);
+			DrawText('Special - Buy item at current market price', ColorWhite, 'PrStartSmall', CameraX(), CameraY() + 25);
 		end;
 
 	end;

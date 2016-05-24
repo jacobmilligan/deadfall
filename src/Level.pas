@@ -210,12 +210,52 @@ implementation
 		end;
 	end;
 
+	procedure UpdateListings(var items: ItemArray; var dollars: Single);
+	var
+		newBuyer: Buyer;
+		i, listedAmt, randItemIndex: Integer;
+		deltaDollarValue: Single;
+	begin
+		for i := 0 to High(items) do
+		begin
+			if Random(1000) > 997 then
+			begin
+				deltaDollarValue := items[i].adjustedDollarValue;
+				items[i].demand := Random() * items[i].rarity;
+				items[i].adjustedDollarValue := items[i].dollarValue * items[i].demand;
+				items[i].deltaDollarValue := items[i].adjustedDollarValue - deltaDollarValue;
+			end;
+
+			if items[i].listed = 0 then
+			begin
+				listedAmt := 1;
+			end
+			else
+			begin
+				listedAmt := items[i].listed;
+			end;
+			randItemIndex := Random( Round( (100 * (1 / items[i].demand)) / listedAmt ) );
+			if randItemIndex <= High(items) then
+			begin
+				newBuyer.itemToBuy := items[randItemIndex];
+				newBuyer.itemInterest := Random();
+				if ( items[i].name = newBuyer.itemToBuy.name ) and ( newBuyer.itemInterest > items[i].demand ) then
+				begin
+
+					if items[i].listed > 0 then
+					begin
+						items[i].listed -= 1;
+						dollars += items[i].adjustedDollarValue;
+					end;
+
+				end;
+			end;
+		end;
+	end;
+
 	procedure LevelUpdate(var thisState: ActiveState);
 	var
 		i: Integer;
-		newBuyer: Buyer;
-		listedAmt, randItemIndex: Integer;
-		deltaDollarValue: Single;
 	begin
 		if thisState.map.player.attackTimeout > 0 then
 		begin
@@ -227,7 +267,7 @@ implementation
 		UpdateNPCS(thisState.map);
 		UpdateSprite(thisState.map.player.sprite);
 
-		thisState.map.player.hunger -= 0.01;
+		thisState.map.player.hunger -= 0.02;
 		if thisState.map.player.hunger < 0 then
 		begin
 			thisState.map.player.hunger := 0;
@@ -240,42 +280,7 @@ implementation
 			StateChange(thisState.manager^, TitleState);
 		end;
 
-		for i := 0 to High(thisState.map.inventory.items) do
-		begin
-			if Random(1000) > 997 then
-			begin
-				deltaDollarValue := thisState.map.inventory.items[i].adjustedDollarValue;
-				thisState.map.inventory.items[i].demand := Random() * thisState.map.inventory.items[i].rarity;
-				thisState.map.inventory.items[i].adjustedDollarValue := thisState.map.inventory.items[i].dollarValue * thisState.map.inventory.items[i].demand;
-				thisState.map.inventory.items[i].deltaDollarValue := thisState.map.inventory.items[i].adjustedDollarValue - deltaDollarValue;
-			end;
-			WriteLn(thisState.map.inventory.items[i].name, ': ', thisState.map.inventory.items[i].demand:0:4);
-
-			if thisState.map.inventory.items[i].listed = 0 then
-			begin
-				listedAmt := 1;
-			end
-			else
-			begin
-				listedAmt := thisState.map.inventory.items[i].listed;
-			end;
-			randItemIndex := Random( Round( (100 * (1 / thisState.map.inventory.items[i].demand)) / listedAmt ) );
-			if randItemIndex <= High(thisState.map.inventory.items) then
-			begin
-				newBuyer.itemToBuy := thisState.map.inventory.items[randItemIndex];
-				newBuyer.itemInterest := Random();
-				if ( thisState.map.inventory.items[i].name = newBuyer.itemToBuy.name ) and ( newBuyer.itemInterest > thisState.map.inventory.items[i].demand ) then
-				begin
-
-					if thisState.map.inventory.items[i].listed > 0 then
-					begin
-						thisState.map.inventory.items[i].listed -= 1;
-						thisState.map.inventory.dollars += thisState.map.inventory.items[i].adjustedDollarValue;
-					end;
-
-				end;
-			end;
-		end;
+		UpdateListings(thisState.map.inventory.items, thisState.map.inventory.dollars);
 
 	end;
 

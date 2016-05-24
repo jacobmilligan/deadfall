@@ -199,12 +199,12 @@ implementation
 		i: Integer;
 	begin
 		result.numItems := 3;
-		result.dollars := 0.0;
+		result.dollars := 0;
 
 		SetLength(result.items, 3);
 
-		result.items[0] := NewItem('Rabbit Leg', 7, 1, 10, 0.2);
-		result.items[1] := NewItem('Bandage', 0, 10, 30, 0.5);
+		result.items[0] := NewItem('Rabbit Leg', 7, 1, 10, 0.1);
+		result.items[1] := NewItem('Bandage', 0, 10, 30, 0.3);
 		result.items[2] := NewItem('Trinket', 1, -15, 50, 1);
 
 		QuickSort(result.items, 0, Length(result.items) - 1);
