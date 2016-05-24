@@ -39,12 +39,13 @@ implementation
 
     newNPC.sprite := CreateSprite(BitmapNamed('bunny'), AnimationScriptNamed('player'));
     SpriteAddLayer(newNPC.sprite, BitmapNamed('bunny_hurt'), 'hurt');
-//    map.npcs[i].sprite := CreateSprite(BitmapNamed('bunny_hurt'), AnimationScriptNamed('player'));
+
     newNPC.direction := DirDown;
     newNPC.nextUpdate := 1;
     newNPC.hp := 100;
 
     SpriteSetPosition(newNPC.sprite, PointAt(x, y));
+    //SpriteSetCollisionKind(newNPC.sprite, AABBCollisions);
     SwitchAnimation(newNPC.sprite, 'entity_down_idle');
 
     newGoal := PointAt(Random(513) * 32, Random(513) * 32);
