@@ -45,7 +45,7 @@ implementation
     newNPC.hp := 100;
 
     SpriteSetPosition(newNPC.sprite, PointAt(x, y));
-    SpriteSetCollisionKind(newNPC.sprite, PixelCollisions);
+    //SpriteSetCollisionKind(newNPC.sprite, PixelCollisions);
     SwitchAnimation(newNPC.sprite, 'entity_down_idle');
 
     newGoal := PointAt(Random(513) * 32, Random(513) * 32);

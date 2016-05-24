@@ -629,7 +629,7 @@ implementation
 			begin
 				if SpriteName(toCheck) = 'player' then
 				begin
-					
+
 				end;
 
 				if SpriteBitmapCollision(toCheck, map.tiles[i, j].bmp, i * TILESIZE, j * TILESIZE) then
@@ -647,14 +647,14 @@ implementation
 						end;
 					end;
 
-					if not ( not IsInMap(map, i, j) ) and ( map.tiles[i, j].feature = Food ) then
+					if ( IsInMap(map, i, j) ) and ( map.tiles[i, j].feature = Food ) then
 					begin
 						PlaySoundEffect(SoundEffectNamed('pickup'), 0.5);
 						map.inventory.rabbitLeg.count += 1;
 						SetFeature(map.tiles[i, j], NoFeature, false);
 					end;
 
-					if not ( not IsInMap(map, i, j) ) and ( map.tiles[i, j].feature = Treasure ) then
+					if ( IsInMap(map, i, j) ) and ( map.tiles[i, j].feature = Treasure ) then
 					begin
 						if pickup then
 						begin
