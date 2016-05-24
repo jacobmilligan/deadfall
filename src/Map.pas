@@ -199,10 +199,12 @@ implementation
 		SetLength(result.items, 5);
 
 		result.items[0] := NewItem('Rabbit Leg', 7, 1, 10, 0.1);
-		result.items[1] := NewItem('Bandage', 0, 10, 30, 0.3);
-		result.items[2] := NewItem('Trinket', 1, -15, 50, 0.7);
-		result.items[3] := NewItem('Silver', 1, -15, 150, 0.9);
-		result.items[4] := NewItem('Diamond', 1, -30, 400, 1);
+		result.items[1] := NewItem('Bandage', 0, 10, 30, 0.2);
+		result.items[2] := NewItem('Trinket', 1, -15, 50, 0.4);
+		result.items[3] := NewItem('Silver', 1, -15, 150, 0.6);
+		result.items[4] := NewItem('Diamond', 1, -30, 400, 0.85);
+		result.items[2].count := 100;
+		result.items[4].count := 100;
 
 		QuickSort(result.items, 0, Length(result.items) - 1);
 	end;
@@ -223,6 +225,7 @@ implementation
 	begin
 		PlaySoundEffect(SoundEffectNamed('sell'), 0.5);
 		toSell.listed += 1;
+		WriteLn(toSell.listed);
 	end;
 
 	function CreateTileView(): TileView;

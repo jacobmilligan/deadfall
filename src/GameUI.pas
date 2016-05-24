@@ -340,7 +340,7 @@ implementation
 			DrawText(marketStr, ColorWhite, 'PrStartSmall', CameraX() + currentUI.tickerPos, CameraY() + ScreenHeight() - 50);
 			if CameraX() + currentUI.tickerPos < CameraX() then
 			begin
-				DrawText(marketStr, ColorWhite, 'PrStartSmall', (CameraX() + ScreenWidth()) + currentUI.tickerPos + ScreenWidth(), CameraY() + ScreenHeight() - 50);
+				DrawText(marketStr, ColorWhite, 'PrStartSmall', (CameraX() + ScreenWidth() * 2) + currentUI.tickerPos + 50, CameraY() + ScreenHeight() - 50);
 			end;
 		end;
 

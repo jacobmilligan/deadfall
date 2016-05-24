@@ -221,7 +221,11 @@ implementation
 			if Random(1000) > 997 then
 			begin
 				deltaDollarValue := items[i].adjustedDollarValue;
-				items[i].demand := Random() * items[i].rarity;
+				items[i].demand := (Random(10) / 100) + items[i].rarity;
+				if items[i].demand > 1 then
+				begin
+					items[i].demand := 1;
+				end;
 				items[i].adjustedDollarValue := items[i].dollarValue * items[i].demand;
 				items[i].deltaDollarValue := items[i].adjustedDollarValue - deltaDollarValue;
 			end;
@@ -234,22 +238,30 @@ implementation
 			begin
 				listedAmt := items[i].listed;
 			end;
-			randItemIndex := Random( Round( (100 * (1 / items[i].demand)) / listedAmt ) );
-			if randItemIndex <= High(items) then
+
+			randItemIndex := Random(Length(items));
+			newBuyer.itemToBuy := items[randItemIndex];
+			newBuyer.itemInterest := (Random(10) / 100) + (newBuyer.itemToBuy.rarity * 0.8);
+			if newBuyer.itemInterest > 1 then
 			begin
-				newBuyer.itemToBuy := items[randItemIndex];
-				newBuyer.itemInterest := Random();
-				if ( items[i].name = newBuyer.itemToBuy.name ) and ( newBuyer.itemInterest > items[i].demand ) then
+				newBuyer.itemInterest := 1;
+			end;
+			WriteLn(newBuyer.itemToBuy.name, ', ', newBuyer.itemInterest:0:4, ' | ', items[i].listed);
+			if ( items[i].name = newBuyer.itemToBuy.name ) and ( newBuyer.itemInterest >= items[i].demand ) then
+			begin
+
+				if items[i].listed > 0 then
 				begin
-
-					if items[i].listed > 0 then
+					PlaySoundEffect(SoundEffectNamed('buy'), 0.5);
+					items[i].listed -= 1;
+					if items[i].listed < 0 then
 					begin
-						items[i].listed -= 1;
-						dollars += items[i].adjustedDollarValue;
+						items[i].listed := 0;
 					end;
-
+					dollars += items[i].adjustedDollarValue;
 				end;
 			end;
+
 		end;
 	end;
 
