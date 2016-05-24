@@ -32,7 +32,7 @@ interface
 		//	Represents a feature on top of a tile that can have a bitmap,
 		//	collision, and be interactive
 		//
-		FeatureType = (None, Tree, Food, Treasure);
+		FeatureType = (NoFeature, Tree, Food, Treasure);
 
 		Item = record
 			category: FeatureType;
@@ -468,7 +468,7 @@ implementation
 			case feature of
 				Treasure: tile.featureBmp := BitmapNamed('treasure');
 				Food: tile.featureBmp := BitmapNamed('meat');
-				None: tile.featureBmp := BitmapNamed('hidden');
+				NoFeature: tile.featureBmp := BitmapNamed('hidden');
 			end;
 		end;
 	end;
@@ -528,7 +528,7 @@ implementation
 					end
 					else
 					begin
-						SetFeature(map.tiles[x, y], None, false);
+						SetFeature(map.tiles[x, y], NoFeature, false);
 					end;
 
 				end;
@@ -554,7 +554,7 @@ implementation
 			begin
 				tiles[x, y].elevation := 0;
 				tiles[x, y].collidable := false;
-				tiles[x, y].feature := None;
+				tiles[x, y].feature := NoFeature;
 			end;
 		end;
 	end;
@@ -646,7 +646,7 @@ implementation
 					begin
 						PlaySoundEffect(SoundEffectNamed('pickup'), 0.5);
 						map.inventory.rabbitLeg.count += 1;
-						SetFeature(map.tiles[i, j], None, false);
+						SetFeature(map.tiles[i, j], NoFeature, false);
 					end;
 
 					if not ( not IsInMap(map, i, j) ) and ( map.tiles[i, j].feature = Treasure ) then
@@ -655,7 +655,7 @@ implementation
 						begin
 							PlaySoundEffect(SoundEffectNamed('pickup'), 0.5);
 							map.inventory.trinket.count += 1;
-							SetFeature(map.tiles[i, j], None, false);
+							SetFeature(map.tiles[i, j], NoFeature, false);
 						end;
 					end;
 				end;

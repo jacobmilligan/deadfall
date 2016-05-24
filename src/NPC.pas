@@ -28,7 +28,7 @@ interface
 
 
 implementation
-  uses Input, Math;
+  uses Input, Math, sgTypes;
 
   procedure SpawnNPC(var map: MapData; x, y: LongInt);
   var
@@ -243,11 +243,11 @@ implementation
       else
       begin
         RemoveNPC(i, map.npcs);
-        if map.tiles[Floor(npcPos.x / 32), Floor(npcPos.y / 32)].feature = None then
+        if map.tiles[Floor(npcPos.x / 32), Floor(npcPos.y / 32)].feature = NoFeature then
         begin
           SetFeature(map.tiles[Floor(npcPos.x / 32), Floor(npcPos.y / 32)], Food, false);
         end
-        else if map.tiles[Ceil(npcPos.x / 32), Ceil(npcPos.y / 32)].feature = None then
+        else if map.tiles[Ceil(npcPos.x / 32), Ceil(npcPos.y / 32)].feature = NoFeature then
         begin
           SetFeature(map.tiles[Ceil(npcPos.x / 32), Ceil(npcPos.y / 32)], Food, false);
         end

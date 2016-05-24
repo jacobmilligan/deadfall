@@ -132,7 +132,7 @@ implementation
 				if spawnFound then
 					break;
 
-				if (i > 1) and (newState.map.tiles[i, j].flag = Sand) and (newState.map.tiles[i, j].feature = None) then
+				if (i > 1) and (newState.map.tiles[i, j].flag = Sand) and (newState.map.tiles[i, j].feature = NoFeature) then
 				begin
 					SpriteSetX(newState.map.player.sprite, i * 32);
 					SpriteSetY(newState.map.player.sprite, j * 32);
