@@ -86,6 +86,7 @@ implementation
 		i: Integer;
 	begin
 		InitUI(result, map.inventory.numItems, 'Inventory');
+		result.tickerPos := 100;
 
 		for i := 0 to High(map.inventory.items) do
 		begin

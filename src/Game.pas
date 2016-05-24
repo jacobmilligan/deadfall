@@ -157,6 +157,7 @@ implementation
 		LoadMusicNamed('main', 'main.wav');
 
 		LoadSoundEffectNamed('throw', 'throw.wav');
+		LoadSoundEffectNamed('sell', 'sell.wav');
 		LoadSoundEffectNamed('bunny', 'bunny.wav');
 		LoadSoundEffectNamed('pickup', 'pickup.wav');
 		LoadSoundEffectNamed('punch', 'punch.wav');

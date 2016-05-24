@@ -245,11 +245,11 @@ implementation
 			if Random(1000) > 997 then
 			begin
 				deltaDollarValue := thisState.map.inventory.items[i].adjustedDollarValue;
-				thisState.map.inventory.items[i].demand := Random();
+				thisState.map.inventory.items[i].demand := Random() * thisState.map.inventory.items[i].rarity;
 				thisState.map.inventory.items[i].adjustedDollarValue := thisState.map.inventory.items[i].dollarValue * thisState.map.inventory.items[i].demand;
 				thisState.map.inventory.items[i].deltaDollarValue := thisState.map.inventory.items[i].adjustedDollarValue - deltaDollarValue;
-				WriteLn(thisState.map.inventory.items[i].name, ' changed $', thisState.map.inventory.items[i].deltaDollarValue:0:4, ' to $', thisState.map.inventory.items[i].adjustedDollarValue:0:4);
 			end;
+			WriteLn(thisState.map.inventory.items[i].name, ': ', thisState.map.inventory.items[i].demand:0:4);
 
 			if thisState.map.inventory.items[i].listed = 0 then
 			begin
@@ -286,7 +286,7 @@ implementation
 	begin
 		emptyWidth := BitmapWidth(BitmapNamed('empty bar'));
 		emptyHeight := BitmapHeight(BitmapNamed('empty bar'));
-		dollarStr := FloatToStr(dollars);
+		dollarStr := FloatToStrF(dollars, ffFixed, 8, 2);
 		// Handle health, hunger, and money UI elements
 		DrawBitmap(BitmapNamed('empty bar'), CameraX() + 10, CameraY() + 10);
 		FillRectangle(RGBAColor(224, 51, 51, 150), CameraX() + 10, CameraY() + 10, (player.hp / 100) * emptyWidth, emptyHeight);

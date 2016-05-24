@@ -30,6 +30,7 @@ interface
 			previousItem: Integer;
 			previousUI: function(var map: MapData; var inputs: InputMap): UI;
 			nextUI: function(var map: MapData; var inputs: InputMap): UI;
+			tickerPos: Single;
 		end;
 
 	procedure InitUI(var newUI: UI; numElements: Integer; name: String);
@@ -262,8 +263,9 @@ implementation
 	var
 		i: Integer;
 		itemCenterX, itemCenterY: Single;
-		textToDraw: String;
+		textToDraw, marketStr: String;
 	begin
+		marketStr := '';
 
 		for i := 0 to High(currentUI.items) do
 		begin
@@ -283,6 +285,41 @@ implementation
 			itemCenterY := CameraY() + itemCenterY;
 
 			DrawText(currentUI.items[i].id, ColorBlack, currentUI.items[i].setFont, itemCenterX, itemCenterY);
+
+			if (currentUI.name = 'Inventory') and (currentUI.items[i].attachedInventory <> nil) then
+			begin
+				marketStr += currentUI.items[i].attachedInventory^.name + ': $' + FloatToStrF(currentUI.items[i].attachedInventory^.adjustedDollarValue, ffFixed, 8, 2);
+				if currentUI.items[i].attachedInventory^.deltaDollarValue < 0 then
+				begin
+					marketStr += ' V';
+				end
+				else if currentUI.items[i].attachedInventory^.deltaDollarValue > 0 then
+				begin
+					marketStr += ' ^';
+				end;
+				marketStr += ' ' + FloatToStrF(currentUI.items[i].attachedInventory^.deltaDollarValue, ffFixed, 8, 2);
+
+				if i < High(currentUI.items) then
+				begin
+					marketStr += '  -  ';
+				end;
+			end;
+		end;
+		if marketStr <> '' then
+		begin
+			WriteLn(marketStr);
+			currentUI.tickerPos -= 2;
+
+			if CameraX() + currentUI.tickerPos <= CameraX() - ScreenWidth() then
+			begin
+				currentUI.tickerPos := 200;
+			end;
+
+			DrawText(marketStr, ColorWhite, 'PrStartSmall', CameraX() + currentUI.tickerPos, CameraY() + ScreenHeight() - 50);
+			if CameraX() + currentUI.tickerPos < CameraX() then
+			begin
+				DrawText(marketStr, ColorWhite, 'PrStartSmall', (CameraX() + ScreenWidth()) + currentUI.tickerPos + 200, CameraY() + ScreenHeight() - 50);
+			end;
 		end;
 
 	end;

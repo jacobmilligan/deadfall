@@ -41,6 +41,7 @@ interface
 			dollarValue: Single;
 			adjustedDollarValue: Single;
 			demand: Single;
+			rarity: Single;
 			deltaDollarValue: Single;
 			name: String;
 			count: Integer;
@@ -179,7 +180,7 @@ implementation
 	const
 		TILESIZE = 32;
 
-	function NewItem(name: String; hungerPlus, healthPlus, dollarValue: Single): Item;
+	function NewItem(name: String; hungerPlus, healthPlus, dollarValue, rarity: Single): Item;
 	begin
 		result.name := name;
 		result.hungerPlus := hungerPlus;
@@ -187,7 +188,8 @@ implementation
 		result.dollarValue := dollarValue;
 		result.count := 0;
 		result.listed := 0;
-		result.demand := Random();
+		result.rarity := rarity;
+		result.demand := Random() * rarity;
 		result.adjustedDollarValue := dollarValue * result.demand;
 		result.deltaDollarValue := 0;
 	end;
@@ -201,9 +203,9 @@ implementation
 
 		SetLength(result.items, 3);
 
-		result.items[0] := NewItem('Rabbit Leg', 7, 1, 10);
-		result.items[1] := NewItem('Bandage', 0, 10, 30);
-		result.items[2] := NewItem('Trinket', 1, -15, 50);
+		result.items[0] := NewItem('Rabbit Leg', 7, 1, 10, 0.2);
+		result.items[1] := NewItem('Bandage', 0, 10, 30, 0.5);
+		result.items[2] := NewItem('Trinket', 1, -15, 50, 1);
 
 		QuickSort(result.items, 0, Length(result.items) - 1);
 	end;
@@ -222,7 +224,7 @@ implementation
 
 	procedure SellItem(var toSell: Item; var inventory: InventoryCollection);
 	begin
-		//inventory.dollars += toSell.dollarValue;
+		PlaySoundEffect(SoundEffectNamed('sell'), 0.5);
 		toSell.listed += 1;
 	end;
 
