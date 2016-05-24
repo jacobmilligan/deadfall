@@ -109,15 +109,41 @@ implementation
 	//
 	function CreateMenuUI(var map: MapData; var inputs: InputMap): UI;
 	const
-		UI_SIZE = 3;
+		UI_SIZE = 4;
 	begin
 		InitUI(result, UI_SIZE, 'Main Menu');
 		result.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 100, 'Inventory');
+		result.items[1] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 210, 'eBay');
 		result.nextUI := @CreateInventoryUI;
-		result.items[1] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 250, 'Settings');
-		result.items[2] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 400, 'Exit');
+		result.items[2] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 320, 'Settings');
+		result.items[3] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 430, 'Exit');
 		result.currentItem := 0;
 		result.previousItem := 0;
+	end;
+
+	function CreateEbayUI(var map: MapData; var inputs: InputMap): UI;
+	const
+		UI_SIZE = 3;
+	var
+		itemStr: String;
+	begin
+		InitUI(result, UI_SIZE, 'Ebay');
+
+		itemStr := map.inventory.rabbitLeg.name + ': ' + IntToStr(map.inventory.rabbitLeg.count);
+		result.items[0] := CreateUIElement(BitmapNamed('ui_blue_small'), BitmapNamed('ui_red_small'), 10, 50, itemStr, 'PrStartExtraSmall');
+		result.items[0].attachedInventory := @map.inventory.rabbitLeg;
+
+		itemStr := map.inventory.bandage.name + ': ' + IntToStr(map.inventory.bandage.count);
+		result.items[1] := CreateUIElement(BitmapNamed('ui_blue_small'), BitmapNamed('ui_red_small'), 10 + BitmapWidth(BitmapNamed('ui_blue_small')), 50, itemStr, 'PrStartExtraSmall');
+		result.items[1].attachedInventory := @map.inventory.bandage;
+
+		itemStr := map.inventory.trinket.name + ': ' + IntToStr(map.inventory.trinket.count);
+		result.items[2] := CreateUIElement(BitmapNamed('ui_blue_small'), BitmapNamed('ui_red_small'), 10 + BitmapWidth(BitmapNamed('ui_blue_small')) * 2, 50, itemStr, 'PrStartExtraSmall');
+		result.items[2].attachedInventory := @map.inventory.trinket;
+
+		result.currentItem := 0;
+		result.previousItem := 0;
+		result.previousUI := @CreateMenuUI;
 	end;
 
 	procedure MenuInit(var newState: ActiveState);
@@ -144,6 +170,7 @@ implementation
 			case UISelectedID(thisState.displayedUI) of
 				'Inventory': thisState.displayedUI.nextUI := @CreateInventoryUI;
 				'Settings': thisState.displayedUI.nextUI := @CreateSettingsUI;
+				'eBay': thisState.displayedUI.nextUI := @CreateEbayUI;
 			end;
 		end;
 		if thisState.displayedUI.name = 'Settings' then
@@ -208,6 +235,11 @@ implementation
 
 		lastLevelState^.Draw(lastLevelState^);
 		DrawUI(thisState.displayedUI);
+
+		if thisState.displayedUI.name = 'Ebay' then
+		begin
+			DrawText('Listed Items:', ColorWhite, 'PrStartSmall', CameraX() + (ScreenWidth() / 2), CameraY());
+		end;
 	end;
 
 end.

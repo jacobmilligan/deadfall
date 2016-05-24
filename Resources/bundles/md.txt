@@ -5,10 +5,13 @@ BITMAP,bunny,bunny.png,28,28,4,4,16
 BITMAP,bunny_hurt,bunny_hurt.png,28,28,4,4,16
 BITMAP,ui_blue,UIBlue.png
 BITMAP,ui_red,UIRed.png
+BITMAP,ui_blue_small,UIBlue_small.png
+BITMAP,ui_red_small,UIRed_small.png
 BITMAP,hidden,hidden.png
 
 FONT,PrStart,PrStart.ttf,20
 FONT,PrStartSmall,PrStart.ttf,12
+FONT,PrStartExtraSmall,PrStart.ttf,8
 FONT,Vermin,vermin_vibes_1989.ttf,104
 
 ANIM,player,playerAnim.txt

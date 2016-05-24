@@ -730,7 +730,7 @@ implementation
 			DrawText('Finalizing Map', ColorWhite, 300, 200);
 			RefreshScreen(60);
 
-			DrawMapCartography(newMap, size);
+			//DrawMapCartography(newMap, size);
 		end
 		else
 		begin
