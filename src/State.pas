@@ -106,7 +106,7 @@ implementation
 			end
 			else
 			begin
-				LevelInit(newActiveState);
+				LevelInit(newActiveState, states[High(states)].map);
 				SetLength(states, 1);
 				states[High(states)] := newActiveState;
 			end;

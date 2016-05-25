@@ -32,7 +32,7 @@ interface
 	//	Initializes the playing map state, using
 	//	a new active state
 	//
-	procedure LevelInit(var newState: ActiveState);
+	procedure LevelInit(var newState: ActiveState; constref mapSettings: MapData);
 
 	//
 	//	Handles input from the player, moving and taking actions
@@ -95,19 +95,19 @@ implementation
 		CenterCameraOn(map.player.sprite, offsetX, offsetY);
 	end;
 
-	procedure LevelInit(var newState: ActiveState);
+	procedure LevelInit(var newState: ActiveState; constref mapSettings: MapData);
 	var
 		i, j: Integer;
 		spawnFound: Boolean;
 	begin
-
+		//WriteLn(mapSettings.size, ', ', mapSettings.smoothness, ', ', mapSettings.maxHeight);
 		// Assign functions for state
 		newState.HandleInput := @LevelHandleInput;
 		newState.Update := @LevelUpdate;
 		newState.Draw := @LevelDraw;
 
 		// Generate a new map with the passed-in size
-		newState.map := GenerateNewMap(513);
+		newState.map := GenerateNewMap(mapSettings.size, mapSettings.smoothness, mapSettings.maxHeight, mapSettings.seed);
 		newState.map.blank := false;
 
 		// Setup player stats
@@ -247,10 +247,8 @@ implementation
 			end;
 			if ( items[i].name = newBuyer.itemToBuy.name ) and ( newBuyer.itemInterest >= 0.4 ) then
 			begin
-				WriteLn(newBuyer.itemToBuy.name, ', ', newBuyer.itemInterest:0:4, ' | ', items[i].listed);
 				if (items[i].listed > 0) and (Random() > 0.9) then
 				begin
-					WriteLn('Bought!');
 					PlaySoundEffect(SoundEffectNamed('buy'), 0.5);
 					items[i].listed -= 1;
 					if items[i].listed < 0 then
@@ -268,7 +266,7 @@ implementation
 						dollars += items[i].adjustedDollarValue;
 					end;
 				end;
-				
+
 			end;
 
 		end;

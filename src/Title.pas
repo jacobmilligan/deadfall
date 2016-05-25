@@ -40,6 +40,35 @@ implementation
 		result.previousItem := 0;
 	end;
 
+	function CreateInitMapUI(var map: MapData; var inputs: InputMap): UI;
+	begin
+		InitUI(result, 5, 'New Map');
+
+		result.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 100, 'Size', 'PrStartSmall');
+		SetLength(result.items[0].dataStrings, 3);
+		result.items[0].dataStrings[0] := 'Small';
+		result.items[0].dataStrings[1] := 'Medium';
+		result.items[0].dataStrings[2] := 'Big';
+		result.items[0].currentDataString := 0;
+
+		result.items[1] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 200, 'Max Height', 'PrStartSmall');
+		result.items[1].data := 100;
+		result.items[2] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 300, 'Smoothness', 'PrStartSmall');
+		result.items[2].data := 20;
+
+		result.items[3] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 400, 'Seed', 'PrStartSmall');
+		SetLength(result.items[3].dataStrings, 1);
+		result.items[3].dataStrings[0] := 'Random';
+		result.items[3].data := -1;
+
+		result.items[4] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 500, 'Generate', 'PrStartSmall');
+
+
+		result.currentItem := 0;
+		result.previousItem := 0;
+		result.previousUI := @CreateTitleUI;
+	end;
+
 	procedure TitleInit(var newState: ActiveState);
 	var
 		tempInputs: InputMap;
@@ -54,8 +83,127 @@ implementation
 		PlayMusic(MusicNamed('baws'));
 	end;
 
-	procedure TitleHandleInput(var thisState: ActiveState; var inputs: InputMap);
+	procedure UpdateNewMapInput(var inputs: InputMap; var currElement: UIElement; var map: MapData);
 	begin
+		if KeyTyped(inputs.MoveRight) then
+		begin
+
+			if currElement.id = 'Size' then
+			begin
+				currElement.currentDataString += 1;
+				if currElement.currentDataString > 2 then
+				begin
+					currElement.currentDataString := 0;
+				end;
+
+				case currElement.dataStrings[currElement.currentDataString] of
+					'Small': map.size := 257;
+					'Medium': map.size := 513;
+					'Big': map.size := 1025;
+				end;
+			end
+			else if currElement.id = 'Seed' then
+			begin
+				if currElement.currentDataString = -1 then
+				begin
+					currElement.data += 1;
+				end
+				else
+				begin
+					currElement.currentDataString := -1;
+					currElement.data := 0;
+				end;
+				map.seed := currElement.data;
+			end
+			else
+			begin
+				currElement.data += 1;
+
+				case currElement.id of
+					'Max Height': map.maxHeight := currElement.data;
+					'Smoothness': map.smoothness := currElement.data;
+				end;
+
+			end;
+
+		end
+		else if KeyTyped(inputs.MoveLeft) then
+		begin
+			if currElement.id = 'Size' then
+			begin
+				currElement.currentDataString -= 1;
+				if currElement.currentDataString < 0 then
+				begin
+					currElement.currentDataString := 2;
+				end;
+
+				case currElement.dataStrings[currElement.currentDataString] of
+					'Small': map.size := 257;
+					'Medium': map.size := 513;
+					'Big': map.size := 1025;
+				end;
+			end
+			else if currElement.id = 'Seed' then
+			begin
+				if currElement.currentDataString = -1 then
+				begin
+					currElement.data -= 1;
+					if currElement.data < 0 then
+					begin
+						currElement.data := 0;
+					end;
+				end;
+				map.seed := currElement.data;
+			end
+			else
+			begin
+				currElement.data -= 1;
+				if currElement.data < 0 then
+				begin
+					currElement.data := 0;
+				end;
+
+				case currElement.id of
+					'Max Height': map.maxHeight := currElement.data;
+					'Smoothness': map.smoothness := currElement.data;
+				end;
+			end;
+		end;
+
+		WriteLn(currElement.id);
+		if currElement.id = 'Size' then
+		begin
+			case currElement.dataStrings[currElement.currentDataString] of
+				'Small': map.size := 257;
+				'Medium': map.size := 513;
+				'Big': map.size := 1025;
+			end;
+		end
+		else if currElement.id = 'Seed' then
+		begin
+			map.seed := currElement.data;
+		end
+		else
+		begin
+			case currElement.id of
+				'Max Height': map.maxHeight := currElement.data;
+				'Smoothness': map.smoothness := currElement.data;
+			end;
+		end;
+
+		if KeyTyped(inputs.Attack) and ( currElement.id = 'Seed' ) then
+		begin
+			currElement.data := -1;
+			currElement.currentDataString := 0;
+		end;
+
+	end;
+
+	procedure TitleHandleInput(var thisState: ActiveState; var inputs: InputMap);
+	var
+		i: Integer;
+	begin
+
 		if ( KeyTyped(inputs.Select) ) and ( thisState.displayedUI.name = 'Controls' ) then
 		begin
 			PlaySoundEffect(SoundEffectNamed('confirm'), 0.8);
@@ -78,7 +226,15 @@ implementation
 			PlaySoundEffect(SoundEffectNamed('confirm'), 0.5);
 			case UISelectedID(thisState.displayedUI) of
 				'Quit': StateChange(thisState.manager^, QuitState);
-				'New Map': StateChange(thisState.manager^, LevelState);
+				'New Map':
+					begin
+						thisState.displayedUI.nextUI := @CreateInitMapUI;
+						for i := 0 to High(thisState.displayedUI.items) do
+						begin
+							UINavigate(thisState.displayedUI, inputs, thisState.map);
+							UpdateNewMapInput(inputs, thisState.displayedUI.items[i], thisState.map);
+						end;
+					end;
 				'Settings':
 					begin
 						thisState.displayedUI.nextUI := @CreateSettingsUI;
@@ -93,6 +249,15 @@ implementation
 			thisState.displayedUI.previousUI := @CreateTitleUI;
 			case UISelectedID(thisState.displayedUI) of
 				'Change Controls': thisState.displayedUI.nextUI := @CreateChangeControlsUI;
+			end;
+		end;
+
+		if thisState.displayedUI.name = 'New Map' then
+		begin
+			UpdateNewMapInput(inputs, thisState.displayedUI.items[thisState.displayedUI.currentItem], thisState.map);
+			if KeyTyped(inputs.Select) and ( UISelectedID(thisState.displayedUI) = 'Generate' ) then
+			begin
+				StateChange(thisState.manager^, LevelState);
 			end;
 		end;
 

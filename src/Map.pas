@@ -115,6 +115,7 @@ interface
 			inventory: InventoryCollection;
 			npcs: EntityCollection;
 			blank: Boolean;
+			size, smoothness, maxHeight, seed: Integer;
 		end;
 
 		//
@@ -137,7 +138,7 @@ interface
 	//	(for details, see: Computer Rendering of Stochastic Models - Alain Fournier et. al.).
 	//	This heightmap data gets used later on to generate terrain realistically
 	//
-	function GenerateNewMap(size: Integer): MapData;
+	function GenerateNewMap(size, smoothness, maxHeight: Integer; seed: Integer): MapData;
 
 	//
 	//	Checks if a given entity is about to collide with anything on the
@@ -254,14 +255,13 @@ implementation
 		midpointVal: Double;
 		nextStep, cornerCount: Integer;
 	begin
-
 		x := 0;
 		y := 0;
 		midpointVal := 0;
 		nextStep := Round(Length(map.tiles) / 2 ); // Center of the tile grid
 
 		// Seed upper-left corner with random value
-		map.tiles[x, y].elevation := -1000;
+		map.tiles[x, y].elevation := -1500;
 
 		// Initialize four corners of map with the same value as above
 		while x < Length(map.tiles) do
@@ -726,11 +726,23 @@ implementation
 		SaveBitmap(mapBmp, 'new_map.png');
 	end;
 
-	function GenerateNewMap(size: Integer): MapData;
+	function GenerateNewMap(size, smoothness, maxHeight: Integer; seed: Integer): MapData;
 	var
 		newMap: MapData;
 		x, y: Integer;
 	begin
+
+		if seed < 0 then
+		begin
+			WriteLn('random');
+			Randomize;
+		end
+		else
+		begin
+			WriteLn('Seed: ', seed);
+			RandSeed := 1000 + seed;
+		end;
+
 		if ( (size - 1) mod 2 = 0 ) then
 		begin
 			FadeMusicIn(MusicNamed('main'), 1000);
@@ -742,7 +754,7 @@ implementation
 
 			SetLength(newMap.npcs, 0);
 			SetGridLength(newMap.tiles, size);
-			GetHeightMap(newMap, 100, 20);
+			GetHeightMap(newMap, maxHeight, smoothness);
 
 			ClearScreen(ColorBlack);
 			DrawText('Generating Terrain', ColorWhite, 300, 200);
@@ -755,7 +767,7 @@ implementation
 			DrawText('Finalizing Map', ColorWhite, 300, 200);
 			RefreshScreen(60);
 
-			//DrawMapCartography(newMap, size);
+			DrawMapCartography(newMap, size);
 		end
 		else
 		begin

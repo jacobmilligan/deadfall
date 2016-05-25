@@ -10,6 +10,8 @@ interface
 
   type
 
+		StringArray = array of String;
+
 		UIElement = record
 			inactiveBmp: Bitmap;
 			activeBmp: Bitmap;
@@ -17,6 +19,9 @@ interface
 			x: Single;
 			y: Single;
 			id: String;
+			data: Integer;
+			dataStrings: StringArray;
+			currentDataString: Integer;
 			setFont: Font;
 			attachedInventory: ItemPtr;
 		end;
@@ -149,6 +154,8 @@ implementation
 		result.id := id;
 		result.setFont := FontNamed(setFont);
 		result.attachedInventory := nil;
+		result.data := -1;
+		SetLength(result.dataStrings, 0);
 	end;
 
 	function FindUIElement(var currentUI: UI; id: String): Integer;
@@ -298,15 +305,25 @@ implementation
 
 			DrawBitmap(currentUI.items[i].currentBmp, CameraX() + currentUI.items[i].x, CameraY() + currentUI.items[i].y);
 
+			textToDraw := currentUI.items[i].id;
+			if currentUI.items[i].data > -1 then
+			begin
+				textToDraw := currentUI.items[i].id + ': ' + IntToStr(currentUI.items[i].data);
+			end
+			else if Length(currentUI.items[i].dataStrings) > 0 then
+			begin
+				textToDraw := currentUI.items[i].id + ': ' + currentUI.items[i].dataStrings[currentUI.items[i].currentDataString];
+			end;
+
 			itemCenterX := currentUI.items[i].x + (BitmapWidth(currentUI.items[i].currentBmp) / 2);
-			itemCenterX := itemCenterX - ( TextWidth(currentUI.items[i].setFont, currentUI.items[i].id) / 2 );
+			itemCenterX := itemCenterX - ( TextWidth(currentUI.items[i].setFont, textToDraw) / 2 );
 			itemCenterX := CameraX() + itemCenterX;
 
 			itemCenterY := currentUI.items[i].y + (BitmapHeight(currentUI.items[i].currentBmp) / 2);
-			itemCenterY := itemCenterY - ( TextHeight(currentUI.items[i].setFont, currentUI.items[i].id) / 2 );
+			itemCenterY := itemCenterY - ( TextHeight(currentUI.items[i].setFont, textToDraw) / 2 );
 			itemCenterY := CameraY() + itemCenterY;
 
-			DrawText(currentUI.items[i].id, ColorBlack, currentUI.items[i].setFont, itemCenterX, itemCenterY);
+			DrawText(textToDraw, ColorBlack, currentUI.items[i].setFont, itemCenterX, itemCenterY);
 
 			if (currentUI.name = 'Inventory') and (currentUI.items[i].attachedInventory <> nil) then
 			begin
