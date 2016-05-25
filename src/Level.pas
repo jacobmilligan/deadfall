@@ -250,15 +250,25 @@ implementation
 				WriteLn(newBuyer.itemToBuy.name, ', ', newBuyer.itemInterest:0:4, ' | ', items[i].listed);
 				if (items[i].listed > 0) and (Random() > 0.9) then
 				begin
-						WriteLn('Bought!');
+					WriteLn('Bought!');
 					PlaySoundEffect(SoundEffectNamed('buy'), 0.5);
 					items[i].listed -= 1;
 					if items[i].listed < 0 then
 					begin
 						items[i].listed := 0;
 					end;
-					dollars += items[i].adjustedDollarValue;
+
+					// Generate a random caret and adjust price based off that
+					if items[i].name = 'Diamond' then
+					begin
+						dollars += items[i].adjustedDollarValue * Random();
+					end
+					else
+					begin
+						dollars += items[i].adjustedDollarValue;
+					end;
 				end;
+				
 			end;
 
 		end;
