@@ -172,7 +172,7 @@ interface
 	procedure SellItem(var toSell: Item; var inventory: InventoryCollection);
 
 implementation
-	uses SwinGame, Game, Math;
+	uses SwinGame, Game, Input, Math;
 
 	const
 		TILESIZE = 32;
@@ -698,14 +698,28 @@ implementation
 		opts: DrawingOptions;
 		clr: Color;
 		x, y: Integer;
+		loadingGuy: Sprite;
+		textStr: String;
 	begin
+		loadingGuy := CreateSprite('player', BitmapNamed('player'), AnimationScriptNamed('player'));
+		SpriteStartAnimation(loadingGuy, 'entity_down');
+		CenterCameraOn(loadingGuy, 0, 0);
+
+		textStr := 'Finalizing Map';
+
 		mapBmp := CreateBitmap(size, size);
 		opts.dest := mapBmp;
 
 		for x := 0 to High(newMap.tiles) do
 		begin
+			ClearScreen(ColorBlack);
+			UpdateSprite(loadingGuy);
+			DrawSprite(loadingGuy);
+			DrawText(textStr, ColorWhite, FontNamed('PrStart'), (CameraX() + (ScreenWidth() / 2)) - TextWidth(FontNamed('PrStart'), textStr), CameraY() + 100);
+			RefreshScreen(60);
 			for y := 0 to High(newMap.tiles) do
 			begin
+				ProcessEvents();
 				case newMap.tiles[x, y].flag of
 					Water: clr := RGBColor(42, 76, 211); // Blue
 					Sand: clr := RGBColor(241, 249, 101); // Sandy yellow
@@ -763,11 +777,7 @@ implementation
 			GenerateTerrain(newMap);
 			SeedFeatures(newMap);
 
-			ClearScreen(ColorBlack);
-			DrawText('Finalizing Map', ColorWhite, 300, 200);
-			RefreshScreen(60);
-
-			//DrawMapCartography(newMap, size);
+			DrawMapCartography(newMap, size);
 		end
 		else
 		begin
