@@ -148,6 +148,7 @@ implementation
 		end;
 
 		CenterCameraOn(newState.map.player.sprite, ScreenWidth() / 2, ScreenHeight() / 2);
+		SeedSpawns(newState.map);
 	end;
 
 	procedure LevelHandleInput(var thisState: ActiveState; var inputs: InputMap);

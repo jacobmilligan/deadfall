@@ -115,7 +115,7 @@ interface
 			inventory: InventoryCollection;
 			npcs: EntityCollection;
 			blank: Boolean;
-			size, smoothness, maxHeight, seed: Integer;
+			size, smoothness, maxHeight, seed, maxSpawns: Integer;
 		end;
 
 		//
@@ -767,7 +767,7 @@ implementation
 			DrawText('Finalizing Map', ColorWhite, 300, 200);
 			RefreshScreen(60);
 
-			DrawMapCartography(newMap, size);
+			//DrawMapCartography(newMap, size);
 		end
 		else
 		begin

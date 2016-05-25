@@ -97,9 +97,21 @@ implementation
 				end;
 
 				case currElement.dataStrings[currElement.currentDataString] of
-					'Small': map.size := 257;
-					'Medium': map.size := 513;
-					'Big': map.size := 1025;
+					'Small':
+						begin
+							map.maxSpawns := 1000;
+							map.size := 257;
+						end;
+					'Medium':
+						begin
+							map.maxSpawns := 1000;
+							map.size := 513;
+						end;
+					'Big':
+						begin
+							map.maxSpawns := 100000;
+							map.size := 1025;
+						end;
 				end;
 			end
 			else if currElement.id = 'Seed' then
@@ -138,9 +150,21 @@ implementation
 				end;
 
 				case currElement.dataStrings[currElement.currentDataString] of
-					'Small': map.size := 257;
-					'Medium': map.size := 513;
-					'Big': map.size := 1025;
+					'Small':
+						begin
+							map.maxSpawns := 1000;
+							map.size := 257;
+						end;
+					'Medium':
+						begin
+							map.maxSpawns := 1000;
+							map.size := 513;
+						end;
+					'Big':
+						begin
+							map.maxSpawns := 100000;
+							map.size := 1025;
+						end;
 				end;
 			end
 			else if currElement.id = 'Seed' then
@@ -170,13 +194,24 @@ implementation
 			end;
 		end;
 
-		WriteLn(currElement.id);
 		if currElement.id = 'Size' then
 		begin
 			case currElement.dataStrings[currElement.currentDataString] of
-				'Small': map.size := 257;
-				'Medium': map.size := 513;
-				'Big': map.size := 1025;
+				'Small':
+					begin
+						map.maxSpawns := 1000;
+						map.size := 257;
+					end;
+				'Medium':
+					begin
+						map.maxSpawns := 1000;
+						map.size := 513;
+					end;
+				'Big':
+					begin
+						map.maxSpawns := 100000;
+						map.size := 513;
+					end;
 			end;
 		end
 		else if currElement.id = 'Seed' then

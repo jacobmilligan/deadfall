@@ -20,6 +20,8 @@ interface
       cost: Single;
     end;
 
+  procedure SeedSpawns(var map: MapData);
+
   procedure UpdateSpawns(var map: MapData);
 
   procedure UpdateNPCS(var map: MapData);
@@ -155,7 +157,7 @@ implementation
     UpdateSprite(npc.sprite);
   end;
 
-  procedure UpdateSpawns(var map: MapData);
+  procedure SeedSpawns(var map: MapData);
   var
     x, y: LongInt;
   begin
@@ -165,12 +167,31 @@ implementation
 
       for y := 0 to High(map.tiles) do
       begin
-        if not (map.tiles[x, y].collidable) and (Random(1000) > 995) and (Length(map.npcs) < 1000) then
+        if not (map.tiles[x, y].collidable) and (Random(1000) > 995) and (Length(map.npcs) < map.maxSpawns) then
         begin
           SpawnNPC(map, x * 32, y * 32);
         end;
       end;
 
+    end;
+  end;
+
+  procedure UpdateSpawns(var map: MapData);
+  var
+    x, y: LongInt;
+  begin
+    //Randomize;
+    x := Random(Length(map.tiles));
+    y := Random(Length(map.tiles));
+    while (map.tiles[x, y].collidable) do
+    begin
+      x := Random(Length(map.tiles));
+      y := Random(Length(map.tiles));
+    end;
+
+    if (Random(1000) > 500) and (Length(map.npcs) < map.maxSpawns) then
+    begin
+      SpawnNPC(map, x * 32, y * 32);
     end;
   end;
 
