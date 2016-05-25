@@ -115,7 +115,6 @@ implementation
 		newState.map.player.hunger := 100;
 		newState.map.player.attackTimeout := 0;
 		newState.map.player.maxAttackSpeed := 10;
-		WriteLn(newState.map.player.maxAttackSpeed:0:4);
 
 		newState.map.inventory := InitInventory();
 
@@ -221,7 +220,7 @@ implementation
 			if Random(1000) > 997 then
 			begin
 				deltaDollarValue := items[i].adjustedDollarValue;
-				items[i].demand := (Random(10) / 100) + items[i].rarity;
+				items[i].demand := (Random() / 2) + items[i].rarity;
 				if items[i].demand > 1 then
 				begin
 					items[i].demand := 1;
@@ -241,17 +240,17 @@ implementation
 
 			randItemIndex := Random(Length(items));
 			newBuyer.itemToBuy := items[randItemIndex];
-			newBuyer.itemInterest := (Random(10) / 100) + (newBuyer.itemToBuy.rarity * 0.8);
+			newBuyer.itemInterest := Random() * newBuyer.itemToBuy.demand;
 			if newBuyer.itemInterest > 1 then
 			begin
 				newBuyer.itemInterest := 1;
 			end;
-			WriteLn(newBuyer.itemToBuy.name, ', ', newBuyer.itemInterest:0:4, ' | ', items[i].listed);
-			if ( items[i].name = newBuyer.itemToBuy.name ) and ( newBuyer.itemInterest >= items[i].demand ) then
+			if ( items[i].name = newBuyer.itemToBuy.name ) and ( newBuyer.itemInterest >= 0.4 ) then
 			begin
-
-				if items[i].listed > 0 then
+				WriteLn(newBuyer.itemToBuy.name, ', ', newBuyer.itemInterest:0:4, ' | ', items[i].listed);
+				if (items[i].listed > 0) and (Random() > 0.9) then
 				begin
+						WriteLn('Bought!');
 					PlaySoundEffect(SoundEffectNamed('buy'), 0.5);
 					items[i].listed -= 1;
 					if items[i].listed < 0 then
