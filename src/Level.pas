@@ -147,6 +147,7 @@ implementation
 			end;
 		end;
 
+		// Recursively call self with higher smoothness value if spawn not found
 		if not spawnFound then
 		begin
 			mapSettings.smoothness += 1;
