@@ -37,6 +37,7 @@ implementation
     newNPC: Entity;
     newGoal: Point2D;
   begin
+    // Only spawn rabbits outside the boundaries of the current camera view
     if ( x < CameraX() ) or ( x > CameraX() + ScreenWidth() ) or ( y < CameraY() ) or ( y > CameraY() + ScreenHeight() ) then
     begin
       SetLength(map.npcs, Length(map.npcs) + 1);
@@ -50,7 +51,6 @@ implementation
       newNPC.stuckCounter := 0;
 
       SpriteSetPosition(newNPC.sprite, PointAt(x, y));
-      //SpriteSetCollisionKind(newNPC.sprite, AABBCollisions);
       SwitchAnimation(newNPC.sprite, 'entity_down_idle');
 
       newGoal := PointAt(Random(513) * 32, Random(513) * 32);
