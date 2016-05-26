@@ -219,7 +219,7 @@ implementation
     toRemove := 0;
     playerPos := PointAt( SpriteX(map.player.sprite), SpriteY(map.player.sprite) );
     updateDist := ScreenWidth() * 3;
-    
+
     //
     // Iterate in reverse to allow for removal of items from the array
     // without copying all items when removing.
