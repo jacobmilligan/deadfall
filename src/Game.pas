@@ -178,6 +178,7 @@ implementation
 		LoadSoundEffectNamed('click', 'click.wav');
 		LoadSoundEffectNamed('confirm', 'confirm.wav');
 
+		LoadAnimationScriptNamed('player', 'playerAnim.txt');
 		LoadResourceBundle('md.txt');
 	end;
 

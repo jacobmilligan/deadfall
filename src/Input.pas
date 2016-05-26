@@ -21,7 +21,7 @@ interface
       //  Is set to default keys in GameInit() using SetDefaultInput()
       //
       InputMap = record
-          MoveUp, MoveRight, MoveDown, MoveLeft, Attack, Special, Menu, Select: KeyCode;
+          MoveUp, MoveRight, MoveDown, MoveLeft, Attack, Special, Menu, Select, Action: KeyCode;
       end;
 
     //
@@ -46,7 +46,7 @@ interface
     //  less thanzero, it will automatically play an idle animation based off the passed in
     //  direction.
     //
-    procedure MoveEntity(var map: MapData; var toMove: Entity; dir: Direction; speed: Single; pickup: Boolean);
+    procedure MoveEntity(var map: MapData; var toMove: Entity; dir: Direction; speed: Single; pickup: Boolean; special: Boolean = false);
 
     //
     //  Changes the key in the input map to whatever key the user has pressed
@@ -96,6 +96,7 @@ implementation
         'Menu': inputs.Menu := newKey;
         'Select': inputs.Select := newKey;
         'Special': inputs.Special := newKey;
+        'Action': inputs.Action := newKey;
       end;
 
       // Isolate the KeyCode and reformat it for printing to the UI
@@ -114,7 +115,8 @@ implementation
         inputs.Attack := XKey;
         inputs.Menu := EscapeKey;
         inputs.Select := SpaceKey;
-        inputs.Special := ZKey;
+        inputs.Special := LeftShiftKey;
+        inputs.Action := ZKey;
     end;
 
     procedure SwitchAnimation(var sprite: Sprite; ani: String);
@@ -126,7 +128,7 @@ implementation
   		end;
   	end;
 
-    procedure MoveEntity(var map: MapData; var toMove: Entity; dir: Direction; speed: Single; pickup: Boolean);
+    procedure MoveEntity(var map: MapData; var toMove: Entity; dir: Direction; speed: Single; pickup: Boolean; special: Boolean = false);
     var
       velocity: Vector;
       hasCollision: Boolean;
@@ -174,7 +176,7 @@ implementation
       SpriteSetDX(toMove.sprite, velocity.x);
 	    SpriteSetDY(toMove.sprite, velocity.y);
 
-      CheckCollision(map, toMove.sprite, dir, hasCollision, pickup);
+      CheckCollision(map, toMove.sprite, dir, hasCollision, pickup, special);
 
       // Don't move the player if they're in the middle of punching
       if toMove.attackTimeout > 0 then

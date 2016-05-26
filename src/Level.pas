@@ -115,12 +115,14 @@ implementation
 		newState.map.player.hunger := 100;
 		newState.map.player.attackTimeout := 0;
 		newState.map.player.maxAttackSpeed := 10;
+		newState.map.player.id := 'Player';
+		newState.map.onBoat := false;
 
 		newState.map.inventory := InitInventory();
 
 		// Setup player sprite and animation
 		newState.map.player.sprite := CreateSprite('player', BitmapNamed('player'), AnimationScriptNamed('player'));
-		//SpriteSetCollisionBitmap(newState.map.player.sprite, BitmapNamed('player_collision'));
+		SpriteAddLayer(newState.map.player.sprite, BitmapNamed('player_boat'), 'boat');
 		SwitchAnimation(newState.map.player.sprite, 'entity_down_idle');
 
 		//
@@ -163,15 +165,20 @@ implementation
 
 	procedure LevelHandleInput(var thisState: ActiveState; var inputs: InputMap);
 	var
-		isPickup: Boolean;
+		isPickup, special: Boolean;
 		speed: Integer;
 	begin
 		isPickup := false;
+		special := false;
 
 		// Do pickup calculations if the player presses select
 		if KeyTyped(inputs.Select) then
 		begin
 			isPickup := true;
+		end;
+		if KeyTyped(inputs.Action) then
+		begin
+			special := true;
 		end;
 
 		// Go to menu
@@ -193,19 +200,19 @@ implementation
 
 			if KeyDown(inputs.MoveUp) then
 			begin
-				MoveEntity(thisState.map, thisState.map.player, DirUp, speed, isPickup);
+				MoveEntity(thisState.map, thisState.map.player, DirUp, speed, isPickup, special);
 			end
 			else if KeyDown(inputs.MoveRight) then
 			begin
-				MoveEntity(thisState.map, thisState.map.player, DirRight, speed, isPickup);
+				MoveEntity(thisState.map, thisState.map.player, DirRight, speed, isPickup, special);
 			end
 			else if KeyDown(inputs.MoveDown) then
 			begin
-				MoveEntity(thisState.map, thisState.map.player, DirDown, speed, isPickup);
+				MoveEntity(thisState.map, thisState.map.player, DirDown, speed, isPickup, special);
 			end
 			else if KeyDown(inputs.MoveLeft) then
 			begin
-				MoveEntity(thisState.map, thisState.map.player, DirLeft, speed, isPickup);
+				MoveEntity(thisState.map, thisState.map.player, DirLeft, speed, isPickup, special);
 			end
 			else
 			begin
@@ -213,7 +220,7 @@ implementation
 				//	Move with 0 speed based off previously assigned direction
 				//	(i.e. whatever way the player was facing last)
 				//
-				MoveEntity(thisState.map, thisState.map.player, thisState.map.player.direction, 0, isPickup);
+				MoveEntity(thisState.map, thisState.map.player, thisState.map.player.direction, 0, isPickup, special);
 			end;
 		end;
 
@@ -221,7 +228,7 @@ implementation
 		if KeyTyped(inputs.Attack) then
 		begin
 			PlaySoundEffect(SoundEffectNamed('throw'), 0.5);
-			MoveEntity(thisState.map, thisState.map.player, thisState.map.player.direction, 0, isPickup);
+			MoveEntity(thisState.map, thisState.map.player, thisState.map.player.direction, 0, isPickup, special);
 			case thisState.map.player.direction of
 				DirUp: SwitchAnimation(thisState.map.player.sprite, 'entity_up_attack');
 				DirRight: SwitchAnimation(thisState.map.player.sprite, 'entity_right_attack');

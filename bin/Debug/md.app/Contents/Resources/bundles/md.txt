@@ -1,6 +1,6 @@
 BITMAP,eng,Engineer.png,28,28,4,4,16
-BITMAP,player,player.png,28,28,4,8,32
-BITMAP,player_collision,player_collision.png,28,25,4,4,16
+BITMAP,player,player.png,28,28,4,12,48
+BITMAP,player_boat,player_boat.png,28,28,4,4,16
 BITMAP,bunny,bunny.png,28,28,4,4,16
 BITMAP,bunny_hurt,bunny_hurt.png,28,28,4,4,16
 BITMAP,ui_blue,UIBlue.png
@@ -13,7 +13,3 @@ FONT,PrStart,PrStart.ttf,20
 FONT,PrStartSmall,PrStart.ttf,12
 FONT,PrStartExtraSmall,PrStart.ttf,9
 FONT,Vermin,vermin_vibes_1989.ttf,104
-
-ANIM,player,playerAnim.txt
-
-PANEL,inventory,Inventory.txt

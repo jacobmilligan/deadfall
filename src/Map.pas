@@ -106,6 +106,7 @@ interface
 		//	that possesses some sort of action logic
 		//
 		Entity = record
+			id: String;
 			stuckCounter: Integer;
 			sprite: Sprite;
 			direction: Direction;
@@ -127,7 +128,7 @@ interface
 			player: Entity;
 			inventory: InventoryCollection;
 			npcs: EntityCollection;
-			blank: Boolean;
+			blank, onBoat: Boolean;
 			size, smoothness, maxHeight, seed, maxSpawns, tilesize, playerIndicator: Integer;
 		end;
 
@@ -157,7 +158,7 @@ interface
 	//	Checks if a given entity is about to collide with anything on the
 	//	given map based off its projected delta movement
 	//
-	procedure CheckCollision(var map: MapData; var toCheck: Sprite; dir: Direction; var hasCollision: Boolean; pickup: Boolean);
+	procedure CheckCollision(var map: MapData; var toCheck: Sprite; dir: Direction; var hasCollision: Boolean; pickup: Boolean; special: Boolean = false);
 
 	//
 	//	Checks to see if a given point is out of the bounds of the passed in TileGrid. Returns
@@ -630,11 +631,12 @@ implementation
 		end;
 	end;
 
-	procedure CheckCollision(var map: MapData; var toCheck: Sprite; dir: Direction; var hasCollision: Boolean; pickup: Boolean);
+	procedure CheckCollision(var map: MapData; var toCheck: Sprite; dir: Direction; var hasCollision: Boolean; pickup: Boolean; special: Boolean = false);
 	var
 		tileX, tileY, i, j, startX, finishX, startY, finishY: Integer;
 		x, y: Single;
 		spriteRect: Rectangle;
+		oldBoatValue: Boolean;
 	begin
 		hasCollision := false;
 
@@ -730,6 +732,31 @@ implementation
 				if SpriteBitmapCollision(toCheck, map.tiles[i, j].bmp, i * TILESIZE, j * TILESIZE) then
 				begin
 					// Stop movement if the collided value is outside the map or isn't walkable
+					if map.onBoat and (SpriteName(toCheck) = 'player') then
+					begin
+						if map.tiles[i, j].flag = Water then
+						begin
+							map.tiles[i, j].collidable := false;
+						end;
+						if map.tiles[i, j].flag = Sand then
+						begin
+							map.tiles[i, j].collidable := true;
+						end;
+					end
+					else
+					begin
+						if map.tiles[i, j].flag = Water then
+						begin
+							map.tiles[i, j].collidable := true;
+						end;
+						if map.tiles[i, j].flag = Sand then
+						begin
+							if ( map.tiles[i, j].feature < Treasure ) and (map.tiles[i, j].feature <> Tree) then
+							begin
+								map.tiles[i, j].collidable := false;
+							end;
+						end;
+					end;
 					if ( not IsInMap(map, i, j) ) or ( map.tiles[i, j].collidable ) then
 					begin
 						// Set the passed-in hasCollision bool for other functions to use
@@ -744,14 +771,14 @@ implementation
 					end;
 
 					// Handle food pickup and adding to inventory
-					if not ( not IsInMap(map, i, j) ) and ( map.tiles[i, j].feature = Food ) then
+					if IsInMap(map, i, j) and ( map.tiles[i, j].feature = Food ) then
 					begin
 						PlaySoundEffect(SoundEffectNamed('pickup'), 0.5);
 						map.inventory.items[SearchInventory(map.inventory.items, 'Rabbit Leg')].count += 1;
 						SetFeature(map.tiles[i, j], NoFeature, false);
 					end;
 					// Handle picking up treasure and adding to inventory
-					if not ( not IsInMap(map, i, j) ) and ( map.tiles[i, j].feature >= Treasure ) then
+					if IsInMap(map, i, j) and ( map.tiles[i, j].feature >= Treasure ) then
 					begin
 						if pickup then
 						begin
@@ -762,6 +789,43 @@ implementation
 								RareTreasure: map.inventory.items[SearchInventory(map.inventory.items, 'Diamond')].count += 1;
 							end;
 							SetFeature(map.tiles[i, j], NoFeature, false);
+						end;
+					end;
+					if IsInMap(map, i, j) and ( (map.tiles[i, j].flag = Water) or (map.tiles[i, j].flag = Sand) ) then
+					begin
+
+						if special and (SpriteName(toCheck) = 'player') then
+						begin
+							oldBoatValue := map.onBoat;
+
+							if map.tiles[i, j].flag = Sand then
+							begin
+								map.onBoat := false;
+							end
+							else
+							begin
+								map.onBoat := true;
+							end;
+
+							if oldBoatValue <> map.onBoat then
+							begin
+								SpriteSetDX(toCheck, 0);
+								SpriteSetDY(toCheck, 0);
+								SpriteSetX(toCheck, i * 32);
+								SpriteSetY(toCheck, j * 32);
+							end;
+
+							if map.onBoat then
+							begin
+								SpriteShowLayer(toCheck, 'boat');
+								SpriteHideLayer(toCheck, 0);
+							end
+							else
+							begin
+								SpriteShowLayer(toCheck, 0);
+								SpriteHideLayer(toCheck, 'boat');
+							end;
+
 						end;
 					end;
 				end;

@@ -1,7 +1,5 @@
 SwinGame Animation #v1
 
-// f:id,cellnum,dur,next
-
 //
 //  Entity Down animation
 //
@@ -54,8 +52,6 @@ f:18,8,7,18
 //
 f:19,12,7,19
 
-// f:id,cellnum,dur,next
-
 //
 //  Entity punch Down animation
 //
@@ -75,6 +71,7 @@ f:22,24,10,18
 //  Entity punch Up animation
 //
 f:23,28,10,19
+
 
 i:entity_down,0
 i:entity_left,4

@@ -49,6 +49,7 @@ implementation
       newNPC.nextUpdate := 1;
       newNPC.hp := 100;
       newNPC.stuckCounter := 0;
+      newNPC.id := 'Rabbit';
 
       SpriteSetPosition(newNPC.sprite, PointAt(x, y));
       SwitchAnimation(newNPC.sprite, 'entity_down_idle');
@@ -186,7 +187,7 @@ implementation
     //Randomize;
     x := Random( Length(map.tiles) - 1 );
     y := Random( Length(map.tiles) - 1 );
-    while (map.tiles[x, y].collidable) do
+    while (map.tiles[x, y].collidable) or (map.tiles[x, y].flag = Water) do
     begin
       x := Random( Length(map.tiles) - 1 );
       y := Random( Length(map.tiles) - 1 );

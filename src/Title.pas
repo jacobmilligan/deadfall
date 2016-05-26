@@ -45,10 +45,11 @@ implementation
 		InitUI(result, 5, 'New Map');
 
 		result.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 100, 'Size', 'PrStartSmall');
-		SetLength(result.items[0].dataStrings, 3);
+		SetLength(result.items[0].dataStrings, 4);
 		result.items[0].dataStrings[0] := 'Small';
 		result.items[0].dataStrings[1] := 'Medium';
 		result.items[0].dataStrings[2] := 'Big';
+		result.items[0].dataStrings[3] := 'Huge';
 		result.items[0].currentDataString := 0;
 
 		result.items[1] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 200, 'Max Height', 'PrStartSmall');
@@ -76,7 +77,7 @@ implementation
 			if KeyTyped(inputs.MoveRight) then
 			begin
 				currElement.currentDataString += 1;
-				if currElement.currentDataString > 2 then
+				if currElement.currentDataString > 3 then
 				begin
 					currElement.currentDataString := 0;
 				end;
@@ -97,6 +98,11 @@ implementation
 							map.maxSpawns := 100000;
 							map.size := 1025;
 						end;
+					'Huge':
+						begin
+							map.maxSpawns := 500000;
+							map.size := 2049;
+						end;
 					end;
 			end
 			else if KeyTyped(inputs.MoveLeft) then
@@ -104,7 +110,7 @@ implementation
 				currElement.currentDataString -= 1;
 				if currElement.currentDataString < 0 then
 				begin
-					currElement.currentDataString := 2;
+					currElement.currentDataString := 3;
 				end;
 
 				case currElement.dataStrings[currElement.currentDataString] of
@@ -122,6 +128,11 @@ implementation
 						begin
 							map.maxSpawns := 100000;
 							map.size := 1025;
+						end;
+					'Huge':
+						begin
+							map.maxSpawns := 200000;
+							map.size := 2049;
 						end;
 				end;
 			end
@@ -200,6 +211,11 @@ implementation
 					begin
 						map.maxSpawns := 100000;
 						map.size := 1025;
+					end;
+				'Huge':
+					begin
+						map.maxSpawns := 500000;
+						map.size := 2049;
 					end;
 			end;
 		end
