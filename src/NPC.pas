@@ -213,20 +213,26 @@ implementation
   var
     toRemove, i: Integer;
     playerPos, npcPos: Point2D;
-    playerDist: Single;
+    playerDist, updateDist: Single;
     attackRect: Rectangle;
   begin
     toRemove := 0;
-    playerPos := PointAt(SpriteX(map.player.sprite), SpriteY(map.player.sprite));
+    playerPos := PointAt( SpriteX(map.player.sprite), SpriteY(map.player.sprite) );
+    updateDist := ScreenWidth() * 3;
+    
+    //
     // Iterate in reverse to allow for removal of items from the array
-    // without copying all items when removing
+    // without copying all items when removing.
+    //
+    //  This also only updates the NPCs if they're close enough to the player
+    //
     for i := High(map.npcs) downto 0 do
     begin
-      npcPos := PointAt(SpriteX(map.npcs[i].sprite), SpriteY(map.npcs[i].sprite));
+      npcPos := PointAt( SpriteX(map.npcs[i].sprite), SpriteY(map.npcs[i].sprite) );
       playerDist := PointPointDistance(playerPos, npcPos);
 
       // If NPC is still alive, do interactions
-      if map.npcs[i].hp > 0 then
+      if ( map.npcs[i].hp > 0 ) and ( playerDist < updateDist ) then
       begin
         // Update NPC's less frequently if far away from player to save resources
         map.npcs[i].nextUpdate -= 100 / playerDist;
@@ -279,7 +285,7 @@ implementation
       //  Otherwise, if NPC is dead, remove from NPC array and spawn new
       //  food feature where they were
       //
-      else
+      else if playerDist < updateDist then
       begin
         RemoveNPC(i, map.npcs);
         if map.tiles[Floor(npcPos.x / 32), Floor(npcPos.y / 32)].feature = NoFeature then
