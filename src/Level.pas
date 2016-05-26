@@ -109,6 +109,7 @@ implementation
 		// Generate a new map with the passed-in size
 		newState.map := GenerateNewMap(mapSettings.size, mapSettings.smoothness, mapSettings.maxHeight, mapSettings.seed);
 		newState.map.blank := false;
+		newState.map.maxSpawns := mapSettings.maxSpawns;
 
 		// Setup player stats
 		newState.map.player.hp := 100;

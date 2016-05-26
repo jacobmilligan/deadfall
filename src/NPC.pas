@@ -184,12 +184,12 @@ implementation
     x, y: LongInt;
   begin
     //Randomize;
-    x := Random(Length(map.tiles));
-    y := Random(Length(map.tiles));
+    x := Random( Length(map.tiles) - 1 );
+    y := Random( Length(map.tiles) - 1 );
     while (map.tiles[x, y].collidable) do
     begin
-      x := Random(Length(map.tiles));
-      y := Random(Length(map.tiles));
+      x := Random( Length(map.tiles) - 1 );
+      y := Random( Length(map.tiles) - 1 );
     end;
 
     if (Random(1000) > 500) and (Length(map.npcs) < map.maxSpawns) then
@@ -213,6 +213,7 @@ implementation
   var
     toRemove, i: Integer;
     playerPos, npcPos: Point2D;
+    playerDist: Single;
     attackRect: Rectangle;
   begin
     toRemove := 0;
@@ -222,12 +223,13 @@ implementation
     for i := High(map.npcs) downto 0 do
     begin
       npcPos := PointAt(SpriteX(map.npcs[i].sprite), SpriteY(map.npcs[i].sprite));
+      playerDist := PointPointDistance(playerPos, npcPos);
 
       // If NPC is still alive, do interactions
       if map.npcs[i].hp > 0 then
       begin
         // Update NPC's less frequently if far away from player to save resources
-        map.npcs[i].nextUpdate -= 100 / PointPointDistance(playerPos, npcPos);
+        map.npcs[i].nextUpdate -= 100 / playerDist;
 
         if map.npcs[i].nextUpdate < 0 then
         begin
@@ -245,7 +247,7 @@ implementation
           end;
         end;
         // Handle attack interaction with the player
-        if (map.player.attackTimeout > map.player.maxAttackSpeed - 3) then
+        if (map.player.attackTimeout > map.player.maxAttackSpeed - 3) and (playerDist <= map.tilesize) then
         begin
 
           //

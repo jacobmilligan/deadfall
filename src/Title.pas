@@ -99,7 +99,7 @@ implementation
 				case currElement.dataStrings[currElement.currentDataString] of
 					'Small':
 						begin
-							map.maxSpawns := 1000;
+							map.maxSpawns := 500;
 							map.size := 257;
 						end;
 					'Medium':
@@ -152,7 +152,7 @@ implementation
 				case currElement.dataStrings[currElement.currentDataString] of
 					'Small':
 						begin
-							map.maxSpawns := 1000;
+							map.maxSpawns := 500;
 							map.size := 257;
 						end;
 					'Medium':

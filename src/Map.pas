@@ -128,7 +128,7 @@ interface
 			inventory: InventoryCollection;
 			npcs: EntityCollection;
 			blank: Boolean;
-			size, smoothness, maxHeight, seed, maxSpawns: Integer;
+			size, smoothness, maxHeight, seed, maxSpawns, tilesize: Integer;
 		end;
 
 		//
@@ -813,6 +813,7 @@ implementation
 		newMap: MapData;
 		x, y: Integer;
 	begin
+		newMap.tilesize := 32;
 
 		if seed < 0 then
 		begin
