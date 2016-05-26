@@ -1,6 +1,6 @@
 //
 //  Deadfall v1.0
-//  Map.pas
+//  Level.pas
 //
 // -------------------------------------------------------
 //
@@ -154,37 +154,48 @@ implementation
 	procedure LevelHandleInput(var thisState: ActiveState; var inputs: InputMap);
 	var
 		isPickup: Boolean;
+		speed: Integer;
 	begin
 		isPickup := false;
 
+		// Do pickup calculations if the player presses select
 		if KeyTyped(inputs.Select) then
 		begin
 			isPickup := true;
 		end;
 
+		// Go to menu
 		if KeyTyped(inputs.Menu) then
 		begin
 			PlaySoundEffect(SoundEffectNamed('confirm'), 0.5);
 			StateChange(thisState.manager^, MenuState);
 		end;
 
+		// Move the player if they're not attacking
 		if thisState.map.player.attackTimeout = 0 then
 		begin
+			speed := 3;
+			
+			if KeyDown(inputs.Special) then
+			begin
+				speed := 6;
+			end;
+
 			if KeyDown(inputs.MoveUp) then
 			begin
-				MoveEntity(thisState.map, thisState.map.player, DirUp, 3, isPickup);
+				MoveEntity(thisState.map, thisState.map.player, DirUp, speed, isPickup);
 			end
 			else if KeyDown(inputs.MoveRight) then
 			begin
-				MoveEntity(thisState.map, thisState.map.player, DirRight, 3, isPickup);
+				MoveEntity(thisState.map, thisState.map.player, DirRight, speed, isPickup);
 			end
 			else if KeyDown(inputs.MoveDown) then
 			begin
-				MoveEntity(thisState.map, thisState.map.player, DirDown, 3, isPickup);
+				MoveEntity(thisState.map, thisState.map.player, DirDown, speed, isPickup);
 			end
 			else if KeyDown(inputs.MoveLeft) then
 			begin
-				MoveEntity(thisState.map, thisState.map.player, DirLeft, 3, isPickup);
+				MoveEntity(thisState.map, thisState.map.player, DirLeft, speed, isPickup);
 			end
 			else
 			begin
@@ -196,6 +207,7 @@ implementation
 			end;
 		end;
 
+		// Do attack calculations based on the players facing direction
 		if KeyTyped(inputs.Attack) then
 		begin
 			PlaySoundEffect(SoundEffectNamed('throw'), 0.5);
@@ -216,10 +228,12 @@ implementation
 		i, listedAmt, randItemIndex: Integer;
 		deltaDollarValue: Single;
 	begin
+		// Do buyer calculations for each item in the inventory
 		for i := 0 to High(items) do
 		begin
 			if Random(1000) > 997 then
 			begin
+				// Change the demand of a given item alongside its adjusted dollar values
 				deltaDollarValue := items[i].adjustedDollarValue;
 				items[i].demand := (Random() / 2) + items[i].rarity;
 				if items[i].demand > 1 then
@@ -230,6 +244,7 @@ implementation
 				items[i].deltaDollarValue := items[i].adjustedDollarValue - deltaDollarValue;
 			end;
 
+			//
 			if items[i].listed = 0 then
 			begin
 				listedAmt := 1;
@@ -239,15 +254,20 @@ implementation
 				listedAmt := items[i].listed;
 			end;
 
-			randItemIndex := Random(Length(items));
+			randItemIndex := Random(Length(items)); // Get a random item from the inventory
+			// Set new buyers stats
 			newBuyer.itemToBuy := items[randItemIndex];
 			newBuyer.itemInterest := Random() * newBuyer.itemToBuy.demand;
+
 			if newBuyer.itemInterest > 1 then
 			begin
 				newBuyer.itemInterest := 1;
 			end;
+
+			// The buyer is interested in the current iterated item
 			if ( items[i].name = newBuyer.itemToBuy.name ) and ( newBuyer.itemInterest >= 0.4 ) then
 			begin
+				// Buyers will only buy an item if random is high enough and an item is listed
 				if (items[i].listed > 0) and (Random() > 0.9) then
 				begin
 					PlaySoundEffect(SoundEffectNamed('buy'), 0.5);
@@ -287,6 +307,7 @@ implementation
 		UpdateNPCS(thisState.map);
 		UpdateSprite(thisState.map.player.sprite);
 
+		// Decreases the players hunger and hp each tick
 		thisState.map.player.hunger -= 0.02;
 		if thisState.map.player.hunger < 0 then
 		begin
@@ -294,8 +315,10 @@ implementation
 			thisState.map.player.hp -= 0.05;
 		end;
 
+		// Kill the player
 		if thisState.map.player.hp <= 0 then
 		begin
+			thisState.map.player.hp := 0;
 			PlaySoundEffect(SoundEffectNamed('confirm'), 0.5);
 			StateChange(thisState.manager^, TitleState);
 		end;
@@ -330,6 +353,7 @@ implementation
 	begin
 		currentTileView := CreateTileView();
 
+		// Only draw tiles that are visible in the current tile view
 		for x := currentTileView.x to currentTileView.right do
 		begin
 			for y := currentTileView.y to currentTileView.bottom do
@@ -344,6 +368,7 @@ implementation
 
 		DrawSprite(thisState.map.player.sprite);
 
+		// Draw all NPC's to the map
 		for x := 0 to High(thisState.map.npcs) do
     begin
         DrawSprite(thisState.map.npcs[x].sprite);

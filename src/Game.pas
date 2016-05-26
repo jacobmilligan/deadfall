@@ -31,6 +31,9 @@ interface
 	//
 	procedure GameDraw(var states: StateArray);
 
+	//
+	//	Cleans up resources and exits the game safely
+	//
 	procedure QuitGame(var states: StateArray);
 
 	//
@@ -38,8 +41,14 @@ interface
 	//
 	procedure LoadResources();
 
+	//
+	//	Sorts a passed in inventory by id
+	//
 	procedure QuickSort(var inventory: ItemArray; bottom, top: Integer);
 
+	//
+	//	Searches the inventory for a given item id using a binary search
+	//
 	function SearchInventory(var inventory: ItemArray; itemName: String): Integer;
 
 

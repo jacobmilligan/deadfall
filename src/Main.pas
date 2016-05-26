@@ -19,9 +19,12 @@ var
 	dtStart: Double;
 begin
 
+	// Initialize window and game data
 	GameInit('Deadfall', 800, 600, states);
+	// Setup inputs
 	SetDefaultInput(inputs);
 
+	// Main game loop - will exit if the current active state requests a quite
 	while ( not WindowCloseRequested() ) and ( not states[High(states)].quitRequested ) do
 	begin
 		GameUpdate(states, inputs);

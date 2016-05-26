@@ -1,6 +1,6 @@
 //
 //  Deadfall v1.0
-//  Level.pas
+//  Map.pas
 //
 // -------------------------------------------------------
 //
@@ -34,17 +34,26 @@ interface
 		//
 		FeatureType = (NoFeature, Tree, Food, Treasure, MediumTreasure, RareTreasure);
 
+		//
+		//	Represents a defined item available to the player, each one is stored in the InventoryCollection
+		//	and has hunger, health, dollar, rarity bonuses and a name. Can be attached to a UIElement via
+		//	ItemPtr
+		//
 		Item = record
 			category: FeatureType;
 			hungerPlus: Single;
 			healthPlus: Single;
+			// Base dollar value
 			dollarValue: Single;
+			// Actual current dollar value based off market changes
 			adjustedDollarValue: Single;
 			demand: Single;
 			rarity: Single;
 			deltaDollarValue: Single;
 			name: String;
+			// How many the player has
 			count: Integer;
+			// How many the player has listed on the market
 			listed: Integer;
 		end;
 
@@ -52,6 +61,7 @@ interface
 
 		ItemPtr = ^Item;
 
+		// Represents the current inventory state - holds the players money amount
 		InventoryCollection = record
 			items: ItemArray;
 			dollars: Single;
@@ -165,12 +175,18 @@ interface
 	//
 	function CreateTileView(): TileView;
 
+	//
+	//	Sets up a feature on a given tile. Sets treasure or tree depending on FeatureType
+	//
 	procedure SetFeature(var tile: Tile; feature: FeatureType; collidable: Boolean);
 
+	// Initializes the inventory with default types and values
 	function InitInventory(): InventoryCollection;
 
+	// Restores a players stat, handles error checking
 	procedure RestoreStat(var stat: Single; plus: Single);
 
+	// Increases players dollars and decreases item count
 	procedure SellItem(var toSell: Item; var inventory: InventoryCollection);
 
 implementation
@@ -179,6 +195,7 @@ implementation
 	const
 		TILESIZE = 32;
 
+	// Adds a new item to the inventory collection with default and passed in values
 	function NewItem(name: String; hungerPlus, healthPlus, dollarValue, rarity: Single): Item;
 	begin
 		result.name := name;
@@ -201,19 +218,20 @@ implementation
 
 		SetLength(result.items, 5);
 
+		// Add all available items to the collection
 		result.items[0] := NewItem('Rabbit Leg', 7, 1, 5, 0.1);
 		result.items[1] := NewItem('Bandage', 0, 10, 10, 0.2);
 		result.items[2] := NewItem('Trinket', 1, -15, 30, 0.4);
 		result.items[3] := NewItem('Silver', 1, -15, 50, 0.6);
 		result.items[4] := NewItem('Diamond', 1, -30, 400, 0.85);
-		result.items[2].count := 100;
-		result.items[4].count := 100;
 
+		// Sort the inventory based off ID
 		QuickSort(result.items, 0, Length(result.items) - 1);
 	end;
 
 	procedure RestoreStat(var stat: Single; plus: Single);
 	begin
+		// Add limit to 100
 		if stat + plus > 100 then
 		begin
 			stat := 100;
@@ -228,7 +246,6 @@ implementation
 	begin
 		PlaySoundEffect(SoundEffectNamed('sell'), 0.5);
 		toSell.listed += 1;
-		WriteLn(toSell.listed);
 	end;
 
 	function CreateTileView(): TileView;
@@ -237,6 +254,7 @@ implementation
 		width, height: LongInt;
 		newView: TileView;
 	begin
+		// Translate camera view to tile-based values
 		newView.x := Round(CameraPos.x / 32) - 1;
 		newView.y := Round(CameraPos.y / 32) - 1;
 		newView.right := Round( (CameraPos.x / 32) + (ScreenWidth() / 32) );
@@ -247,6 +265,7 @@ implementation
 
 	procedure DrawTile(var currTile: Tile; x, y: Integer);
 	begin
+		// Draw base then feature
 		DrawBitmap(currTile.bmp, x, y);
 		DrawBitmap(currTile.featureBmp, x, y);
 	end;
@@ -405,11 +424,14 @@ implementation
 	var
 		x, y: Integer;
 	begin
+		// Iterate all tiles and change their bitmap and data depending on their
+		// pre-generated altitude
 		for x := 0 to High(map.tiles) do
 		begin
 			for y := 0 to High(map.tiles) do
 			begin
 
+				// Setup the tiles
 				case map.tiles[x, y].elevation of
 					0..199: SetTile(map.tiles[x, y], Water, 'water', true);
 					200..299: SetTile(map.tiles[x, y], Sand, 'sand', false);
@@ -428,6 +450,9 @@ implementation
 							SetTile(map.tiles[x, y], Mountain, 'mountain', true)
 				end;
 
+				// Used for drawing the pixels to a bitmap later - if isOcean is true
+				// then the entire vertical line in the map is water and we don't need
+				// to draw pixels
 				if (map.tiles[x, y].flag <> Water) then
 				begin
 					map.tiles[x, 0].isOcean := false;
@@ -440,19 +465,20 @@ implementation
 	function IsInMap(var map: MapData; x, y: Integer): Boolean;
 	begin
 		result := false;
-
+		// Check map bounds
 		if (x > 0) and (x < High(map.tiles)) and (y > 0) and (y < High(map.tiles)) then
 		begin
 			result := true;
 		end;
 	end;
 
+	// Gets the amount of neighbouring trees to a specific tree
 	function NeighbourCount(var map: MapData; x, y: Integer): Integer;
 	var
 		i, j, count: Integer;
 	begin
 		count := 0;
-
+		// Search for neighbours
 		for i := x - 1 to x + 1 do
 		begin
 			for j := y - 1 to y + 1 do
@@ -509,6 +535,7 @@ implementation
 		begin
 			for y := 0 to High(map.tiles) do
 			begin
+				// Generate trees
 				case map.tiles[x, y].flag of
 					Sand: hasTree := (Random(100) > 90);
 					Grass: hasTree := (Random(100) > 80);
@@ -518,13 +545,15 @@ implementation
 					else
 						hasTree := false;
 				end;
+				// If the tile has a tree, add a tree feature and bitmap, otherwise
+				// generate treasure in the tile
 				if hasTree then
 				begin
 					SetFeature(map.tiles[x, y], Tree, true);
 				end
 				else
 				begin
-
+					// Do treasure gen
 					if (Random(1000) > 990) and ( not map.tiles[x, y].collidable ) then
 					begin
 						case Random(1000) of
@@ -544,11 +573,13 @@ implementation
 			for y := 0 to High(map.tiles) do
 			begin
 
+				// If there's a tree on the current tile, add neighbours and generate small forests
 				if (map.tiles[x, y].feature = Tree) and IsInMap(map, x, y) then
 				begin
 
 					treeCount := NeighbourCount(map, x, y);
 
+					// Check if there's enough neighbours to generate a new tree
 					if (treeCount > 1) and (treeCount <= 2) and (Random(100) > 50) then
 					begin
 						SetFeature(map.tiles[x - 1, y], Tree, true);
@@ -567,6 +598,7 @@ implementation
 		end;
 	end;
 
+	// Initializes the 2D map grid with the given size and sets the default values for each tile
 	procedure SetGridLength(var tiles: TileGrid; size: Integer);
 	var
 		column: Integer;
@@ -582,6 +614,7 @@ implementation
 		begin
 			for y := 0 to High(tiles) do
 			begin
+				// Setup default values
 				tiles[x, y].elevation := 0;
 				tiles[x, y].collidable := false;
 				tiles[x, y].feature := NoFeature;
@@ -601,11 +634,14 @@ implementation
 		x := SpriteX(toCheck);
 		y := SpriteY(toCheck);
 
+		// Get the x & y values to start scanning in a three-tile radius
+		// in front of the entity
 		startX := tileX - 1;
 		finishX := tileX + 1;
 		startY := tileY - 1;
 		finishY := tileY + 1;
 
+		// Change the values to scan depending on what direction the entity is facing
 		case dir of
 			DirUp: y -= TILESIZE / 2;
 			DirRight: x += TILESIZE / 2;
@@ -613,6 +649,7 @@ implementation
 			DirLeft: x -= TILESIZE / 2;
 		end;
 
+		// Convert current xpos & ypos to tile x & y
 		tileX := Trunc(x / TILESIZE);
 		tileY := Trunc(y / TILESIZE);
 
@@ -798,7 +835,7 @@ implementation
 			GenerateTerrain(newMap);
 			SeedFeatures(newMap);
 
-			DrawMapCartography(newMap, size);
+			//DrawMapCartography(newMap, size);
 		end
 		else
 		begin

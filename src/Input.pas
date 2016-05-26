@@ -16,13 +16,13 @@ interface
 
     type
 
-        //
-        //  Defines all of the keys assigned to each game action.
-        //  Is set to default keys in GameInit() using SetDefaultInput()
-        //
-        InputMap = record
-            MoveUp, MoveRight, MoveDown, MoveLeft, Attack, Special, Menu, Select: KeyCode;
-        end;
+      //
+      //  Defines all of the keys assigned to each game action.
+      //  Is set to default keys in GameInit() using SetDefaultInput()
+      //
+      InputMap = record
+          MoveUp, MoveRight, MoveDown, MoveLeft, Attack, Special, Menu, Select: KeyCode;
+      end;
 
     //
     //  Gets the key code of whatever key the user last pressed down
@@ -35,10 +35,10 @@ interface
     procedure SetDefaultInput(var inputs: InputMap);
 
     //
-	//	Checks if the sprite is already using the passed in animation string
-	//	and if not, starts a new animation using that string
-	//
-	procedure SwitchAnimation(var sprite: Sprite; ani: String);
+  	//	Checks if the sprite is already using the passed in animation string
+  	//	and if not, starts a new animation using that string
+  	//
+  	procedure SwitchAnimation(var sprite: Sprite; ani: String);
 
     //
     //  Moves an entity around the passed in map in a given direction at a given speed.
@@ -48,6 +48,9 @@ interface
     //
     procedure MoveEntity(var map: MapData; var toMove: Entity; dir: Direction; speed: Single; pickup: Boolean);
 
+    //
+    //  Changes the key in the input map to whatever key the user has pressed
+    //
     procedure ChangeKeyTo(var inputs: InputMap; var keyToChange: String);
 
 implementation
@@ -59,6 +62,7 @@ implementation
     begin
       result := UnknownKey;
 
+      // Search enum for the last pressed KeyCode
       for i := Low(KeyCode) to High(KeyCode) do
       begin
         if KeyDown(i) then
@@ -75,12 +79,14 @@ implementation
       keyStr, controlStr: String;
       newKey: KeyCode;
     begin
-      WriteLn(keyStr);
+      // Isolate the KeyCode from the UIElements ID string and remove any spaces
       keyStr := keyToChange;
 			keyPos := Pos(': ', keyStr);
 			keyStr := Copy(keyStr, 0, keyPos - 1);
 			keyStr := StringReplace(keyStr, ' ', '', [rfReplaceAll]);
+      // Get the KeyCode from the enum
       newKey := GetKeyCode();
+      // Change key setting
       case keyStr of
         'MoveUp': inputs.MoveUp := newKey;
         'MoveRight': inputs.MoveRight := newKey;
@@ -92,11 +98,11 @@ implementation
         'Special': inputs.Special := newKey;
       end;
 
+      // Isolate the KeyCode and reformat it for printing to the UI
       WriteStr(controlStr, newKey);
 			keyStr := Copy(keyToChange, keyPos + 2, Length(keyToChange));
       keyStr := StringReplace(keyToChange, keyStr, controlStr, [rfReplaceAll]);
       keyToChange := StringReplace(keyStr, 'Key', ' Key' ,[rfReplaceAll]);
-      WriteLn(keyToChange);
     end;
 
     procedure SetDefaultInput(var inputs: InputMap);
@@ -112,47 +118,51 @@ implementation
     end;
 
     procedure SwitchAnimation(var sprite: Sprite; ani: String);
-	begin
-	  	if not (SpriteAnimationName(sprite) = ani) then
-		begin
-			SpriteStartAnimation(sprite, ani);
-		end;
-	end;
+  	begin
+      // Only switch anim if it's not currently the active one
+  	  if not (SpriteAnimationName(sprite) = ani) then
+  		begin
+  			SpriteStartAnimation(sprite, ani);
+  		end;
+  	end;
 
     procedure MoveEntity(var map: MapData; var toMove: Entity; dir: Direction; speed: Single; pickup: Boolean);
     var
-        velocity: Vector;
-        hasCollision: Boolean;
+      velocity: Vector;
+      hasCollision: Boolean;
     begin
       toMove.direction := dir;
       velocity.x := 0;
       velocity.y := 0;
 
+      // If the player is actually moving, change their dX or dY depending on
+      // what direction they're facing
       if speed > 0 then
       begin
-          if dir = DirUp then
-          begin
-              velocity.y -= speed;
-              SwitchAnimation(toMove.sprite, 'entity_up');
-          end
-          else if dir = DirRight then
-          begin
-              velocity.x += speed;
-              SwitchAnimation(toMove.sprite, 'entity_right');
-          end
-          else if dir = DirDown then
-          begin
-              velocity.y += speed;
-              SwitchAnimation(toMove.sprite, 'entity_down');
-          end
-          else if dir = DirLeft then
-          begin
-              velocity.x -= speed;
-              SwitchAnimation(toMove.sprite, 'entity_left');
-          end;
+        if dir = DirUp then
+        begin
+          velocity.y -= speed;
+          SwitchAnimation(toMove.sprite, 'entity_up');
+        end
+        else if dir = DirRight then
+        begin
+          velocity.x += speed;
+          SwitchAnimation(toMove.sprite, 'entity_right');
+        end
+        else if dir = DirDown then
+        begin
+          velocity.y += speed;
+          SwitchAnimation(toMove.sprite, 'entity_down');
+        end
+        else if dir = DirLeft then
+        begin
+          velocity.x -= speed;
+          SwitchAnimation(toMove.sprite, 'entity_left');
+        end;
       end
       else
       begin
+        // The player isn't moving so reset their anim to idle
         case toMove.direction of
   				DirUp: SwitchAnimation(toMove.sprite, 'entity_up_idle');
   				DirRight: SwitchAnimation(toMove.sprite, 'entity_right_idle');
@@ -166,6 +176,7 @@ implementation
 
       CheckCollision(map, toMove.sprite, dir, hasCollision, pickup);
 
+      // Don't move the player if they're in the middle of punching
       if toMove.attackTimeout > 0 then
       begin
         SpriteSetDX(toMove.sprite, 0);
