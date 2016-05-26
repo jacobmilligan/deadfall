@@ -37,25 +37,28 @@ implementation
     newNPC: Entity;
     newGoal: Point2D;
   begin
-    SetLength(map.npcs, Length(map.npcs) + 1);
+    if ( x < CameraX() ) or ( x > CameraX() + ScreenWidth() ) or ( y < CameraY() ) or ( y > CameraY() + ScreenHeight() ) then
+    begin
+      SetLength(map.npcs, Length(map.npcs) + 1);
 
-    newNPC.sprite := CreateSprite(BitmapNamed('bunny'), AnimationScriptNamed('player'));
-    SpriteAddLayer(newNPC.sprite, BitmapNamed('bunny_hurt'), 'hurt');
+      newNPC.sprite := CreateSprite(BitmapNamed('bunny'), AnimationScriptNamed('player'));
+      SpriteAddLayer(newNPC.sprite, BitmapNamed('bunny_hurt'), 'hurt');
 
-    newNPC.direction := DirDown;
-    newNPC.nextUpdate := 1;
-    newNPC.hp := 100;
-    newNPC.stuckCounter := 0;
+      newNPC.direction := DirDown;
+      newNPC.nextUpdate := 1;
+      newNPC.hp := 100;
+      newNPC.stuckCounter := 0;
 
-    SpriteSetPosition(newNPC.sprite, PointAt(x, y));
-    //SpriteSetCollisionKind(newNPC.sprite, AABBCollisions);
-    SwitchAnimation(newNPC.sprite, 'entity_down_idle');
+      SpriteSetPosition(newNPC.sprite, PointAt(x, y));
+      //SpriteSetCollisionKind(newNPC.sprite, AABBCollisions);
+      SwitchAnimation(newNPC.sprite, 'entity_down_idle');
 
-    newGoal := PointAt(Random(513) * 32, Random(513) * 32);
-    newNPC.currentGoal := newGoal;
+      newGoal := PointAt(Random(513) * 32, Random(513) * 32);
+      newNPC.currentGoal := newGoal;
 
-    map.npcs[High(map.npcs)] := newNPC;
-    DrawSprite(newNPC.sprite);
+      map.npcs[High(map.npcs)] := newNPC;
+      DrawSprite(newNPC.sprite);
+    end;
   end;
 
   function GetDir(x, y: Integer): Direction;

@@ -467,7 +467,9 @@ implementation
 	function IsInMap(var map: MapData; x, y: Integer): Boolean;
 	begin
 		result := false;
-		// Check map bounds
+
+		// Check map bounds. As every map is (2^n)+1 in size, the bounds
+		// stop at High()-1 which will be a number equal to 2^n.
 		if (x > 0) and (x < High(map.tiles) - 1) and (y > 0) and (y < High(map.tiles) - 1) then
 		begin
 			result := true;
