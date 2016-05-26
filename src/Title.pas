@@ -69,26 +69,11 @@ implementation
 		result.previousUI := @CreateTitleUI;
 	end;
 
-	procedure TitleInit(var newState: ActiveState);
-	var
-		tempInputs: InputMap;
-	begin
-		newState.HandleInput := @TitleHandleInput;
-		newState.Update := @TitleUpdate;
-		newState.Draw := @TitleDraw;
-
-		newState.displayedUI := CreateTitleUI(newState.map, tempInputs);
-
-		SetMusicVolume(1);
-		PlayMusic(MusicNamed('baws'));
-	end;
-
 	procedure UpdateNewMapInput(var inputs: InputMap; var currElement: UIElement; var map: MapData);
 	begin
-		if KeyTyped(inputs.MoveRight) then
+		if currElement.id = 'Size' then
 		begin
-
-			if currElement.id = 'Size' then
+			if KeyTyped(inputs.MoveRight) then
 			begin
 				currElement.currentDataString += 1;
 				if currElement.currentDataString > 2 then
@@ -112,36 +97,9 @@ implementation
 							map.maxSpawns := 100000;
 							map.size := 1025;
 						end;
-				end;
+					end;
 			end
-			else if currElement.id = 'Seed' then
-			begin
-				if currElement.currentDataString = -1 then
-				begin
-					currElement.data += 1;
-				end
-				else
-				begin
-					currElement.currentDataString := -1;
-					currElement.data := 0;
-				end;
-				map.seed := currElement.data;
-			end
-			else
-			begin
-				currElement.data += 1;
-
-				case currElement.id of
-					'Max Height': map.maxHeight := currElement.data;
-					'Smoothness': map.smoothness := currElement.data;
-				end;
-
-			end;
-
-		end
-		else if KeyTyped(inputs.MoveLeft) then
-		begin
-			if currElement.id = 'Size' then
+			else if KeyTyped(inputs.MoveLeft) then
 			begin
 				currElement.currentDataString -= 1;
 				if currElement.currentDataString < 0 then
@@ -167,14 +125,45 @@ implementation
 						end;
 				end;
 			end
-			else if currElement.id = 'Seed' then
+		end
+		else if KeyDown(inputs.MoveRight) then
+		begin
+ 			if currElement.id = 'Seed' then
+			begin
+				if currElement.currentDataString = -1 then
+				begin
+					currElement.data += 1;
+				end
+				else
+				begin
+					currElement.currentDataString := -1;
+					currElement.data := 0;
+				end;
+				map.seed := currElement.data;
+			end
+			else
+			begin
+				currElement.data += 1;
+
+				case currElement.id of
+					'Max Height': map.maxHeight := currElement.data;
+					'Smoothness': map.smoothness := currElement.data;
+				end;
+
+			end;
+
+		end
+		else if KeyDown(inputs.MoveLeft) then
+		begin
+			if currElement.id = 'Seed' then
 			begin
 				if currElement.currentDataString = -1 then
 				begin
 					currElement.data -= 1;
 					if currElement.data < 0 then
 					begin
-						currElement.data := 0;
+						currElement.data := -1;
+						currElement.currentDataString := 0;
 					end;
 				end;
 				map.seed := currElement.data;
@@ -233,6 +222,22 @@ implementation
 		end;
 
 	end;
+
+	procedure TitleInit(var newState: ActiveState);
+	var
+		tempInputs: InputMap;
+	begin
+		SetCameraPos(PointAt(0, 0));
+		newState.HandleInput := @TitleHandleInput;
+		newState.Update := @TitleUpdate;
+		newState.Draw := @TitleDraw;
+
+		newState.displayedUI := CreateTitleUI(newState.map, tempInputs);
+
+		SetMusicVolume(1);
+		PlayMusic(MusicNamed('baws'));
+	end;
+
 
 	procedure TitleHandleInput(var thisState: ActiveState; var inputs: InputMap);
 	var

@@ -873,8 +873,6 @@ implementation
 
 		if ( (size - 1) mod 2 = 0 ) then
 		begin
-			FadeMusicIn(MusicNamed('main'), 1000);
-			SetMusicVolume(0.5);
 
 			ClearScreen(ColorBlack);
 			DrawText('Generating Heightmap', ColorWhite, 300, 200);

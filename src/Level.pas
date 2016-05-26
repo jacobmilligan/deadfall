@@ -32,7 +32,7 @@ interface
 	//	Initializes the playing map state, using
 	//	a new active state
 	//
-	procedure LevelInit(var newState: ActiveState; constref mapSettings: MapData);
+	procedure LevelInit(var newState: ActiveState; var mapSettings: MapData);
 
 	//
 	//	Handles input from the player, moving and taking actions
@@ -62,14 +62,13 @@ implementation
 		offsetX, offsetY, rightEdgeDistance, bottomEdgeDistance: Single;
 		mapSizeToPixel, halfSprite: Integer;
 	begin
-		mapSizeToPixel := High(map.tiles) * 32;
+		mapSizeToPixel := ( High(map.tiles) - 1 ) * 32;
 		rightEdgeDistance := mapSizeToPixel - SpriteX(map.player.sprite);
 		bottomEdgeDistance := mapSizeToPixel - SpriteY(map.player.sprite);
 		halfSprite := Round(SpriteWidth(map.player.sprite) / 2);
 
 		offsetX := 0;
 		offsetY := 0;
-
 
 		// Left edge of the map
 		if CameraX() < (ScreenWidth() / 2) + halfSprite then
@@ -95,7 +94,7 @@ implementation
 		CenterCameraOn(map.player.sprite, offsetX, offsetY);
 	end;
 
-	procedure LevelInit(var newState: ActiveState; constref mapSettings: MapData);
+	procedure LevelInit(var newState: ActiveState; var mapSettings: MapData);
 	var
 		i, j: Integer;
 		spawnFound: Boolean;
@@ -148,8 +147,17 @@ implementation
 			end;
 		end;
 
+		if not spawnFound then
+		begin
+			mapSettings.smoothness += 1;
+			LevelInit(newState, mapSettings);
+		end;
+
 		CenterCameraOn(newState.map.player.sprite, ScreenWidth() / 2, ScreenHeight() / 2);
 		SeedSpawns(newState.map);
+
+		SetMusicVolume(0.5);
+		FadeMusicIn(MusicNamed('main'), 1000);
 	end;
 
 	procedure LevelHandleInput(var thisState: ActiveState; var inputs: InputMap);
