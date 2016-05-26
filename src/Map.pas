@@ -468,7 +468,7 @@ implementation
 	begin
 		result := false;
 		// Check map bounds
-		if (x > 0) and (x < High(map.tiles)) and (y > 0) and (y < High(map.tiles)) then
+		if (x > 0) and (x < High(map.tiles) - 1) and (y > 0) and (y < High(map.tiles) - 1) then
 		begin
 			result := true;
 		end;
