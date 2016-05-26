@@ -175,7 +175,7 @@ implementation
 		if thisState.map.player.attackTimeout = 0 then
 		begin
 			speed := 3;
-			
+
 			if KeyDown(inputs.Special) then
 			begin
 				speed := 6;

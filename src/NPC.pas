@@ -214,7 +214,6 @@ implementation
   begin
     toRemove := 0;
     playerPos := PointAt(SpriteX(map.player.sprite), SpriteY(map.player.sprite));
-
     // Iterate in reverse to allow for removal of items from the array
     // without copying all items when removing
     for i := High(map.npcs) downto 0 do

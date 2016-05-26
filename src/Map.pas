@@ -91,6 +91,7 @@ interface
 
 			// tiles base bitmap
 			bmp: Bitmap;
+			hasBmp: Boolean;
 			// bitmap for whatever feature is on top of the tiles
 			featureBmp: Bitmap;
 		end;
@@ -418,6 +419,7 @@ implementation
 		newTile.flag := flag;
 		newTile.bmp := BitmapNamed(bmp);
 		newTile.collidable := collidable;
+		newTile.hasBmp := true;
 	end;
 
 	procedure GenerateTerrain(var map: MapData);
@@ -619,6 +621,7 @@ implementation
 				tiles[x, y].collidable := false;
 				tiles[x, y].feature := NoFeature;
 				tiles[x, y].isOcean := true;
+				tiles[x, y].hasBmp := false;
 			end;
 		end;
 	end;
@@ -633,6 +636,10 @@ implementation
 
 		x := SpriteX(toCheck);
 		y := SpriteY(toCheck);
+
+		// Convert current xpos & ypos to tile x & y
+		tileX := Trunc(x / TILESIZE);
+		tileY := Trunc(y / TILESIZE);
 
 		// Get the x & y values to start scanning in a three-tile radius
 		// in front of the entity
@@ -649,7 +656,7 @@ implementation
 			DirLeft: x -= TILESIZE / 2;
 		end;
 
-		// Convert current xpos & ypos to tile x & y
+		// Convert new xpos & ypos to tile x & y
 		tileX := Trunc(x / TILESIZE);
 		tileY := Trunc(y / TILESIZE);
 
@@ -696,9 +703,13 @@ implementation
 			for j := startY to finishY do
 			begin
 
+				if (i > High(map.tiles) - 1) or (j > High(map.tiles) - 1) then
+				begin
+					break;
+				end;
+
 				if SpriteBitmapCollision(toCheck, map.tiles[i, j].bmp, i * TILESIZE, j * TILESIZE) then
 				begin
-
 					if ( not IsInMap(map, i, j) ) or ( map.tiles[i, j].collidable ) then
 					begin
 						hasCollision := true;
@@ -716,7 +727,6 @@ implementation
 						map.inventory.items[SearchInventory(map.inventory.items, 'Rabbit Leg')].count += 1;
 						SetFeature(map.tiles[i, j], NoFeature, false);
 					end;
-
 					if not ( not IsInMap(map, i, j) ) and ( map.tiles[i, j].feature >= Treasure ) then
 					begin
 						if pickup then
@@ -731,8 +741,8 @@ implementation
 						end;
 					end;
 				end;
-
 			end;
+
 		end;
 
 	end;
@@ -804,12 +814,10 @@ implementation
 
 		if seed < 0 then
 		begin
-			WriteLn('random');
 			Randomize;
 		end
 		else
 		begin
-			WriteLn('Seed: ', seed);
 			RandSeed := 1000 + seed;
 		end;
 
