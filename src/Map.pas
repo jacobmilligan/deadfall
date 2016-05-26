@@ -128,7 +128,7 @@ interface
 			inventory: InventoryCollection;
 			npcs: EntityCollection;
 			blank: Boolean;
-			size, smoothness, maxHeight, seed, maxSpawns, tilesize: Integer;
+			size, smoothness, maxHeight, seed, maxSpawns, tilesize, playerIndicator: Integer;
 		end;
 
 		//
@@ -169,6 +169,8 @@ interface
 	//	Draws a given tiles bitmap and any features it contains to the screen.
 	//
 	procedure DrawTile(var currTile: Tile; x, y: Integer);
+
+	procedure DrawMapCartography(var map: MapData);
 
 	//
 	//	Creates a new TileView record from the view currently within the
@@ -662,8 +664,11 @@ implementation
 		tileX := Trunc(x / TILESIZE);
 		tileY := Trunc(y / TILESIZE);
 
+		// Alter the start and finish positions of the three tiles to scan
+		// based on the direction the player is facing
 		if dir = DirUp then
 		begin
+			// Three tiles above
 			startX := tileX - 1;
 			finishX := tileX + 1;
 			startY := Floor(y / TILESIZE);
@@ -671,6 +676,7 @@ implementation
 		end
 		else if dir = DirRight then
 		begin
+			// Three tiles to the right
 		  startX := Ceil(x / TILESIZE);
 			finishX := startX;
 			startY := tileY - 1;
@@ -678,6 +684,7 @@ implementation
 		end
 		else if dir = DirDown then
 		begin
+			// Three tiles below
 		  startX := tileX - 1;
 			finishX := tileX + 1;
 			startY := Floor(y / TILESIZE);
@@ -685,12 +692,14 @@ implementation
 		end
 		else if dir = DirLeft then
 		begin
+			// Three tiles to the left
 		  startX := Floor(x / TILESIZE);
 			finishX := startX;
 			startY := tileY - 1;
 			finishY := tileY + 1;
 		end;
 
+		// If out of bounds of map, reset the start to be inside the map bounds
 		if (startX < 1) or (startX > High(map.tiles)) then
 		begin
 			startX := tileX;
@@ -700,21 +709,32 @@ implementation
 			startY := tileY;
 		end;
 
+		// Scan three tiles for collisions
 		for i := startX to finishX do
 		begin
 			for j := startY to finishY do
 			begin
 
+				//
+				//	Checks if the tile to scan is outside the RENDERABLE bounds of the map.
+				//	As each map is (2^n)+1 in size but the actual rendered map is 2^n in size,
+				//	if it tries to scan a Bitmap at High(map.tiles) it won't find one and
+				//	will result in an access error.
+				//
 				if (i > High(map.tiles) - 1) or (j > High(map.tiles) - 1) then
 				begin
 					break;
 				end;
 
+				// Entity has collided with another bitmap
 				if SpriteBitmapCollision(toCheck, map.tiles[i, j].bmp, i * TILESIZE, j * TILESIZE) then
 				begin
+					// Stop movement if the collided value is outside the map or isn't walkable
 					if ( not IsInMap(map, i, j) ) or ( map.tiles[i, j].collidable ) then
 					begin
+						// Set the passed-in hasCollision bool for other functions to use
 						hasCollision := true;
+
 						case dir of
 							DirUp: SpriteSetDY(toCheck, 0);
 							DirRight: SpriteSetDX(toCheck, 0);
@@ -723,12 +743,14 @@ implementation
 						end;
 					end;
 
+					// Handle food pickup and adding to inventory
 					if not ( not IsInMap(map, i, j) ) and ( map.tiles[i, j].feature = Food ) then
 					begin
 						PlaySoundEffect(SoundEffectNamed('pickup'), 0.5);
 						map.inventory.items[SearchInventory(map.inventory.items, 'Rabbit Leg')].count += 1;
 						SetFeature(map.tiles[i, j], NoFeature, false);
 					end;
+					// Handle picking up treasure and adding to inventory
 					if not ( not IsInMap(map, i, j) ) and ( map.tiles[i, j].feature >= Treasure ) then
 					begin
 						if pickup then
@@ -749,63 +771,84 @@ implementation
 
 	end;
 
-	procedure DrawMapCartography(var newMap: MapData; size: Integer);
+	procedure DrawMapCartography(var map: MapData);
 	var
-		mapBmp: Bitmap;
-		opts: DrawingOptions;
-		clr, grassClr: Color;
-		x, y: Integer;
-		loadingGuy: Sprite;
-		textStr: String;
+		clr: Color;
+		i, j, x, y, step: Integer;
 	begin
-		loadingGuy := CreateSprite('player', BitmapNamed('player'), AnimationScriptNamed('player'));
-		SpriteStartAnimation(loadingGuy, 'entity_down');
-//	CenterCameraOn(loadingGuy, 0, 0);
+		// Increment the flash counter for player pos
+		map.playerIndicator += 1;
 
-		textStr := 'Finalizing Map';
-
-		mapBmp := CreateBitmap(size, size);
-		ClearSurface(mapBmp, RGBColor(42, 76, 211));
-		opts.dest := mapBmp;
-
-		for x := 0 to High(newMap.tiles) do
+		// Give map blue background
+		ClearScreen(RGBColor(42, 76, 211));
+		// used to give the rendered map a size that fits in the screen no matter how large it is
+		step := Round((map.size - 1) / 512);
+		// Don't increase step for small maps
+		if map.size = 257 then
 		begin
-			ClearScreen(ColorBlack);
-			UpdateSprite(loadingGuy);
-			DrawSprite(loadingGuy);
-			DrawText(textStr, ColorWhite, FontNamed('PrStart'), (CameraX() + (ScreenWidth() / 2)) - TextWidth(FontNamed('PrStart'), textStr), CameraY() + 100);
+			step := 1;
+		end;
 
-			if not newMap.tiles[x, 0].isOcean then
+		x := 0;
+		for i := 0 to High(map.tiles) do
+		begin
+			// Don't try to render any pixels outside the map bounds or it don't work
+			if x > map.size - 1 then
 			begin
-				for y := 0 to High(newMap.tiles) do
-				begin
-
-					if newMap.tiles[x, y].flag <> Water then
-					begin
-						ProcessEvents();
-						case newMap.tiles[x, y].flag of
-							Water: clr := RGBColor(42, 76, 211); // Blue
-							Sand: clr := RGBColor(241, 249, 101); // Sandy yellow
-							Grass: clr := RGBColor(139, 230, 128); // Light green
-							Dirt: clr := RGBColor(148, 92, 53); // Brown
-							MediumGrass: clr := RGBColor(57, 167, 63); // darker green
-							HighGrass: clr := RGBColor(23, 125, 29); // Dark green
-							SnowyGrass: clr := ColorWhite;
-							Mountain: clr := RGBColor(119, 119, 119); // Grey
-						end;
-						if newMap.tiles[x, y].feature = Tree then
-						begin
-							clr := RGBColor(113, 149, 48);
-						end;
-						DrawPixel(clr, x, y, opts);
-					end;
-
-				end;
+				break;
 			end;
 
-			RefreshScreen(60);
+			y := 0;
+			for j := 0 to High(map.tiles) do
+			begin
+				// Don't try to render any pixels outside the map bounds or it don't work
+				if y > map.size - 1 then
+				begin
+					break;
+				end;
+
+				// Get color based on terrain flag
+				case map.tiles[x, y].flag of
+					Water: clr := RGBColor(42, 76, 211); // Blue
+					Sand: clr := RGBColor(241, 249, 101); // Sandy yellow
+					Grass: clr := RGBColor(139, 230, 128); // Light green
+					Dirt: clr := RGBColor(148, 92, 53); // Brown
+					MediumGrass: clr := RGBColor(57, 167, 63); // darker green
+					HighGrass: clr := RGBColor(23, 125, 29); // Dark green
+					SnowyGrass: clr := ColorWhite;
+					Mountain: clr := RGBColor(119, 119, 119); // Grey
+				end;
+				// Render trees
+				if map.tiles[x, y].feature = Tree then
+				begin
+					clr := RGBColor(113, 149, 48); // Olive
+				end;
+				// Render a black border around the map
+				if (x = 0) or (x = High(map.tiles)) or (y = 0) or (y = High(map.tiles)) then
+				begin
+					clr := ColorBlack;
+				end;
+				// Draw tile as pixel. Use 130 & 50 to center the map
+				DrawPixel(clr, CameraX() + i + 130, CameraY() + j + 50);
+				y += step;
+			end;
+			x += step;
 		end;
-		SaveBitmap(mapBmp, './maps/map_' + IntToStr(newMap.seed) + '.png');
+		if map.playerIndicator > 2 then
+		begin
+			// Draw the players position on the map
+			FillRectangle(
+					ColorRed,
+					CameraX() + ( (SpriteX(map.player.sprite) / 32) / step) + 130,
+					CameraY() + ( (SpriteY(map.player.sprite) / 32) / step) + 50,
+					4,
+					4
+				);
+			if map.playerIndicator > 4 then
+			begin
+				map.playerIndicator := 0;
+			end;
+		end;
 	end;
 
 	function GenerateNewMap(size, smoothness, maxHeight: Integer; seed: Integer): MapData;
@@ -814,7 +857,9 @@ implementation
 		x, y: Integer;
 	begin
 		newMap.tilesize := 32;
+		newMap.size := size;
 
+		// Only generate random map if player didn't choose a seed at the menu
 		if seed < 0 then
 		begin
 			Randomize;
@@ -845,15 +890,12 @@ implementation
 
 			GenerateTerrain(newMap);
 			SeedFeatures(newMap);
-
-			//DrawMapCartography(newMap, size);
 		end
 		else
 		begin
 			WriteLn('Deadfall error: Cannot initialize map with size ', size, '! Map must be of size 2^n + 1.');
 		end;
 
-		// Todo: Return an invalid map and handle this error properly
 		result := newMap;
 	end;
 

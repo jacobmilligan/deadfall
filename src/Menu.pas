@@ -101,18 +101,32 @@ implementation
 		result.previousUI := @CreateMenuUI;
 	end;
 
+	function CreateMapUI(var map: MapData; var inputs: InputMap): UI;
+	begin
+		InitUI(result, 1, 'Map Menu');
+
+		result.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 500, 'Return');
+		map.playerIndicator := 0;
+
+		result.currentItem := 0;
+		result.previousItem := 0;
+		result.previousUI := @CreateMenuUI;
+		result.nextUI := @CreateMenuUI;
+	end;
+
 	//
 	//	Creates the menu UI elements and returns it to replace the currently
 	//	displayed UI on the menu state
 	//
 	function CreateMenuUI(var map: MapData; var inputs: InputMap): UI;
 	const
-		UI_SIZE = 3;
+		UI_SIZE = 4;
 	begin
 		InitUI(result, UI_SIZE, 'Main Menu');
 		result.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 100, 'Inventory');
-		result.items[1] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 250, 'Settings');
-		result.items[2] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 400, 'Exit');
+		result.items[1] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 210, 'Map');
+		result.items[2] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 320, 'Settings');
+		result.items[3] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 430, 'Exit');
 		result.currentItem := 0;
 		result.previousItem := 0;
 		result.nextUI := @CreateInventoryUI;
@@ -140,6 +154,7 @@ implementation
 		if thisState.displayedUI.name = 'Main Menu' then
 		begin
 			case UISelectedID(thisState.displayedUI) of
+				'Map': thisState.displayedUI.nextUI := @CreateMapUI;
 				'Inventory': thisState.displayedUI.nextUI := @CreateInventoryUI;
 				'Settings': thisState.displayedUI.nextUI := @CreateSettingsUI;
 			end;
@@ -209,7 +224,14 @@ implementation
 		lastLevelState := GetState(thisState.manager, 1);
 
 		lastLevelState^.Draw(lastLevelState^);
+
 		DrawUI(thisState.displayedUI);
+
+		if thisState.displayedUI.name = 'Map Menu' then
+		begin
+			DrawMapCartography(lastLevelState^.map);
+		end;
+
 	end;
 
 end.
