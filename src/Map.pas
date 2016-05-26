@@ -65,6 +65,8 @@ interface
 			// terrain type
 			flag: TileType;
 
+			isOcean: Boolean;
+
 			// type of feature if any
 			feature: FeatureType;
 
@@ -172,7 +174,7 @@ interface
 	procedure SellItem(var toSell: Item; var inventory: InventoryCollection);
 
 implementation
-	uses SwinGame, Game, Input, Math;
+	uses SwinGame, Game, Input, Math, SysUtils;
 
 	const
 		TILESIZE = 32;
@@ -426,6 +428,11 @@ implementation
 							SetTile(map.tiles[x, y], Mountain, 'mountain', true)
 				end;
 
+				if (map.tiles[x, y].flag <> Water) then
+				begin
+					map.tiles[x, 0].isOcean := false;
+				end;
+
 			end;
 		end;
 	end;
@@ -578,6 +585,7 @@ implementation
 				tiles[x, y].elevation := 0;
 				tiles[x, y].collidable := false;
 				tiles[x, y].feature := NoFeature;
+				tiles[x, y].isOcean := true;
 			end;
 		end;
 	end;
@@ -696,18 +704,19 @@ implementation
 	var
 		mapBmp: Bitmap;
 		opts: DrawingOptions;
-		clr: Color;
+		clr, grassClr: Color;
 		x, y: Integer;
 		loadingGuy: Sprite;
 		textStr: String;
 	begin
 		loadingGuy := CreateSprite('player', BitmapNamed('player'), AnimationScriptNamed('player'));
 		SpriteStartAnimation(loadingGuy, 'entity_down');
-		CenterCameraOn(loadingGuy, 0, 0);
+//	CenterCameraOn(loadingGuy, 0, 0);
 
 		textStr := 'Finalizing Map';
 
 		mapBmp := CreateBitmap(size, size);
+		ClearSurface(mapBmp, RGBColor(42, 76, 211));
 		opts.dest := mapBmp;
 
 		for x := 0 to High(newMap.tiles) do
@@ -716,28 +725,38 @@ implementation
 			UpdateSprite(loadingGuy);
 			DrawSprite(loadingGuy);
 			DrawText(textStr, ColorWhite, FontNamed('PrStart'), (CameraX() + (ScreenWidth() / 2)) - TextWidth(FontNamed('PrStart'), textStr), CameraY() + 100);
-			RefreshScreen(60);
-			for y := 0 to High(newMap.tiles) do
+
+			if not newMap.tiles[x, 0].isOcean then
 			begin
-				ProcessEvents();
-				case newMap.tiles[x, y].flag of
-					Water: clr := RGBColor(42, 76, 211); // Blue
-					Sand: clr := RGBColor(241, 249, 101); // Sandy yellow
-					Grass: clr := RGBColor(139, 230, 128); // Light green
-					Dirt: clr := RGBColor(148, 92, 53); // Brown
-					MediumGrass: clr := RGBColor(57, 167, 63); // darker green
-					HighGrass: clr := RGBColor(23, 125, 29); // Dark green
-					SnowyGrass: clr := ColorWhite;
-					Mountain: clr := RGBColor(119, 119, 119); // Grey
-				end;
-				if newMap.tiles[x, y].feature = Tree then
+				for y := 0 to High(newMap.tiles) do
 				begin
-					clr := RGBColor(113, 149, 48);
+
+					if newMap.tiles[x, y].flag <> Water then
+					begin
+						ProcessEvents();
+						case newMap.tiles[x, y].flag of
+							Water: clr := RGBColor(42, 76, 211); // Blue
+							Sand: clr := RGBColor(241, 249, 101); // Sandy yellow
+							Grass: clr := RGBColor(139, 230, 128); // Light green
+							Dirt: clr := RGBColor(148, 92, 53); // Brown
+							MediumGrass: clr := RGBColor(57, 167, 63); // darker green
+							HighGrass: clr := RGBColor(23, 125, 29); // Dark green
+							SnowyGrass: clr := ColorWhite;
+							Mountain: clr := RGBColor(119, 119, 119); // Grey
+						end;
+						if newMap.tiles[x, y].feature = Tree then
+						begin
+							clr := RGBColor(113, 149, 48);
+						end;
+						DrawPixel(clr, x, y, opts);
+					end;
+
 				end;
-				DrawPixel(clr, x, y, opts);
 			end;
+
+			RefreshScreen(60);
 		end;
-		SaveBitmap(mapBmp, 'new_map.png');
+		SaveBitmap(mapBmp, './maps/map_' + IntToStr(newMap.seed) + '.png');
 	end;
 
 	function GenerateNewMap(size, smoothness, maxHeight: Integer; seed: Integer): MapData;
@@ -756,6 +775,8 @@ implementation
 			WriteLn('Seed: ', seed);
 			RandSeed := 1000 + seed;
 		end;
+
+		newMap.seed := RandSeed;
 
 		if ( (size - 1) mod 2 = 0 ) then
 		begin

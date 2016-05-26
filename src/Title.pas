@@ -210,7 +210,7 @@ implementation
 				'Big':
 					begin
 						map.maxSpawns := 100000;
-						map.size := 513;
+						map.size := 1025;
 					end;
 			end;
 		end
