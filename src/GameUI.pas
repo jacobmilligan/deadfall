@@ -138,8 +138,21 @@ interface
 	//
 	function CreateChangeControlsUI(var map: MapData; var inputs: InputMap): UI;
 
+	//
+	//	Adds string and number data to a UI Element. This data is navigated in order using
+	//	left/right keys. If you need mixed string/int data, use NUMBER_DATA const to specify
+	//	that this data element should be number data.
+	//
+	//	By default number data increases indefinitely and switches to the previous item if
+	//	below zero. Therefore for mixed string/int data make sure the number is the last element
+	//	in the array
+	//
 	procedure SetupUIData(var elem: UIElement; len: Integer; data: array of String; numData: Integer = 0);
 
+	//
+	//	Updates the currently selected data element and wraps if out
+	//	of array bounds
+	//
 	procedure ChangeUIData(var elem: UIElement; amt: Integer);
 
 implementation
@@ -272,10 +285,12 @@ implementation
 	procedure ChangeUIData(var elem: UIElement; amt: Integer);
 	begin
 		elem.currData += amt;
+		// Wrap right
 		if elem.currData > High(elem.data) then
 		begin
 			elem.currData := 0;
 		end;
+		// Wrap left
 		if elem.currData < 0 then
 		begin
 			elem.currData := High(elem.data);
@@ -409,10 +424,13 @@ implementation
 
 	procedure UpdateUIData(var inputs: InputMap; var currElement: UIElement; var map: MapData);
 	begin
+		// Don't update if the UIElement has no data attached
 		if Length(currElement.data) > 0 then
 		begin
 			if currElement.data[currElement.currData] <> NUMBER_DATA then
 			begin
+				// 	Scroll through elements in the data array if the current
+				//	data element isn't supposed to be number data
 				currElement.numberData := 0;
 				if KeyTyped(inputs.MoveRight) then
 				begin
@@ -423,6 +441,8 @@ implementation
 					ChangeUIData(currElement, -1);
 				end;
 			end;
+			// 	If current element is number data update the numberData record
+			//	member instead of the data array
 			if currElement.data[currElement.currData] = NUMBER_DATA then
 			begin
 				if KeyDown(inputs.MoveRight) then
@@ -464,15 +484,17 @@ implementation
 			DrawBitmap(currentUI.items[i].currentBmp, CameraX() + currentUI.items[i].x, CameraY() + currentUI.items[i].y);
 
 			textToDraw := currentUI.items[i].id;
-			// Draw the id + data num if it has any
+			// Draw the id + data/numData if it has any
 			if Length(currentUI.items[i].data) > 0 then
 			begin
+				// Draw numberData
 				if currentUI.items[i].data[currentUI.items[i].currData] = NUMBER_DATA then
 				begin
 					textToDraw := currentUI.items[i].id + ': ' + IntToStr(currentUI.items[i].numberData);
 				end
 				else
 				begin
+					// Draw current data string
 					textToDraw := currentUI.items[i].id + ': ' + currentUI.items[i].data[currentUI.items[i].currData];
 				end;
 			end;
