@@ -133,7 +133,7 @@ implementation
 		//	thus spawning the player on a beach
 		//
 		spawnFound := false;
-		{for i := 0 to High(newState.map.tiles) do
+		for i := 0 to High(newState.map.tiles) do
 		begin
 			if spawnFound then
 				break;
@@ -157,10 +157,7 @@ implementation
 		begin
 			mapSettings.smoothness += 1;
 			LevelInit(newState, mapSettings);
-		end;}
-
-		SpriteSetX(newState.map.player.sprite, 100);
-		SpriteSetY(newState.map.player.sprite, 250 * 32);
+		end;
 
 		CenterCameraOn(newState.map.player.sprite, ScreenWidth() / 2, ScreenHeight() / 2);
 		SeedSpawns(newState.map);
