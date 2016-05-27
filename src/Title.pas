@@ -12,17 +12,17 @@
 unit Title;
 
 interface
-	uses State, Game, Input, GameUI, Map;
+  uses State, Game, Input, GameUI, Map;
 
-	procedure TitleInit(var newState: ActiveState);
+  procedure TitleInit(var newState: ActiveState);
 
-	procedure TitleHandleInput(var thisState: ActiveState; var inputs: InputMap);
+  procedure TitleHandleInput(var thisState: ActiveState; var inputs: InputMap);
 
-	procedure TitleUpdate(var thisState: ActiveState);
+  procedure TitleUpdate(var thisState: ActiveState);
 
-	procedure TitleDraw(var thisState: ActiveState);
+  procedure TitleDraw(var thisState: ActiveState);
 
-	function CreateTitleUI(var map: MapData; var inputs: InputMap): UI;
+  function CreateTitleUI(var map: MapData; var inputs: InputMap): UI;
 
 implementation
 	uses SwinGame;
