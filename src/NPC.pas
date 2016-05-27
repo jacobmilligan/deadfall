@@ -20,12 +20,30 @@ interface
       cost: Single;
     end;
 
+  //
+  //  Sets up the initial spawns for the map based off the passed-in
+  //  maps default data i.e. size, spawnrate etc.
+  //
   procedure SeedSpawns(var map: MapData);
 
+  //
+  //  Keeps searching for a random, non-collidable tile on the map to spawn
+  //  an NPC. Only actually spawns if a second random value is high enough.
+  //
   procedure UpdateSpawns(var map: MapData);
 
+  //
+  //  Handles collision-detection, interactions with the player (i.e. attack results) and
+  //  delegates to pathfinding functions. Only updates AI if the NPC is close enough to the
+  //  player to be more efficient
+  //
   procedure UpdateNPCS(var map: MapData);
 
+  //
+  //  Handles NPC pathfinding. Uses a super basic wall tracing method, i.e. if the NPC hits
+  //  a wall, it then searches four tiles around it for an open path with the least cost (distance)
+  //  to its current goal (a random point on the map)
+  //
   procedure UpdateNPCAI(var map: MapData; var npc: Entity);
 
 
@@ -54,7 +72,7 @@ implementation
       SpriteSetPosition(newNPC.sprite, PointAt(x, y));
       SwitchAnimation(newNPC.sprite, 'entity_down_idle');
 
-      newGoal := PointAt(Random(513) * 32, Random(513) * 32);
+      newGoal := PointAt(Random(map.size) * 32, Random(map.size) * 32);
       newNPC.currentGoal := newGoal;
 
       map.npcs[High(map.npcs)] := newNPC;
@@ -62,6 +80,7 @@ implementation
     end;
   end;
 
+  // Converts an x and y tile coordinate relative to the NPC to a direction
   function GetDir(x, y: Integer): Direction;
   begin
     result := DirDown;
@@ -84,6 +103,11 @@ implementation
     end;
   end;
 
+  //
+  //  Searches in a cross shaped pattern of four tiles around the NPC
+  //  for an open path with the lowest cost. If the NPC is stuck it creates a new
+  //  goal for the NPC and calls itself recursively
+  //
   procedure FindOpenPath(var map: MapData; var npc: Entity);
   var
     localX, localY, x, y, i, j: Integer;
@@ -134,9 +158,9 @@ implementation
       localX += 1;
     end;
 
-    if npc.stuckCounter > 4 then
+    if npc.stuckCounter > 1 then
     begin
-      npc.currentGoal := PointAt(Random(513) * 32, Random(513) * 32);
+      npc.currentGoal := PointAt(Random(map.size) * 32, Random(map.size) * 32);
       npc.stuckCounter := 0;
     end;
 
