@@ -101,7 +101,7 @@ implementation
 		i, j: Integer;
 		spawnFound: Boolean;
 	begin
-		//WriteLn(mapSettings.size, ', ', mapSettings.smoothness, ', ', mapSettings.maxHeight);
+		WriteLn(mapSettings.size, ', ', mapSettings.smoothness, ', ', mapSettings.maxHeight, ', ', mapSettings.seed);
 		// Assign functions for state
 		newState.HandleInput := @LevelHandleInput;
 		newState.Update := @LevelUpdate;

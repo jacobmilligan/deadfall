@@ -19,6 +19,7 @@ interface
 		UI_NEXT 		= 	'UI_NEXT_ELEMENT';
 		UI_PREV 		= 	'UI_PREV_ELEMENT';
 		UI_CURRENT 	= 	'UI_CURRENT_ELEMENT';
+		NUMBER_DATA =		'UI_NUMBER_DATA';
 
   type
 
@@ -36,9 +37,9 @@ interface
 			x: Single;
 			y: Single;
 			id: String;
-			data: Integer;
-			dataStrings: StringArray;
-			currentDataString: Integer;
+			numberData: Integer;
+			data: StringArray;
+			currData: Integer;
 			setFont: Font;
 			attachedInventory: ItemPtr;
 		end;
@@ -87,6 +88,12 @@ interface
 	procedure UpdateUI(var currentUI: UI; currentItem, previousItem: Integer);
 
 	//
+	//	Updates any data items attached to a given UI element. These can be specified
+	//	via
+	//
+	procedure UpdateUIData(var inputs: InputMap; var currElement: UIElement; var map: MapData);
+
+	//
 	//	Draws the current UI and its elements to the screen alongside the market ticker tape
 	//	if on the inventory screen
 	//
@@ -131,6 +138,10 @@ interface
 	//
 	function CreateChangeControlsUI(var map: MapData; var inputs: InputMap): UI;
 
+	procedure SetupUIData(var elem: UIElement; len: Integer; data: array of String; numData: Integer = 0);
+
+	procedure ChangeUIData(var elem: UIElement; amt: Integer);
+
 implementation
 	uses State, SysUtils, Menu, Title;
 
@@ -150,6 +161,18 @@ implementation
 		begin
 			result.previousUI := @CreateMenuUI;
 		end;
+	end;
+
+	procedure SetupUIData(var elem: UIElement; len: Integer; data: array of String; numData: Integer = 0);
+	var
+		i: Integer;
+	begin
+		SetLength(elem.data, len);
+		for i := 0 to High(data) do
+		begin
+			elem.data[i] := data[i];
+		end;
+		elem.numberData := numData;
 	end;
 
 	function CreateChangeControlsUI(var map: MapData; var inputs: InputMap): UI;
@@ -225,8 +248,9 @@ implementation
 		result.id := id;
 		result.setFont := FontNamed(setFont);
 		result.attachedInventory := nil;
-		result.data := -1;
-		SetLength(result.dataStrings, 0);
+		result.numberData := 0;
+		result.currData := 0;
+		SetLength(result.data, 0);
 	end;
 
 	function FindUIElement(var currentUI: UI; id: String): Integer;
@@ -242,6 +266,19 @@ implementation
 				result := i;
 				break;
 			end;
+		end;
+	end;
+
+	procedure ChangeUIData(var elem: UIElement; amt: Integer);
+	begin
+		elem.currData += amt;
+		if elem.currData > High(elem.data) then
+		begin
+			elem.currData := 0;
+		end;
+		if elem.currData < 0 then
+		begin
+			elem.currData := High(elem.data);
 		end;
 	end;
 
@@ -370,6 +407,41 @@ implementation
 		currentUI.items[currentItem].currentBmp := currentUI.items[currentItem].activeBmp;
 	end;
 
+	procedure UpdateUIData(var inputs: InputMap; var currElement: UIElement; var map: MapData);
+	begin
+		if Length(currElement.data) > 0 then
+		begin
+			if currElement.data[currElement.currData] <> NUMBER_DATA then
+			begin
+				currElement.numberData := 0;
+				if KeyTyped(inputs.MoveRight) then
+				begin
+					ChangeUIData(currElement, 1);
+				end
+				else if KeyTyped(inputs.MoveLeft) then
+				begin
+					ChangeUIData(currElement, -1);
+				end;
+			end;
+			if currElement.data[currElement.currData] = NUMBER_DATA then
+			begin
+				if KeyDown(inputs.MoveRight) then
+				begin
+					currElement.numberData += 1;
+				end
+				else if KeyDown(inputs.MoveLeft) then
+				begin
+					currElement.numberData -= 1;
+					if currElement.numberData < 0 then
+					begin
+						ChangeUIData(currElement, -1);
+					end;
+				end;
+			end;
+		end;
+
+	end;
+
 	procedure DrawUI(var currentUI: UI);
 	var
 		i: Integer;
@@ -393,14 +465,16 @@ implementation
 
 			textToDraw := currentUI.items[i].id;
 			// Draw the id + data num if it has any
-			if currentUI.items[i].data > -1 then
+			if Length(currentUI.items[i].data) > 0 then
 			begin
-				textToDraw := currentUI.items[i].id + ': ' + IntToStr(currentUI.items[i].data);
-			end
-			// No data num but if it has a data string then concat that with the ID
-			else if Length(currentUI.items[i].dataStrings) > 0 then
-			begin
-				textToDraw := currentUI.items[i].id + ': ' + currentUI.items[i].dataStrings[currentUI.items[i].currentDataString];
+				if currentUI.items[i].data[currentUI.items[i].currData] = NUMBER_DATA then
+				begin
+					textToDraw := currentUI.items[i].id + ': ' + IntToStr(currentUI.items[i].numberData);
+				end
+				else
+				begin
+					textToDraw := currentUI.items[i].id + ': ' + currentUI.items[i].data[currentUI.items[i].currData];
+				end;
 			end;
 
 			// Get the horizontal center of the element
