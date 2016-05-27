@@ -59,36 +59,38 @@ implementation
 
 	procedure UpdateCamera(constref map: MapData);
 	var
-		offsetX, offsetY, rightEdgeDistance, bottomEdgeDistance: Single;
+		offsetX, offsetY, rightEdgeDistance, bottomEdgeDistance, halfWidth, halfHeight: Single;
 		mapSizeToPixel, halfSprite: Integer;
 	begin
 		mapSizeToPixel := ( High(map.tiles) - 1 ) * 32;
 		rightEdgeDistance := mapSizeToPixel - SpriteX(map.player.sprite);
 		bottomEdgeDistance := mapSizeToPixel - SpriteY(map.player.sprite);
 		halfSprite := Round(SpriteWidth(map.player.sprite) / 2);
+		halfWidth := ScreenWidth() / 2;
+		halfHeight := ScreenHeight() / 2;
 
 		offsetX := 0;
 		offsetY := 0;
 
 		// Left edge of the map
-		if CameraX() < (ScreenWidth() / 2) + halfSprite then
+		if CameraX() < (halfWidth + halfSprite * 2) then
 		begin
-			offsetX := ( ScreenWidth() - SpriteX(map.player.sprite) ) / 2;
+			offsetX := ( ScreenWidth() - SpriteX(map.player.sprite) + halfSprite ) / 2;
 		end;
 		//Right edge of map
-		if ( SpriteX(map.player.sprite) + (ScreenWidth() / 2) ) > mapSizeToPixel then
+		if ( SpriteX(map.player.sprite) + halfWidth + halfSprite ) > mapSizeToPixel then
 		begin
-			offsetX := -( (ScreenWidth() / 2) - rightEdgeDistance);
+			offsetX := -( halfWidth - rightEdgeDistance + halfSprite );
 		end;
 		// Top edge of map
-		if CameraY() < (ScreenHeight() / 2) + halfSprite then
+		if CameraY() < (halfHeight + halfSprite * 2) then
 		begin
-			offsetY := ( ScreenHeight() - SpriteY(map.player.sprite) ) / 2;
+			offsetY := ( ScreenHeight() - SpriteY(map.player.sprite) + halfSprite ) / 2;
 		end;
 		// Bottom edge of map
-		if ( SpriteY(map.player.sprite) + (ScreenHeight() / 2) ) > mapSizeToPixel then
+		if ( SpriteY(map.player.sprite) + halfHeight + halfSprite ) > mapSizeToPixel then
 		begin
-			offsetY := -( (ScreenHeight() / 2) - bottomEdgeDistance);
+			offsetY := -( halfHeight - bottomEdgeDistance + halfSprite);
 		end;
 
 		CenterCameraOn(map.player.sprite, offsetX, offsetY);
@@ -106,7 +108,6 @@ implementation
 		newState.Draw := @LevelDraw;
 
 		// Generate a new map with the passed-in size
-		WriteLn(mapSettings.seed);
 		newState.map := GenerateNewMap(mapSettings.size, mapSettings.smoothness, mapSettings.maxHeight, mapSettings.seed);
 		newState.map.blank := false;
 		newState.map.maxSpawns := mapSettings.maxSpawns;
@@ -117,7 +118,8 @@ implementation
 		newState.map.player.attackTimeout := 0;
 		newState.map.player.maxAttackSpeed := 10;
 		newState.map.player.id := 'Player';
-		newState.map.onBoat := false;
+		newState.map.player.dir := DirDown;
+		newState.map.player.moveSpeed := 3;
 
 		newState.map.inventory := InitInventory();
 
@@ -131,7 +133,7 @@ implementation
 		//	thus spawning the player on a beach
 		//
 		spawnFound := false;
-		for i := 0 to High(newState.map.tiles) do
+		{for i := 0 to High(newState.map.tiles) do
 		begin
 			if spawnFound then
 				break;
@@ -155,7 +157,10 @@ implementation
 		begin
 			mapSettings.smoothness += 1;
 			LevelInit(newState, mapSettings);
-		end;
+		end;}
+
+		SpriteSetX(newState.map.player.sprite, 100);
+		SpriteSetY(newState.map.player.sprite, 250 * 32);
 
 		CenterCameraOn(newState.map.player.sprite, ScreenWidth() / 2, ScreenHeight() / 2);
 		SeedSpawns(newState.map);
@@ -192,45 +197,45 @@ implementation
 		// Move the player if they're not attacking
 		if thisState.map.player.attackTimeout = 0 then
 		begin
-			speed := 3;
+			thisState.map.player.moveSpeed := 3;
 
 			if KeyDown(inputs.Special) then
 			begin
-				speed := 6;
+				thisState.map.player.moveSpeed := 6;
 			end;
 
 			if KeyDown(inputs.MoveUp) then
 			begin
-				MoveEntity(thisState.map, thisState.map.player, DirUp, speed, isPickup, special);
+				MoveEntity(thisState.map, thisState.map.player, DirUp, thisState.map.player.moveSpeed, isPickup, special);
 			end
 			else if KeyDown(inputs.MoveRight) then
 			begin
-				MoveEntity(thisState.map, thisState.map.player, DirRight, speed, isPickup, special);
+				MoveEntity(thisState.map, thisState.map.player, DirRight, thisState.map.player.moveSpeed, isPickup, special);
 			end
 			else if KeyDown(inputs.MoveDown) then
 			begin
-				MoveEntity(thisState.map, thisState.map.player, DirDown, speed, isPickup, special);
+				MoveEntity(thisState.map, thisState.map.player, DirDown, thisState.map.player.moveSpeed, isPickup, special);
 			end
 			else if KeyDown(inputs.MoveLeft) then
 			begin
-				MoveEntity(thisState.map, thisState.map.player, DirLeft, speed, isPickup, special);
+				MoveEntity(thisState.map, thisState.map.player, DirLeft, thisState.map.player.moveSpeed, isPickup, special);
 			end
 			else
 			begin
 				//
-				//	Move with 0 speed based off previously assigned direction
+				//	Move with 0 speed based off previously assigned dir
 				//	(i.e. whatever way the player was facing last)
 				//
-				MoveEntity(thisState.map, thisState.map.player, thisState.map.player.direction, 0, isPickup, special);
+				MoveEntity(thisState.map, thisState.map.player, thisState.map.player.dir, 0, isPickup, special);
 			end;
 		end;
 
-		// Do attack calculations based on the players facing direction
+		// Do attack calculations based on the players facing dir
 		if KeyTyped(inputs.Attack) then
 		begin
 			PlaySoundEffect(SoundEffectNamed('throw'), 0.5);
-			MoveEntity(thisState.map, thisState.map.player, thisState.map.player.direction, 0, isPickup, special);
-			case thisState.map.player.direction of
+			MoveEntity(thisState.map, thisState.map.player, thisState.map.player.dir, 0, isPickup, special);
+			case thisState.map.player.dir of
 				DirUp: SwitchAnimation(thisState.map.player.sprite, 'entity_up_attack');
 				DirRight: SwitchAnimation(thisState.map.player.sprite, 'entity_right_attack');
 				DirDown: SwitchAnimation(thisState.map.player.sprite, 'entity_down_attack');

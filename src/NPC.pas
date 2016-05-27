@@ -44,8 +44,9 @@ interface
   //  a wall, it then searches four tiles around it for an open path with the least cost (distance)
   //  to its current goal (a random point on the map)
   //
-  procedure UpdateNPCAI(var map: MapData; var npc: Entity);
+  procedure UpdateNPCAI(var map: MapData; var npc: Entity; npcIndex: Integer; const playerDistance: Single);
 
+  procedure TurnAround(var toTurn: Entity);
 
 implementation
   uses Game, Input, Math, sgTypes;
@@ -63,16 +64,18 @@ implementation
       newNPC.sprite := CreateSprite(BitmapNamed('bunny'), AnimationScriptNamed('player'));
       SpriteAddLayer(newNPC.sprite, BitmapNamed('bunny_hurt'), 'hurt');
 
-      newNPC.direction := DirDown;
+      newNPC.dir := DirDown;
       newNPC.nextUpdate := 1;
       newNPC.hp := 100;
       newNPC.stuckCounter := 0;
       newNPC.id := 'Rabbit';
+      newNPC.moveSpeed := 1;
+      newNPC.attackTimeout := 0;
 
       SpriteSetPosition(newNPC.sprite, PointAt(x, y));
       SwitchAnimation(newNPC.sprite, 'entity_down_idle');
 
-      newGoal := PointAt(Random(map.size) * 32, Random(map.size) * 32);
+      newGoal := PointAt(SpriteX(newNPC.sprite) + Random(map.size), SpriteY(newNPC.sprite) + Random(map.size));
       newNPC.currentGoal := newGoal;
 
       map.npcs[High(map.npcs)] := newNPC;
@@ -80,7 +83,35 @@ implementation
     end;
   end;
 
-  // Converts an x and y tile coordinate relative to the NPC to a direction
+  procedure RemoveNPC(deleteIndex: Integer; var npcs: EntityCollection);
+  var
+    i: Integer;
+  begin
+    for i := deleteIndex to High(npcs) do
+    begin
+      if i < High(npcs) then
+      begin
+        npcs[i] := npcs[i + 1];
+      end;
+    end;
+    SetLength(npcs, Length(npcs) - 1);
+  end;
+
+  procedure TurnAround(var toTurn: Entity);
+  var
+    newDir: Direction;
+    newDirIndex: Integer;
+  begin
+    newDirIndex := Integer(toTurn.dir);
+    newDirIndex += 2;
+    if newDirIndex > Integer( High(Direction) ) then
+    begin
+      newDirIndex -= Integer( High(Direction) ) + 1;
+    end;
+    toTurn.dir := Direction(newDirIndex);
+  end;
+
+  // Converts an x and y tile coordinate relative to the NPC to a dir
   function GetDir(x, y: Integer): Direction;
   begin
     result := DirDown;
@@ -108,9 +139,9 @@ implementation
   //  for an open path with the lowest cost. If the NPC is stuck it creates a new
   //  goal for the NPC and calls itself recursively
   //
-  procedure FindOpenPath(var map: MapData; var npc: Entity);
+  procedure FindOpenPath(var map: MapData; var npc: Entity; npcIndex: Integer);
   var
-    localX, localY, x, y, i, j: Integer;
+    localX, localY, x, y, i, j, collidableCount: Integer;
     currentPath, bestPath: Single;
     dir: Direction;
     newPath: Path;
@@ -119,6 +150,7 @@ implementation
     x := Trunc(SpriteX(npc.sprite) / 32);
     y := Trunc(SpriteY(npc.sprite) / 32);
     bestPath := 0;
+    collidableCount := 0;
     newPath.dir := DirDown;
     newPath.cost := PointPointDistance(PointAt(x * 32, y * 32), npc.currentGoal);
 
@@ -145,11 +177,14 @@ implementation
           begin
             newPath.dir := GetDir(localX, localY);
             newPath.cost := currentPath;
+            collidableCount -= 1;
           end;
 
           if hasCollision then
           begin
             npc.stuckCounter += 1;
+            collidableCount += 1;
+            TurnAround(npc);
           end;
 
         end;
@@ -158,30 +193,49 @@ implementation
       localX += 1;
     end;
 
-    if npc.stuckCounter > 1 then
+    if collidableCount > 3 then
     begin
-      npc.currentGoal := PointAt(Random(map.size) * 32, Random(map.size) * 32);
+      TurnAround(npc);
+      MoveEntity(map, npc, npc.dir, 2, false);
+    end;
+
+    if npc.stuckCounter > 0 then
+    begin
+      TurnAround(npc);
+      MoveEntity(map, npc, npc.dir, 2, false);
+      npc.currentGoal := PointAt(SpriteX(npc.sprite) - Random(map.size), SpriteY(npc.sprite) - Random(map.size));
       npc.stuckCounter := 0;
     end;
 
-    npc.direction := newPath.dir;
+    npc.dir := newPath.dir;
   end;
 
-  procedure UpdateNPCAI(var map: MapData; var npc: Entity);
+  procedure UpdateNPCAI(var map: MapData; var npc: Entity; npcIndex: Integer; const playerDistance: Single);
   var
     i: Integer;
     canMove: Boolean;
     playerPos, npcPos: Point2D;
   begin
-    FindOpenPath(map, npc);
+    if npc.moveSpeed > 1 then
+    begin
+      if playerDistance > map.size then
+      begin
+        npc.moveSpeed := 1;
+      end
+    end;
+
+    FindOpenPath(map, npc, npcIndex);
+
     if PointPointDistance(npc.currentGoal, PointAt(SpriteX(npc.sprite), SpriteY(npc.sprite))) <= 64 then
     begin
-      MoveEntity(map, npc, npc.direction, 0, false);
+      MoveEntity(map, npc, npc.dir, 0, false);
+      npc.currentGoal := PointAt(SpriteX(npc.sprite) + Random(map.size), SpriteY(npc.sprite) + Random(map.size));
     end
     else
     begin
-      MoveEntity(map, npc, npc.direction, 1, false);
+      MoveEntity(map, npc, npc.dir, npc.moveSpeed, false);
     end;
+
     UpdateSprite(npc.sprite);
   end;
 
@@ -223,20 +277,6 @@ implementation
     end;
   end;
 
-  procedure RemoveNPC(deleteIndex: Integer; var npcs: EntityCollection);
-  var
-    i: Integer;
-  begin
-    for i := deleteIndex to High(npcs) do
-    begin
-      if i < High(npcs) then
-      begin
-        npcs[i] := npcs[i + 1];
-      end;
-    end;
-    SetLength(npcs, Length(npcs) - 1);
-  end;
-
   procedure UpdateNPCS(var map: MapData);
   var
     toRemove, i: Integer;
@@ -269,12 +309,12 @@ implementation
         if map.npcs[i].nextUpdate < 0 then
         begin
           map.npcs[i].nextUpdate := 1;
-          UpdateNPCAI(map, map.npcs[i]);
+          UpdateNPCAI(map, map.npcs[i], i, playerDist);
         end;
         // Check collision with the player
         if SpriteCollision(map.npcs[i].sprite, map.player.sprite) then
         begin
-          case map.player.direction of
+          case map.player.dir of
             DirUp: SpriteSetDY(map.player.sprite, 2);
             DirRight: SpriteSetDX(map.player.sprite, -2);
             DirDown: SpriteSetDY(map.player.sprite, -2);
@@ -286,10 +326,10 @@ implementation
         begin
 
           //
-          //  Uses a collision rectangle placed 16px in front of whatever direction
+          //  Uses a collision rectangle placed 16px in front of whatever dir
           //  the player is facing
           //
-          case map.player.direction of
+          case map.player.dir of
             DirUp: attackRect := CreateRectangle(SpriteX(map.player.sprite), SpriteY(map.player.sprite) - 16, 28, 28);
             DirRight: attackRect := CreateRectangle(SpriteX(map.player.sprite) + 16, SpriteY(map.player.sprite), 28, 28);
             DirDown: attackRect := CreateRectangle(SpriteX(map.player.sprite), SpriteY(map.player.sprite) + 16, 28, 28);
@@ -303,6 +343,14 @@ implementation
             PlaySoundEffect(SoundEffectNamed('bunny'), 0.5);
             SpriteShowLayer(map.npcs[i].sprite, 'hurt');
             map.npcs[i].hp -= 10;
+            map.npcs[i].moveSpeed := 2;
+
+            case map.player.dir of
+              DirUp: map.npcs[i].currentGoal := PointAt(SpriteX(map.npcs[i].sprite), SpriteY(map.npcs[i].sprite) - map.size);
+              DirRight: map.npcs[i].currentGoal := PointAt(SpriteX(map.npcs[i].sprite) + map.size, SpriteY(map.npcs[i].sprite));
+              DirDown: map.npcs[i].currentGoal := PointAt(SpriteX(map.npcs[i].sprite), SpriteY(map.npcs[i].sprite) + map.size);
+              DirLeft: map.npcs[i].currentGoal := PointAt(SpriteX(map.npcs[i].sprite) - map.size, SpriteY(map.npcs[i].sprite));
+            end;
           end
         end
         else if (map.player.attackTimeout = 0) then

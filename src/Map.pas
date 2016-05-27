@@ -17,7 +17,7 @@ interface
 	type
 
 		//
-		//	Valid entity directions on the map. Used in movement and
+		//	Valid entity dirs on the map. Used in movement and
 		//	collision detection
 		//
 		Direction = (DirUp, DirRight, DirDown, DirLeft);
@@ -109,13 +109,14 @@ interface
 			id: String;
 			stuckCounter: Integer;
 			sprite: Sprite;
-			direction: Direction;
+			dir: Direction;
 			currentGoal: Point2D;
 			hp: Single;
 			hunger: Single;
 			nextUpdate: Single;
 			attackTimeout: Single;
 			maxAttackSpeed: Single;
+			moveSpeed: Integer;
 		end;
 
 		EntityCollection = array of Entity;
@@ -654,7 +655,7 @@ implementation
 		startY := tileY - 1;
 		finishY := tileY + 1;
 
-		// Change the values to scan depending on what direction the entity is facing
+		// Change the values to scan depending on what dir the entity is facing
 		case dir of
 			DirUp: y -= TILESIZE / 2;
 			DirRight: x += TILESIZE / 2;
@@ -667,7 +668,7 @@ implementation
 		tileY := Trunc(y / TILESIZE);
 
 		// Alter the start and finish positions of the three tiles to scan
-		// based on the direction the player is facing
+		// based on the dir the player is facing
 		if dir = DirUp then
 		begin
 			// Three tiles above
@@ -922,6 +923,7 @@ implementation
 	begin
 		newMap.tilesize := 32;
 		newMap.size := size;
+		newMap.onBoat := false;
 
 		// Only generate random map if player didn't choose a seed at the menu
 		if seed < 0 then

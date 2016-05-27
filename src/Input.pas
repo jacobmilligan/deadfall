@@ -41,10 +41,10 @@ interface
   	procedure SwitchAnimation(var sprite: Sprite; ani: String);
 
     //
-    //  Moves an entity around the passed in map in a given direction at a given speed.
+    //  Moves an entity around the passed in map in a given dir at a given speed.
     //  Updates sprite animations, velocity, and collision. If the speed is set to anything
     //  less thanzero, it will automatically play an idle animation based off the passed in
-    //  direction.
+    //  dir.
     //
     procedure MoveEntity(var map: MapData; var toMove: Entity; dir: Direction; speed: Single; pickup: Boolean; special: Boolean = false);
 
@@ -133,12 +133,12 @@ implementation
       velocity: Vector;
       hasCollision: Boolean;
     begin
-      toMove.direction := dir;
+      toMove.dir := dir;
       velocity.x := 0;
       velocity.y := 0;
 
       // If the player is actually moving, change their dX or dY depending on
-      // what direction they're facing
+      // what dir they're facing
       if speed > 0 then
       begin
         if dir = DirUp then
@@ -165,7 +165,7 @@ implementation
       else
       begin
         // The player isn't moving so reset their anim to idle
-        case toMove.direction of
+        case toMove.dir of
   				DirUp: SwitchAnimation(toMove.sprite, 'entity_up_idle');
   				DirRight: SwitchAnimation(toMove.sprite, 'entity_right_idle');
   				DirDown: SwitchAnimation(toMove.sprite, 'entity_down_idle');
