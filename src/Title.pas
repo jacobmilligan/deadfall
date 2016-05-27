@@ -40,6 +40,7 @@ implementation
 		result.previousItem := 0;
 	end;
 
+
 	function CreateInitMapUI(var map: MapData; var inputs: InputMap): UI;
 	begin
 		InitUI(result, 5, 'New Map');
