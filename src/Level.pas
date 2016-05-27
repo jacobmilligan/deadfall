@@ -106,6 +106,7 @@ implementation
 		newState.Draw := @LevelDraw;
 
 		// Generate a new map with the passed-in size
+		WriteLn(mapSettings.seed);
 		newState.map := GenerateNewMap(mapSettings.size, mapSettings.smoothness, mapSettings.maxHeight, mapSettings.seed);
 		newState.map.blank := false;
 		newState.map.maxSpawns := mapSettings.maxSpawns;

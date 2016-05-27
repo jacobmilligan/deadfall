@@ -205,7 +205,10 @@ implementation
   begin
     for i := deleteIndex to High(npcs) do
     begin
-      npcs[i] := npcs[i + 1];
+      if i < High(npcs) then
+      begin
+        npcs[i] := npcs[i + 1];
+      end;
     end;
     SetLength(npcs, Length(npcs) - 1);
   end;
@@ -222,8 +225,9 @@ implementation
     updateDist := ScreenWidth() * 3;
 
     //
-    // Iterate in reverse to allow for removal of items from the array
-    // without copying all items when removing.
+    //  Iterate in reverse to allow for removal of items from the array
+    //  while still looping as we can safely copy values already iterated due
+    //  to our finish condition being zero rather than High(map.npcs)
     //
     //  This also only updates the NPCs if they're close enough to the player
     //
