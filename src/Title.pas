@@ -84,7 +84,7 @@ implementation
 				end;
 			'Huge':
 				begin
-					map.maxSpawns := 200000;
+					map.maxSpawns := 100000;
 					map.size := 2049;
 				end;
 			end;

@@ -68,7 +68,7 @@ interface
 	function GetState(manager: StateArrayPtr; stateIndex: Integer): StatePtr;
 
 implementation
-	uses Title, Level, Menu, Game;
+	uses Title, Level, Menu, Game, NPC;
 
 	function GetState(manager: StateArrayPtr; stateIndex: Integer): StatePtr;
 	begin
@@ -112,6 +112,14 @@ implementation
 			begin
 				LevelInit(newActiveState, states[High(states)].map);
 				SetLength(states, 1);
+
+				SetMusicVolume(0.5);
+				FadeMusicIn(MusicNamed('main'), 1000);
+
+				CenterCameraOn(newActiveState.map.player.sprite, ScreenWidth() / 2, ScreenHeight() / 2);
+				SeedSpawns(newActiveState.map);
+
+
 				states[High(states)] := newActiveState;
 			end;
 

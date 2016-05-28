@@ -101,7 +101,6 @@ implementation
 		i, j: Integer;
 		spawnFound: Boolean;
 	begin
-		WriteLn(mapSettings.size, ', ', mapSettings.smoothness, ', ', mapSettings.maxHeight, ', ', mapSettings.seed);
 		// Assign functions for state
 		newState.HandleInput := @LevelHandleInput;
 		newState.Update := @LevelUpdate;
@@ -155,15 +154,12 @@ implementation
 		// Recursively call self with higher smoothness value if spawn not found
 		if not spawnFound then
 		begin
-			mapSettings.smoothness += 1;
+			ReleaseAllSprites();
+			mapSettings.smoothness += 5;
+			mapSettings.maxHeight += 2;
 			LevelInit(newState, mapSettings);
 		end;
 
-		CenterCameraOn(newState.map.player.sprite, ScreenWidth() / 2, ScreenHeight() / 2);
-		SeedSpawns(newState.map);
-
-		SetMusicVolume(0.5);
-		FadeMusicIn(MusicNamed('main'), 1000);
 	end;
 
 	procedure LevelHandleInput(var thisState: ActiveState; var inputs: InputMap);
@@ -228,7 +224,7 @@ implementation
 		end;
 
 		// Do attack calculations based on the players facing dir
-		if KeyTyped(inputs.Attack) then
+		if KeyTyped(inputs.Attack) and (not thisState.map.onBoat) then
 		begin
 			PlaySoundEffect(SoundEffectNamed('throw'), 0.5);
 			MoveEntity(thisState.map, thisState.map.player, thisState.map.player.dir, 0, isPickup, special);

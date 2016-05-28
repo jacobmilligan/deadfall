@@ -342,7 +342,7 @@ implementation
             PlaySoundEffect(SoundEffectNamed('punch'), 0.2);
             PlaySoundEffect(SoundEffectNamed('bunny'), 0.5);
             SpriteShowLayer(map.npcs[i].sprite, 'hurt');
-            map.npcs[i].hp -= 10;
+            map.npcs[i].hp -= 20;
             map.npcs[i].moveSpeed := 2;
 
             case map.player.dir of

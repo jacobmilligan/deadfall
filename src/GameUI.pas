@@ -454,7 +454,14 @@ implementation
 					currElement.numberData -= 1;
 					if currElement.numberData < 0 then
 					begin
-						ChangeUIData(currElement, -1);
+						if Length(currElement.data) > 1 then
+						begin
+							ChangeUIData(currElement, -1);
+						end
+						else
+						begin
+							currElement.numberData := 0;
+						end;
 					end;
 				end;
 			end;
