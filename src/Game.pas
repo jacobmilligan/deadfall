@@ -184,9 +184,9 @@ implementation
 
 	procedure GameInit(caption: String; width, height: Integer; var states: StateArray);
 	begin
-		OpenGraphicsWindow(caption, width, height);
-
 		LoadResources();
+
+		OpenGraphicsWindow(caption, width, height);
 
 		SetLength(states, 0);
 		StateChange(states, TitleState);

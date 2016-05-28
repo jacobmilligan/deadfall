@@ -732,7 +732,8 @@ implementation
 				// Entity has collided with another bitmap
 				if SpriteBitmapCollision(toCheck, map.tiles[i, j].bmp, i * TILESIZE, j * TILESIZE) then
 				begin
-					// Stop movement if the collided value is outside the map or isn't walkable
+					// 	Handles boat action. Changes collidable tile settings for the player based on boat
+					//	value
 					if map.onBoat and (SpriteName(toCheck) = 'player') then
 					begin
 						if map.tiles[i, j].flag = Water then
@@ -746,6 +747,7 @@ implementation
 					end
 					else
 					begin
+						// Stop movement if the collided value is outside the map or isn't walkable
 						if map.tiles[i, j].flag = Water then
 						begin
 							map.tiles[i, j].collidable := true;
@@ -794,7 +796,6 @@ implementation
 					end;
 					if IsInMap(map, i, j) and ( (map.tiles[i, j].flag = Water) or (map.tiles[i, j].flag = Sand) ) then
 					begin
-
 						if special and (SpriteName(toCheck) = 'player') then
 						begin
 							oldBoatValue := map.onBoat;

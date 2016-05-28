@@ -90,8 +90,12 @@ implementation
 			FadeMusicOut(1000);
 		end;
 
+		// Transition to title state - release all previously loaded sprites to allow
+		// names etc. to reset themselves
 		if newState = TitleState then
 		begin
+			ReleaseAllSprites();
+
 			TitleInit(newActiveState);
 
 			SetLength(states, 1);
