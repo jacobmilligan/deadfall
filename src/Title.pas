@@ -205,11 +205,11 @@ implementation
 		titleWidth: Single;
 	begin
 		titleTxt := 'Deadfall';
-		titleWidth := TextWidth(FontNamed('Vermin'), titleTxt) / 2;
+		titleWidth := (ScreenWidth() - TextWidth(FontNamed('Vermin'), titleTxt)) / 2;
 
 		DrawBitmap(BitmapNamed('title_back'), CameraX(), CameraY());
 		DrawUI(thisState.displayedUI);
-		DrawText(titleTxt, ColorYellow, FontNamed('Vermin'), (CameraX() + HorizontalCenter('ui_blue')) - (titleWidth / 4), CameraY() + 10);
+		DrawText(titleTxt, ColorYellow, FontNamed('Vermin'), CameraX() + titleWidth, CameraY() + 10);
 	end;
 
 end.

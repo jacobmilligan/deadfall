@@ -19,7 +19,7 @@ interface
 		//	All possible gamestates are set as an enum, used in choosing
 		//	which state to switch to
 		//
-		GameState = (TitleState, LevelState, MenuState, QuitState);
+		GameState = (TitleState, LevelState, MenuState, QuitState, GameOverState);
 
 		//
 		//	Each function pointer (input, update, draw) is called once per frame
@@ -76,6 +76,37 @@ implementation
 		result := @manager^[stateIndex];
 	end;
 
+	procedure DoGameOver();
+	var
+		timeout: Integer;
+		returnToTitle: Boolean;
+		dieStr, contStr: String;
+	begin
+		timeout := 0;
+		returnToTitle := false;
+		dieStr := 'You Died.';
+		contStr := 'Press any key to return to the title menu.';
+		PlayMusic(MusicNamed('over'));
+
+		repeat
+			ClearScreen(ColorBlack);
+			ProcessEvents();
+
+			if timeout > 50 then
+			begin
+				if AnyKeyPressed() or WindowCloseRequested() then
+				begin
+					returnToTitle := true;
+				end;
+			end;
+
+			DrawText(dieStr, ColorYellow, 'Vermin', CameraX() + ( (ScreenWidth() - TextWidth(FontNamed('Vermin'), dieStr)) / 2), CameraY() + 100);
+			DrawText(contStr, ColorYellow, 'PrStartSmall', CameraX() + ( (ScreenWidth() - TextWidth(FontNamed('PrStartSmall'), contStr)) / 2), CameraY() + 400);
+			RefreshScreen(60);
+			timeout += 1;
+		until returnToTitle;
+	end;
+
 	procedure StateChange(var states: StateArray; newState: GameState);
 	var
 		newActiveState: ActiveState;
@@ -88,6 +119,13 @@ implementation
 		if (newState = LevelState) and ( states[High(states)].stateName = TitleState ) then
 		begin
 			FadeMusicOut(1000);
+		end;
+
+		if (newState = GameOverState) then
+		begin
+			DoGameOver();
+			PlaySoundEffect(SoundEffectNamed('confirm'), 0.5);
+			newState := TitleState;
 		end;
 
 		// Transition to title state - release all previously loaded sprites to allow

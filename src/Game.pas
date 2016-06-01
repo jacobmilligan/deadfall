@@ -163,8 +163,10 @@ implementation
 		LoadBitmapNamed('empty bar', 'empty_bar.png');
 		LoadBitmapNamed('health bar', 'health_bar.png');
 		LoadBitmapNamed('dollars', 'dollars.png');
+		LoadBitmapNamed('dead_player', 'deadplayer.png');
 
 		LoadMusicNamed('baws', 'baws.wav');
+		LoadMusicNamed('over', 'over.wav');
 		LoadMusicNamed('main', 'main.wav');
 
 		LoadSoundEffectNamed('throw', 'throw.wav');
@@ -177,6 +179,8 @@ implementation
 		LoadSoundEffectNamed('deny', 'deny.wav');
 		LoadSoundEffectNamed('click', 'click.wav');
 		LoadSoundEffectNamed('confirm', 'confirm.wav');
+		LoadSoundEffectNamed('dying', 'dying.wav');
+		LoadSoundEffectNamed('dead', 'dead.wav');
 
 		LoadAnimationScriptNamed('player', 'playerAnim.txt');
 		LoadResourceBundle('md.txt');

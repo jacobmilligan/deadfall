@@ -119,12 +119,14 @@ implementation
 		newState.map.player.id := 'Player';
 		newState.map.player.dir := DirDown;
 		newState.map.player.moveSpeed := 3;
+		newState.map.player.hpSoundTicks := 0;
 
 		newState.map.inventory := InitInventory();
 
 		// Setup player sprite and animation
 		newState.map.player.sprite := CreateSprite('player', BitmapNamed('player'), AnimationScriptNamed('player'));
 		SpriteAddLayer(newState.map.player.sprite, BitmapNamed('player_boat'), 'boat');
+		SpriteAddLayer(newState.map.player.sprite, BitmapNamed('dead_player'), 'dead');
 		SwitchAnimation(newState.map.player.sprite, 'entity_down_idle');
 
 		//
@@ -311,8 +313,10 @@ implementation
 
 	procedure LevelUpdate(var thisState: ActiveState);
 	var
-		i: Integer;
+		timeout, i: Integer;
 	begin
+		timeout := 0;
+
 		if thisState.map.player.attackTimeout > 0 then
 		begin
 			thisState.map.player.attackTimeout -= 1;
@@ -324,19 +328,34 @@ implementation
 		UpdateSprite(thisState.map.player.sprite);
 
 		// Decreases the players hunger and hp each tick
-		thisState.map.player.hunger -= 0.02;
+		thisState.map.player.hunger -= 1;
 		if thisState.map.player.hunger < 0 then
 		begin
 			thisState.map.player.hunger := 0;
-			thisState.map.player.hp -= 0.05;
+			thisState.map.player.hp -= 1;
+			thisState.map.player.hpSoundTicks += 1;
+			if (thisState.map.player.hp < 50) and (thisState.map.player.hpSoundTicks > 50) then
+			begin
+				thisState.map.player.hpSoundTicks := 0;
+				PlaySoundEffect(SoundEffectNamed('dying'), 0.5);
+			end;
 		end;
 
 		// Kill the player
 		if thisState.map.player.hp <= 0 then
 		begin
 			thisState.map.player.hp := 0;
-			PlaySoundEffect(SoundEffectNamed('confirm'), 0.5);
-			StateChange(thisState.manager^, TitleState);
+			StopMusic();
+			PlaySoundEffect(SoundEffectNamed('dead'), 0.5);
+
+			repeat
+				timeout += 1;
+				ClearScreen(ColorBlack);
+				DrawBitmap(BitmapNamed('dead_player'), SpriteX(thisState.map.player.sprite), SpriteY(thisState.map.player.sprite));
+				RefreshScreen(60);
+			until timeout > 100;
+
+			StateChange(thisState.manager^, GameOverState);
 		end;
 
 		UpdateListings(thisState.map.inventory.items, thisState.map.inventory.dollars);

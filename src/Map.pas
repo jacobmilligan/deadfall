@@ -112,6 +112,7 @@ interface
 			dir: Direction;
 			currentGoal: Point2D;
 			hp: Single;
+			hpSoundTicks: Integer;
 			hunger: Single;
 			nextUpdate: Single;
 			attackTimeout: Single;
