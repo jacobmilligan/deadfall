@@ -161,7 +161,7 @@ implementation
 			mapSettings.maxHeight += 2;
 			LevelInit(newState, mapSettings);
 		end;
-
+		
 	end;
 
 	procedure LevelHandleInput(var thisState: ActiveState; var inputs: InputMap);
