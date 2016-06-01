@@ -200,7 +200,7 @@ implementation
 				ReduceItemCount(currItem^);
 			end;
 		end
-		else if KeyTyped(inputs.Special) and ( thisState.displayedUI.name = 'Inventory' ) then
+		else if KeyTyped(inputs.Action) and ( thisState.displayedUI.name = 'Inventory' ) then
 		begin
 			BuyItem(currItem^, lastLevelState^.map.inventory.dollars);
 		end

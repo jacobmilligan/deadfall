@@ -21,7 +21,7 @@ interface
       //  Is set to default keys in GameInit() using SetDefaultInput()
       //
       InputMap = record
-          MoveUp, MoveRight, MoveDown, MoveLeft, Attack, Special, Menu, Select, Action: KeyCode;
+          MoveUp, MoveRight, MoveDown, MoveLeft, Attack, Sprint, Menu, Select, Action: KeyCode;
       end;
 
     //
@@ -95,7 +95,7 @@ implementation
         'Attack': inputs.Attack := newKey;
         'Menu': inputs.Menu := newKey;
         'Select': inputs.Select := newKey;
-        'Special': inputs.Special := newKey;
+        'Sprint': inputs.Sprint := newKey;
         'Action': inputs.Action := newKey;
       end;
 
@@ -115,7 +115,7 @@ implementation
         inputs.Attack := XKey;
         inputs.Menu := EscapeKey;
         inputs.Select := SpaceKey;
-        inputs.Special := LeftShiftKey;
+        inputs.Sprint := LeftShiftKey;
         inputs.Action := ZKey;
     end;
 

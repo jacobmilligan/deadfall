@@ -194,7 +194,7 @@ implementation
 		begin
 			thisState.map.player.moveSpeed := 3;
 
-			if KeyDown(inputs.Special) then
+			if KeyDown(inputs.Sprint) then
 			begin
 				thisState.map.player.moveSpeed := 6;
 			end;
@@ -328,11 +328,11 @@ implementation
 		UpdateSprite(thisState.map.player.sprite);
 
 		// Decreases the players hunger and hp each tick
-		thisState.map.player.hunger -= 1;
+		thisState.map.player.hunger -= 0.02;
 		if thisState.map.player.hunger < 0 then
 		begin
 			thisState.map.player.hunger := 0;
-			thisState.map.player.hp -= 1;
+			thisState.map.player.hp -= 0.05;
 			thisState.map.player.hpSoundTicks += 1;
 			if (thisState.map.player.hp < 50) and (thisState.map.player.hpSoundTicks > 50) then
 			begin

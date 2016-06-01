@@ -193,7 +193,7 @@ implementation
 		controlStr: String;
 		negCenter, posCenter: Single;
 	begin
-		InitUI(result, 8, 'Controls');
+		InitUI(result, 9, 'Controls');
 		negCenter := HorizontalCenter('ui_blue') - (BitmapWidth(BitmapNamed('ui_blue')) / 2);
 		posCenter := HorizontalCenter('ui_blue') + (BitmapWidth(BitmapNamed('ui_blue')) / 2);
 
@@ -216,19 +216,23 @@ implementation
 
 		WriteStr(controlStr, inputs.Attack);
 		controlStr := StringReplace(controlStr, 'Key', ' Key' ,[rfReplaceAll]); // Isolate the name of the KeyCode
-		result.items[4] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), posCenter, 150, 'Attack: ' + controlStr, 'PrStartSmall');
+		result.items[4] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), posCenter, 85, 'Attack: ' + controlStr, 'PrStartSmall');
 
-		WriteStr(controlStr, inputs.Special);
+		WriteStr(controlStr, inputs.Sprint);
 		controlStr := StringReplace(controlStr, 'Key', ' Key' ,[rfReplaceAll]); // Isolate the name of the KeyCode
-		result.items[5] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), posCenter, 250, 'Special: ' + controlStr, 'PrStartSmall');
+		result.items[5] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), posCenter, 185, 'Sprint: ' + controlStr, 'PrStartSmall');
+
+		WriteStr(controlStr, inputs.Action);
+		controlStr := StringReplace(controlStr, 'Key', ' Key' ,[rfReplaceAll]); // Isolate the name of the KeyCode
+		result.items[6] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), posCenter, 285, 'Action: ' + controlStr, 'PrStartSmall');
 
 		WriteStr(controlStr, inputs.Select);
 		controlStr := StringReplace(controlStr, 'Key', ' Key' ,[rfReplaceAll]); // Isolate the name of the KeyCode
-		result.items[6] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), posCenter, 350, 'Select: ' + controlStr, 'PrStartSmall');
+		result.items[7] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), posCenter, 385, 'Select: ' + controlStr, 'PrStartSmall');
 
 		WriteStr(controlStr, inputs.Menu);
 		controlStr := StringReplace(controlStr, 'Key', ' Key' ,[rfReplaceAll]);
-		result.items[7] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), posCenter, 450, 'Menu: ' + controlStr, 'PrStartSmall');
+		result.items[8] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), posCenter, 485, 'Menu: ' + controlStr, 'PrStartSmall');
 
 		result.currentItem := 0;
 		result.previousItem := 0;
@@ -571,7 +575,7 @@ implementation
 		begin
 			// Print control instructions
 			DrawText('Select - Eat Item | Attack - List Item on eBay', ColorWhite, 'PrStartSmall', CameraX(), CameraY() + 10);
-			DrawText('Special - Buy item at current market price', ColorWhite, 'PrStartSmall', CameraX(), CameraY() + 25);
+			DrawText('Action - Buy item at current market price', ColorWhite, 'PrStartSmall', CameraX(), CameraY() + 25);
 		end;
 
 	end;
