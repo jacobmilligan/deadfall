@@ -29,12 +29,11 @@ implementation
 
 	function CreateTitleUI(var map: MapData; var inputs: InputMap): UI;
 	begin
-		InitUI(result, 4, 'Title');
+		InitUI(result, 3, 'Title');
 
 		result.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 150, 'New Map', 'PrStartSmall');
-		result.items[1] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 260, 'Load Map', 'PrStartSmall');
-		result.items[2] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 370, 'Settings', 'PrStartSmall');
-		result.items[3] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 480, 'Quit', 'PrStartSmall');
+		result.items[1] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 290, 'Settings', 'PrStartSmall');
+		result.items[2] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 430, 'Quit', 'PrStartSmall');
 
 		result.currentItem := 0;
 		result.previousItem := 0;
