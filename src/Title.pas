@@ -14,14 +14,29 @@ unit Title;
 interface
   uses State, Game, Input, GameUI, Map;
 
+  //
+  //  Initializes the title state alongside BG music
+  //
   procedure TitleInit(var newState: ActiveState);
 
+  //
+  //  Handle moving between title menu screens.
+  //
   procedure TitleHandleInput(var thisState: ActiveState; var inputs: InputMap);
 
+  //
+  //
+  //
   procedure TitleUpdate(var thisState: ActiveState);
 
+  //
+  //
+  //
   procedure TitleDraw(var thisState: ActiveState);
 
+  //
+  //
+  //
   function CreateTitleUI(var map: MapData; var inputs: InputMap): UI;
 
 implementation

@@ -105,9 +105,7 @@ implementation
 
 		i := bottom + 1;
 
-		// Use a while loop to ensure the user can cancel the algorithm
-		// and exit the window at any time
-		while ( i <= top ) and ( not WindowCloseRequested() ) do
+		while i <= top do
 		begin
 			if inventory[i].name < pivot then
 			begin
@@ -142,6 +140,7 @@ implementation
 
 	procedure LoadResources();
 	begin
+		// Bitmaps
 		LoadBitmapNamed('water', 'water.png');
 		LoadBitmapNamed('dark water', 'dark_water.png');
 		LoadBitmapNamed('dirt', 'dirt.png');
@@ -165,10 +164,12 @@ implementation
 		LoadBitmapNamed('dollars', 'dollars.png');
 		LoadBitmapNamed('dead_player', 'deadplayer.png');
 
+		// Music
 		LoadMusicNamed('baws', 'baws.wav');
 		LoadMusicNamed('over', 'over.wav');
 		LoadMusicNamed('main', 'main.wav');
 
+		// Sounds
 		LoadSoundEffectNamed('throw', 'throw.wav');
 		LoadSoundEffectNamed('sell', 'sell.wav');
 		LoadSoundEffectNamed('buy', 'buy.wav');

@@ -199,6 +199,7 @@ implementation
 				thisState.map.player.moveSpeed := 6;
 			end;
 
+			// Handle 4-directional movement
 			if KeyDown(inputs.MoveUp) then
 			begin
 				MoveEntity(thisState.map, thisState.map.player, DirUp, thisState.map.player.moveSpeed, isPickup, special);
@@ -230,6 +231,7 @@ implementation
 		begin
 			PlaySoundEffect(SoundEffectNamed('throw'), 0.5);
 			MoveEntity(thisState.map, thisState.map.player, thisState.map.player.dir, 0, isPickup, special);
+			// Switch animation based on direction
 			case thisState.map.player.dir of
 				DirUp: SwitchAnimation(thisState.map.player.sprite, 'entity_up_attack');
 				DirRight: SwitchAnimation(thisState.map.player.sprite, 'entity_right_attack');
@@ -262,7 +264,7 @@ implementation
 				items[i].deltaDollarValue := items[i].adjustedDollarValue - deltaDollarValue;
 			end;
 
-			//
+			// Listed amt is always 1 or greater for calculations
 			if items[i].listed = 0 then
 			begin
 				listedAmt := 1;
@@ -334,6 +336,7 @@ implementation
 			thisState.map.player.hunger := 0;
 			thisState.map.player.hp -= 0.05;
 			thisState.map.player.hpSoundTicks += 1;
+			// Play low health sound
 			if (thisState.map.player.hp < 50) and (thisState.map.player.hpSoundTicks > 10) then
 			begin
 				thisState.map.player.hpSoundTicks := 0;
@@ -348,6 +351,7 @@ implementation
 			StopMusic();
 			PlaySoundEffect(SoundEffectNamed('dead'), 0.5);
 
+			// Show the dead player surrounded by black for 100 frames
 			repeat
 				timeout += 1;
 				ClearScreen(ColorBlack);

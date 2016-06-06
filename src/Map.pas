@@ -797,11 +797,13 @@ implementation
 							SetFeature(map.tiles[i, j], NoFeature, false);
 						end;
 					end;
+					// Handle reset of collision tiles between boat/not boat
 					if IsInMap(map, i, j) and ( (map.tiles[i, j].flag = Water) or (map.tiles[i, j].flag = Sand) ) then
 					begin
+						// Change collision tiles if action is pressed
 						if special and (SpriteName(toCheck) = 'player') then
 						begin
-							oldBoatValue := map.onBoat;
+							oldBoatValue := map.onBoat; // Used to predict the new boat value
 
 							if map.tiles[i, j].flag = Sand then
 							begin
@@ -812,6 +814,8 @@ implementation
 								map.onBoat := true;
 							end;
 
+							// Only reset players collision if the tile is different, otherwise the player
+							// would reset their position everytime action is pressed
 							if oldBoatValue <> map.onBoat then
 							begin
 								SpriteSetDX(toCheck, 0);
@@ -820,6 +824,7 @@ implementation
 								SpriteSetY(toCheck, j * 32);
 							end;
 
+							// Change boat animation depending on onBoat value
 							if map.onBoat then
 							begin
 								SpriteShowLayer(toCheck, 'boat');
@@ -944,18 +949,18 @@ implementation
 		if ( (size - 1) mod 2 = 0 ) then
 		begin
 
+			// Do initialization of grid and generate heightmap
 			ClearScreen(ColorBlack);
 			DrawText('Generating Heightmap', ColorWhite, 300, 200);
 			RefreshScreen(60);
-
 			SetLength(newMap.npcs, 0);
 			SetGridLength(newMap.tiles, size);
 			GetHeightMap(newMap, maxHeight, smoothness);
 
+			// Generate terrain and seed features
 			ClearScreen(ColorBlack);
 			DrawText('Generating Terrain', ColorWhite, 300, 200);
 			RefreshScreen(60);
-
 			GenerateTerrain(newMap);
 			SeedFeatures(newMap);
 		end

@@ -63,8 +63,19 @@ interface
 
 		StateArrayPtr = ^StateArray;
 
+	//
+	//	Used to switch to a new game screen/state. This must be the last procedure called
+	//	in a given code block otherwise the game will try to access an out-of-scope code block
+	//	(the block calling StateChange()).
+	//
+	//	Also defines all valid transitions between different states.
+	//
 	procedure StateChange(var states: StateArray; newState: GameState);
 
+	//
+	//	Returns a state in the state manager array at a given negative offset from the
+	//	calling state.
+	//
 	function GetState(manager: StateArrayPtr; stateIndex: Integer): StatePtr;
 
 implementation
@@ -76,6 +87,8 @@ implementation
 		result := @manager^[stateIndex];
 	end;
 
+	// Executes the game over sequence, displaying the 'You Died.' screen until
+	// the player presses a button
 	procedure DoGameOver();
 	var
 		timeout: Integer;
@@ -88,10 +101,13 @@ implementation
 		contStr := 'Press any key to return to the title menu.';
 		PlayMusic(MusicNamed('over'));
 
+		// Show title until keypress
 		repeat
 			ClearScreen(ColorBlack);
 			ProcessEvents();
 
+			// Put a timeout so that if the player dies while pressing a key, they
+			// won't accidentally skip the game over screen
 			if timeout > 50 then
 			begin
 				if AnyKeyPressed() or WindowCloseRequested() then
@@ -100,7 +116,9 @@ implementation
 				end;
 			end;
 
+			// Draw 'You died.'
 			DrawText(dieStr, ColorYellow, 'Vermin', CameraX() + ( (ScreenWidth() - TextWidth(FontNamed('Vermin'), dieStr)) / 2), CameraY() + 100);
+			// Draw 'Press any key...'
 			DrawText(contStr, ColorYellow, 'PrStartSmall', CameraX() + ( (ScreenWidth() - TextWidth(FontNamed('PrStartSmall'), contStr)) / 2), CameraY() + 400);
 			RefreshScreen(60);
 			timeout += 1;
@@ -116,11 +134,13 @@ implementation
 		newActiveState.manager := @states;
 		newActiveState.quitRequested := false;
 
+		// Title to level transition
 		if (newState = LevelState) and ( states[High(states)].stateName = TitleState ) then
 		begin
 			FadeMusicOut(1000);
 		end;
 
+		// Any state to game over transition
 		if (newState = GameOverState) then
 		begin
 			DoGameOver();
@@ -141,13 +161,14 @@ implementation
 		end
 		else if newState = LevelState then
 		begin
-
+			// Transition from menu to level
 			if (Length(states) > 0) and (states[High(states)].stateName = MenuState) then
 			begin
 				SetLength(states, 1);
 			end
 			else
 			begin
+				// Transition from any other state to level
 				LevelInit(newActiveState, states[High(states)].map);
 				SetLength(states, 1);
 
@@ -164,6 +185,7 @@ implementation
 		end
 		else if newState = MenuState then
 		begin
+			// Menu state generic transition
 			MenuInit(newActiveState);
 
 			SetLength(states, Length(states) + 1);
@@ -171,6 +193,7 @@ implementation
 		end
 		else if newState = QuitState then
 		begin
+			// Generic quit transition
 			FadeMusicOut(800);
 			states[High(states)].quitRequested := true;
 		end

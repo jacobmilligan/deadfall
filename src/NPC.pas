@@ -46,6 +46,9 @@ interface
   //
   procedure UpdateNPCAI(var map: MapData; var npc: Entity; npcIndex: Integer; const playerDistance: Single);
 
+  //
+  //  Turns the entity in the opposite direction to what it's currently facing
+  //
   procedure TurnAround(var toTurn: Entity);
 
 implementation
@@ -64,6 +67,7 @@ implementation
       newNPC.sprite := CreateSprite(BitmapNamed('bunny'), AnimationScriptNamed('player'));
       SpriteAddLayer(newNPC.sprite, BitmapNamed('bunny_hurt'), 'hurt');
 
+      // Setup default NPC stats
       newNPC.dir := DirDown;
       newNPC.nextUpdate := 1;
       newNPC.hp := 100;
@@ -72,9 +76,11 @@ implementation
       newNPC.moveSpeed := 1;
       newNPC.attackTimeout := 0;
 
+      // Spawn in the NPC at the random position
       SpriteSetPosition(newNPC.sprite, PointAt(x, y));
       SwitchAnimation(newNPC.sprite, 'entity_down_idle');
 
+      // Give it a new goal to head towards
       newGoal := PointAt(SpriteX(newNPC.sprite) + Random(map.size), SpriteY(newNPC.sprite) + Random(map.size));
       newNPC.currentGoal := newGoal;
 
@@ -83,6 +89,10 @@ implementation
     end;
   end;
 
+  //
+  //  Removes an NPC from the NPC array by copying all higher elements
+  //  to one element lower
+  //
   procedure RemoveNPC(deleteIndex: Integer; var npcs: EntityCollection);
   var
     i: Integer;
@@ -102,6 +112,9 @@ implementation
     newDir: Direction;
     newDirIndex: Integer;
   begin
+    // As directions are clockwise from up, right, down, left in the dir enum
+    // you can face the opposite direction by incrementing 2 and wrapping if
+    // higher than High(direction)
     newDirIndex := Integer(toTurn.dir);
     newDirIndex += 2;
     if newDirIndex > Integer( High(Direction) ) then
@@ -173,6 +186,7 @@ implementation
           currentPath := PointPointDistance(PointAt(i * 32, j * 32), npc.currentGoal);
           CheckCollision(map, npc.sprite, GetDir(localX, localY), hasCollision, false);
 
+          // Check if the current direction is a better path than the current one
           if (hasCollision = false) and (currentPath < newPath.cost) then
           begin
             newPath.dir := GetDir(localX, localY);
@@ -180,6 +194,7 @@ implementation
             collidableCount -= 1;
           end;
 
+          // The NPC may be stuck if there are collisions in the best path, increase stuckCounter
           if hasCollision then
           begin
             npc.stuckCounter += 1;
@@ -193,16 +208,19 @@ implementation
       localX += 1;
     end;
 
+    // Check if NPC is at the end of an alleyway
     if collidableCount > 3 then
     begin
       TurnAround(npc);
       MoveEntity(map, npc, npc.dir, 2, false);
     end;
 
+    // Check if NPC is stuck
     if npc.stuckCounter > 0 then
     begin
       TurnAround(npc);
       MoveEntity(map, npc, npc.dir, 2, false);
+      // Give NPC a new random goal
       npc.currentGoal := PointAt(SpriteX(npc.sprite) - Random(map.size), SpriteY(npc.sprite) - Random(map.size));
       npc.stuckCounter := 0;
     end;
@@ -216,6 +234,7 @@ implementation
     canMove: Boolean;
     playerPos, npcPos: Point2D;
   begin
+    // Reset NPC's move speed if they've been punched and outrun the player
     if npc.moveSpeed > 1 then
     begin
       if playerDistance > map.size then
@@ -226,6 +245,7 @@ implementation
 
     FindOpenPath(map, npc, npcIndex);
 
+    // Reset to new goal if the NPC reached its goal
     if PointPointDistance(npc.currentGoal, PointAt(SpriteX(npc.sprite), SpriteY(npc.sprite))) <= 64 then
     begin
       MoveEntity(map, npc, npc.dir, 0, false);
@@ -249,6 +269,7 @@ implementation
 
       for y := 0 to High(map.tiles) do
       begin
+        // Spawn in a bunch of NPC's
         if not (map.tiles[x, y].collidable) and (Random(1000) > 995) and (Length(map.npcs) < map.maxSpawns) then
         begin
           SpawnNPC(map, x * 32, y * 32);
@@ -262,9 +283,10 @@ implementation
   var
     x, y: LongInt;
   begin
-    //Randomize;
+
     x := Random( Length(map.tiles) - 1 );
     y := Random( Length(map.tiles) - 1 );
+    // Keep finding spawns until an appropriate one is found
     while (map.tiles[x, y].collidable) or (map.tiles[x, y].flag = Water) do
     begin
       x := Random( Length(map.tiles) - 1 );

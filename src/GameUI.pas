@@ -194,42 +194,52 @@ implementation
 		negCenter, posCenter: Single;
 	begin
 		InitUI(result, 9, 'Controls');
+		// negCenter and posCenter represent left and right sides of the center of the screen
 		negCenter := HorizontalCenter('ui_blue') - (BitmapWidth(BitmapNamed('ui_blue')) / 2);
 		posCenter := HorizontalCenter('ui_blue') + (BitmapWidth(BitmapNamed('ui_blue')) / 2);
 
 		// Write the enum name directly to a string rather than using GetEnumName() because weird swingame KeyCode ordering
+		// MoveUp
 		WriteStr(controlStr, inputs.MoveUp);
 		controlStr := StringReplace(controlStr, 'Key', ' Key' ,[rfReplaceAll]); // Isolate the name of the KeyCode
 		result.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), negCenter, 150, 'Move Up: ' + controlStr, 'PrStartSmall');
 
+		// MoveRight
 		WriteStr(controlStr, inputs.MoveRight);
 		controlStr := StringReplace(controlStr, 'Key', ' Key' ,[rfReplaceAll]); // Isolate the name of the KeyCode
 		result.items[1] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), negCenter, 250, 'Move Right: ' + controlStr, 'PrStartSmall');
 
+		// MoveDown
 		WriteStr(controlStr, inputs.MoveDown);
 		controlStr := StringReplace(controlStr, 'Key', ' Key' ,[rfReplaceAll]); // Isolate the name of the KeyCode
 		result.items[2] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), negCenter, 350, 'Move Down: ' + controlStr, 'PrStartSmall');
 
+		// MoveLeft
 		WriteStr(controlStr, inputs.MoveLeft);
 		controlStr := StringReplace(controlStr, 'Key', ' Key' ,[rfReplaceAll]); // Isolate the name of the KeyCode
 		result.items[3] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), negCenter, 450, 'Move Left: ' + controlStr, 'PrStartSmall');
 
+		// Attack
 		WriteStr(controlStr, inputs.Attack);
 		controlStr := StringReplace(controlStr, 'Key', ' Key' ,[rfReplaceAll]); // Isolate the name of the KeyCode
 		result.items[4] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), posCenter, 85, 'Attack: ' + controlStr, 'PrStartSmall');
 
+		// Sprint
 		WriteStr(controlStr, inputs.Sprint);
 		controlStr := StringReplace(controlStr, 'Key', ' Key' ,[rfReplaceAll]); // Isolate the name of the KeyCode
 		result.items[5] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), posCenter, 185, 'Sprint: ' + controlStr, 'PrStartSmall');
 
+		// Action
 		WriteStr(controlStr, inputs.Action);
 		controlStr := StringReplace(controlStr, 'Key', ' Key' ,[rfReplaceAll]); // Isolate the name of the KeyCode
 		result.items[6] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), posCenter, 285, 'Action: ' + controlStr, 'PrStartSmall');
 
+		// Select
 		WriteStr(controlStr, inputs.Select);
 		controlStr := StringReplace(controlStr, 'Key', ' Key' ,[rfReplaceAll]); // Isolate the name of the KeyCode
 		result.items[7] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), posCenter, 385, 'Select: ' + controlStr, 'PrStartSmall');
 
+		// Menu
 		WriteStr(controlStr, inputs.Menu);
 		controlStr := StringReplace(controlStr, 'Key', ' Key' ,[rfReplaceAll]);
 		result.items[8] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), posCenter, 485, 'Menu: ' + controlStr, 'PrStartSmall');
@@ -349,6 +359,7 @@ implementation
 		begin
 			itemToReduce.attachedInventory^.count := 0;
 		end;
+		// Reset item id to contain for sale and listed amounts
 		itemToReduce.id := 	itemToReduce.attachedInventory^.name + ' (Stocked: ' + IntToStr(itemToReduce.attachedInventory^.count) +
 								', For Sale: ' + IntToStr(itemToReduce.attachedInventory^.listed) + ')';
 	end;
@@ -361,6 +372,7 @@ implementation
 			PlaySoundEffect(SoundEffectNamed('buy'), 0.5);
 			itemToBuy.attachedInventory^.count += 1;
 			dollars -= itemToBuy.attachedInventory^.adjustedDollarValue;
+			// Reset item id to contain for sale and listed amounts
 			itemToBuy.id := 	itemToBuy.attachedInventory^.name + ' (Stocked: ' + IntToStr(itemToBuy.attachedInventory^.count) +
 									', For Sale: ' + IntToStr(itemToBuy.attachedInventory^.listed) + ')';
 		end
@@ -446,7 +458,7 @@ implementation
 				end;
 			end;
 			// 	If current element is number data update the numberData record
-			//	member instead of the data array
+			//	member which contains numbers instead of the data array which contains strings
 			if currElement.data[currElement.currData] = NUMBER_DATA then
 			begin
 				if KeyDown(inputs.MoveRight) then
