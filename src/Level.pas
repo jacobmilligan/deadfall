@@ -334,7 +334,7 @@ implementation
 			thisState.map.player.hunger := 0;
 			thisState.map.player.hp -= 0.05;
 			thisState.map.player.hpSoundTicks += 1;
-			if (thisState.map.player.hp < 50) and (thisState.map.player.hpSoundTicks > 50) then
+			if (thisState.map.player.hp < 50) and (thisState.map.player.hpSoundTicks > 10) then
 			begin
 				thisState.map.player.hpSoundTicks := 0;
 				PlaySoundEffect(SoundEffectNamed('dying'), 0.5);
