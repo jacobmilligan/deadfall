@@ -25,17 +25,17 @@ interface
   procedure TitleHandleInput(var thisState: ActiveState; var inputs: InputMap);
 
   //
-  //
+  //  Updates the titles attached UI at each game tick
   //
   procedure TitleUpdate(var thisState: ActiveState);
 
   //
-  //
+  //  Draws the title screen and its attached UI at each tick
   //
   procedure TitleDraw(var thisState: ActiveState);
 
   //
-  //
+  //  Initializes the title screens UIElements
   //
   function CreateTitleUI(var map: MapData; var inputs: InputMap): UI;
 
@@ -54,7 +54,9 @@ implementation
 		result.previousItem := 0;
 	end;
 
-
+  //
+  //  Initializes the map UI screen with generation options
+  //
 	function CreateInitMapUI(var map: MapData; var inputs: InputMap): UI;
 	begin
 		InitUI(result, 5, 'New Map');
@@ -78,8 +80,13 @@ implementation
 		result.previousUI := @CreateTitleUI;
 	end;
 
+  //
+  //  Alters the new maps spawn and size settings dependant on the choice made
+  //  by the player on the title screen
+  //
 	procedure ChangeSizeSettings(var elem: UIElement; var map: MapData);
 	begin
+    // Check current elements size string
 		case elem.data[elem.currData] of
 			'Small':
 				begin
@@ -104,6 +111,10 @@ implementation
 			end;
 	end;
 
+  //
+  //  Iterate UIElements in map options and alter the current maps settings
+  //  for each elements chosen setting
+  //
 	procedure ChangeMapSettings(var mapUI: UI; var map: MapData);
 	var
 		i: Integer;
@@ -116,6 +127,7 @@ implementation
 				'Smoothness': map.smoothness := mapUI.items[i].numberData;
 				'Seed':
 					begin
+            // Reset seed when Random is chosen
 						if mapUI.items[i].data[mapUI.items[i].currData] = 'Random' then
 						begin
 							mapUI.items[i].numberData := -1;
@@ -138,6 +150,7 @@ implementation
 
 		newState.displayedUI := CreateTitleUI(newState.map, tempInputs);
 
+    // BG Music
 		SetMusicVolume(1);
 		PlayMusic(MusicNamed('baws'));
 	end;
@@ -147,11 +160,11 @@ implementation
 	var
 		i: Integer;
 	begin
-
 		if ( KeyTyped(inputs.Select) ) and ( thisState.displayedUI.name = 'Controls' ) then
 		begin
 			PlaySoundEffect(SoundEffectNamed('confirm'), 0.8);
 			Delay(50);
+      // Handles changing controls in the menu, loop until user presses new key
 			while not AnyKeyPressed() do
 			begin
 				ProcessEvents();
@@ -165,9 +178,12 @@ implementation
 		end;
 
 		UINavigate(thisState.displayedUI, inputs, thisState.map);
+
+    // Alters the next UI element depending on the current highlighted UIElement on the main title screen
 		if KeyTyped(inputs.Select) and ( thisState.displayedUI.name = 'Title' ) then
 		begin
 			PlaySoundEffect(SoundEffectNamed('confirm'), 0.5);
+      // Choose the next UI element
 			case UISelectedID(thisState.displayedUI) of
 				'Quit': StateChange(thisState.manager^, QuitState);
 				'New Map':
@@ -188,6 +204,7 @@ implementation
 			end;
 		end;
 
+    // Change the next UI element for different settings UIElements
 		if thisState.displayedUI.name = 'Settings' then
 		begin
 			thisState.displayedUI.previousUI := @CreateTitleUI;
@@ -196,6 +213,7 @@ implementation
 			end;
 		end;
 
+    // Change the next UI element for different new map UIElements
 		if thisState.displayedUI.name = 'New Map' then
 		begin
 			UpdateUIData(inputs, thisState.displayedUI.items[thisState.displayedUI.currentItem], thisState.map);
