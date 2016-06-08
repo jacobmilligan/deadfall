@@ -129,6 +129,7 @@ interface
 			tiles: TileGrid;
 			player: Entity;
 			inventory: InventoryCollection;
+			collidableCount: Integer;
 			npcs: EntityCollection;
 			blank, onBoat: Boolean;
 			size, smoothness, maxHeight, seed, maxSpawns, tilesize, playerIndicator: Integer;
@@ -154,7 +155,7 @@ interface
 	//	(for details, see: Computer Rendering of Stochastic Models - Alain Fournier et. al.).
 	//	This heightmap data gets used later on to generate terrain realistically
 	//
-	function GenerateNewMap(size, smoothness, maxHeight: Integer; seed: Integer): MapData;
+	function GenerateNewMap(size, smoothness, maxHeight, maxSpawns: Integer; seed: Integer): MapData;
 
 	//
 	//	Checks if a given entity is about to collide with anything on the
@@ -468,6 +469,10 @@ implementation
 					map.tiles[x, 0].isOcean := false;
 				end;
 
+				if map.tiles[x, y].collidable then
+				begin
+					map.collidableCount += 1;
+				end;
 			end;
 		end;
 	end;
@@ -926,14 +931,16 @@ implementation
 		end;
 	end;
 
-	function GenerateNewMap(size, smoothness, maxHeight: Integer; seed: Integer): MapData;
+	function GenerateNewMap(size, smoothness, maxHeight, maxSpawns: Integer; seed: Integer): MapData;
 	var
 		newMap: MapData;
 		x, y: Integer;
+		normalizedSpawns: Integer;
 	begin
 		newMap.tilesize := 32;
 		newMap.size := size;
 		newMap.onBoat := false;
+		newMap.collidableCount := 0;
 
 		// Only generate random map if player didn't choose a seed at the menu
 		if seed < 0 then
@@ -963,6 +970,17 @@ implementation
 			DrawText('Generating Terrain', ColorWhite, 300, 200);
 			RefreshScreen(60);
 			GenerateTerrain(newMap);
+
+			// Normalize maximum spawns so that they're a function of the amount of
+			// land space available and NPC's don't clog the map up
+			normalizedSpawns := Round(maxSpawns / (newMap.collidableCount * 0.001));
+			normalizedSpawns := normalizedSpawns * normalizedSpawns;
+			if maxSpawns > 1000 then
+			begin
+				normalizedSpawns := Round(normalizedSpawns / 10);
+			end;
+			newMap.maxSpawns := Round(normalizedSpawns / 2);
+
 			SeedFeatures(newMap);
 		end
 		else

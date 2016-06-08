@@ -587,7 +587,7 @@ implementation
 
 		if (currentUI.name = 'Inventory') then
 		begin
-			// Draw background for ticker text to render readable on white terrain
+			// Draw background for text to render readable on white terrain
 			DrawBitmap(BitmapNamed('instruction_bar'), CameraX() + 113, CameraY() + 1);
 			// Print control instructions
 			DrawText('Select - Eat Item | Attack - List Item on eBay', ColorWhite, 'PrStartSmall', CameraX() + 122, CameraY() + 12);
