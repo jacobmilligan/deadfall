@@ -112,7 +112,7 @@ interface
 			dir: Direction;
 			currentGoal: Point2D;
 			hp: Single;
-			hpSoundTicks: Integer;
+			hpSoundTicks: Single;
 			hunger: Single;
 			nextUpdate: Single;
 			attackTimeout: Single;
@@ -225,11 +225,12 @@ implementation
 		SetLength(result.items, 5);
 
 		// Add all available items to the collection
-		result.items[0] := NewItem('Rabbit Leg', 7, 1, 5, 0.1);
-		result.items[1] := NewItem('Bandage', 0, 10, 10, 0.2);
+		// name, huger, hp, $, rarity
+		result.items[0] := NewItem('Rabbit Leg', 3, 1, 50, 0.00005);
+		result.items[1] := NewItem('Bandage', 0, 8, 100, 0.00005);
 		result.items[2] := NewItem('Trinket', 1, -15, 30, 0.4);
 		result.items[3] := NewItem('Silver', 1, -15, 50, 0.6);
-		result.items[4] := NewItem('Diamond', 1, -30, 400, 0.85);
+		result.items[4] := NewItem('Diamond', 1, -30, 150, 0.85);
 
 		// Sort the inventory based off ID
 		QuickSort(result.items, 0, Length(result.items) - 1);

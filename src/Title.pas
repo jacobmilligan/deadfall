@@ -62,7 +62,7 @@ implementation
 		InitUI(result, 5, 'New Map');
 
 		result.items[0] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 100, 'Size', 'PrStartSmall');
-		SetupUIData(result.items[0], 4, ['Small', 'Medium', 'Big', 'Huge']);
+		SetupUIData(result.items[0], 3, ['Small', 'Medium', 'Big']);
 
 		result.items[1] := CreateUIElement(BitmapNamed('ui_blue'), BitmapNamed('ui_red'), HorizontalCenter('ui_blue'), 200, 'Max Height', 'PrStartSmall');
 		SetupUIData(result.items[1], 1, [NUMBER_DATA], 100);
@@ -102,11 +102,6 @@ implementation
 				begin
 					map.maxSpawns := 100000;
 					map.size := 1025;
-				end;
-			'Huge':
-				begin
-					map.maxSpawns := 100000;
-					map.size := 2049;
 				end;
 			end;
 	end;

@@ -572,22 +572,26 @@ implementation
 			begin
 				currentUI.tickerPos := 120;
 			end;
+			// Draw background for ticker text to render readable on white terrain
+			DrawBitmap(BitmapNamed('ticker_back'), CameraX() - 5, CameraY() + ScreenHeight() - 37.5);
 
 			// Draw the ticker tape
-			DrawText(marketStr, ColorWhite, 'PrStartSmall', CameraX() + currentUI.tickerPos, CameraY() + ScreenHeight() - 50);
+			DrawText(marketStr, ColorWhite, 'PrStartSmall', CameraX() + currentUI.tickerPos, CameraY() + ScreenHeight() - 30);
 
 			// If the ticker tape is off the screen start drawing a second ticker off the right side of the screen to emulate a loop
 			if CameraX() + currentUI.tickerPos < CameraX() then
 			begin
-				DrawText(marketStr, ColorWhite, 'PrStartSmall', (CameraX() + ScreenWidth() * 2) + currentUI.tickerPos + 50, CameraY() + ScreenHeight() - 50);
+				DrawText(marketStr, ColorWhite, 'PrStartSmall', (CameraX() + ScreenWidth() * 2) + currentUI.tickerPos + 50, CameraY() + ScreenHeight() - 30);
 			end;
 		end;
 
 		if (currentUI.name = 'Inventory') then
 		begin
+			// Draw background for ticker text to render readable on white terrain
+			DrawBitmap(BitmapNamed('instruction_bar'), CameraX() + 113, CameraY() + 1);
 			// Print control instructions
-			DrawText('Select - Eat Item | Attack - List Item on eBay', ColorWhite, 'PrStartSmall', CameraX(), CameraY() + 10);
-			DrawText('Action - Buy item at current market price', ColorWhite, 'PrStartSmall', CameraX(), CameraY() + 25);
+			DrawText('Select - Eat Item | Attack - List Item on eBay', ColorWhite, 'PrStartSmall', CameraX() + 122, CameraY() + 12);
+			DrawText('Action - Buy item at current market price', ColorWhite, 'PrStartSmall', CameraX() + 142, CameraY() + 27);
 		end;
 
 	end;

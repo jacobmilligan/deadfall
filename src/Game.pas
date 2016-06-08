@@ -163,6 +163,8 @@ implementation
 		LoadBitmapNamed('health bar', 'health_bar.png');
 		LoadBitmapNamed('dollars', 'dollars.png');
 		LoadBitmapNamed('dead_player', 'deadplayer.png');
+		LoadBitmapNamed('ticker_back', 'ticker_back.png');
+		LoadBitmapNamed('instruction_bar', 'instruction_bar.png');
 
 		// Music
 		LoadMusicNamed('baws', 'baws.wav');

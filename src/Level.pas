@@ -335,9 +335,14 @@ implementation
 		begin
 			thisState.map.player.hunger := 0;
 			thisState.map.player.hp -= 0.05;
-			thisState.map.player.hpSoundTicks += 1;
+		end;
+
+		if thisState.map.player.hp < 30 then
+		begin
+			thisState.map.player.hpSoundTicks += 1 * (GetTicks() / 10000);
+
 			// Play low health sound
-			if (thisState.map.player.hp < 50) and (thisState.map.player.hpSoundTicks > 10) then
+			if ( thisState.map.player.hpSoundTicks > GetFrameRate() * ( GetTicks() / 10000 ) ) then
 			begin
 				thisState.map.player.hpSoundTicks := 0;
 				PlaySoundEffect(SoundEffectNamed('dying'), 0.5);
