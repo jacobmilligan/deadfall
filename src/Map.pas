@@ -198,7 +198,7 @@ implementation
 		// Add all available items to the collection. Make rabbit legs and bandages really
 		// low rarity and cost heaps to balance the game better.
 		// name, huger, hp, $, rarity
-		result.items[0] := NewItem('Rabbit Leg', 3, 2, 50, 0.00005);
+		result.items[0] := NewItem('Rabbit Leg', 4, 2, 50, 0.00005);
 		result.items[0].adjustedDollarValue := result.items[0].dollarValue;
 		result.items[1] := NewItem('Bandage', 0, 8, 100, 0.00005);
 		result.items[1].adjustedDollarValue := result.items[1].dollarValue;
