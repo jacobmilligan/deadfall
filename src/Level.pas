@@ -393,8 +393,10 @@ implementation
 	var
 		x, y: LongInt;
 		currentTileView: TileView;
+		iter: EntityListIterator;
 	begin
 		currentTileView := CreateTileView();
+		iter := InitIterator(thisState.map.npcList);
 
 		// Only draw tiles that are visible in the current tile view
 		for x := currentTileView.x to currentTileView.right do
@@ -412,10 +414,16 @@ implementation
 		DrawSprite(thisState.map.player.sprite);
 
 		// Draw all NPC's to the map
-		for x := 0 to High(thisState.map.npcs) do
+	{	for x := 0 to High(thisState.map.npcs) do
     begin
         DrawSprite(thisState.map.npcs[x].sprite);
-    end;
+    end;}
+
+		while not iter.finish do
+		begin
+			DrawSprite(iter.current^.data.sprite);
+			IterateEntityList(iter);
+		end;
 
 		DrawHUD(thisState.map.player, thisState.map.inventory.dollars);
 	end;

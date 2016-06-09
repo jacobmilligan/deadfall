@@ -130,8 +130,8 @@ interface
     end;
 
 		EntityList = record
-			first: EntityListNodePtr;
-			last: EntityListNodePtr;
+			first, last: EntityListNodePtr;
+			length: Integer;
 		end;
 
 		EntityListIterator = record
@@ -148,6 +148,7 @@ interface
 			inventory: InventoryCollection;
 			collidableCount: Integer;
 			npcs: EntityCollection;
+			npcList: EntityList;
 			blank, onBoat: Boolean;
 			size, smoothness, maxHeight, seed, maxSpawns, tilesize, playerIndicator: Integer;
 		end;
@@ -224,7 +225,7 @@ interface
 	//
 	procedure EntityListAdd(var list: EntityList; toAdd: Entity);
 
-	procedure EntityListRemove(var list: EntityList; toRemove: EntityListNodePtr; previous: EntityListNodePtr);
+	procedure ListRemoveCurrent(var list: EntityList; var iter: EntityListIterator);
 
 	//
 	//	Creates a new entity list iterator
@@ -267,6 +268,7 @@ implementation
 	begin
 		result.first := nil;
 		result.last := nil;
+		result.length := 0;
 	end;
 
 	procedure EntityListAdd(var list: EntityList; toAdd: Entity);
@@ -293,29 +295,37 @@ implementation
 
 		// Insert at the end of the list
 		list.last^ := newNode;
+		list.length += 1;
 	end;
 
-	procedure EntityListRemove(var list: EntityList; toRemove: EntityListNodePtr; previous: EntityListNodePtr);
+	procedure ListRemoveCurrent(var list: EntityList; var iter: EntityListIterator);
 	begin
 		// Check if list is populated before removing
 		if list.first <> nil then
 		begin
 			// Check if the removal node is the first in the list
-			if toRemove = list.first then
+			if iter.current = list.first then
 			begin
 				list.first := list.first^.next;
 			end
 			else
 			begin
 				// Remove the node
-				previous^.next := toRemove^.next;
+				iter.previous^.next := iter.current^.next;
 				// Check if the node is the last in the list and update list acccordingly
-				if toRemove = list.last then
+				if iter.current = list.last then
 				begin
-					list.last := previous;
+					list.last := iter.previous;
 				end;
 			end;
-			Dispose(toRemove);
+			Dispose(iter.current);
+			iter.current := iter.previous^.next;
+			WriteLn(list.length);
+			list.length -= 1;
+			if list.length < 0 then
+			begin
+				list.length := 0;
+			end;
 		end;
 	end;
 

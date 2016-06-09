@@ -62,7 +62,7 @@ implementation
     // Only spawn rabbits outside the boundaries of the current camera view
     if ( x < CameraX() ) or ( x > CameraX() + ScreenWidth() ) or ( y < CameraY() ) or ( y > CameraY() + ScreenHeight() ) then
     begin
-      SetLength(map.npcs, Length(map.npcs) + 1);
+      //SetLength(map.npcs, Length(map.npcs) + 1);
 
       newNPC.sprite := CreateSprite(BitmapNamed('bunny'), AnimationScriptNamed('player'));
       SpriteAddLayer(newNPC.sprite, BitmapNamed('bunny_hurt'), 'hurt');
@@ -84,7 +84,8 @@ implementation
       newGoal := PointAt(SpriteX(newNPC.sprite) + Random(map.size), SpriteY(newNPC.sprite) + Random(map.size));
       newNPC.currentGoal := newGoal;
 
-      map.npcs[High(map.npcs)] := newNPC;
+      //map.npcs[High(map.npcs)] := newNPC;
+      EntityListAdd(map.npcList, newNPC);
       DrawSprite(newNPC.sprite);
     end;
   end;
@@ -263,6 +264,7 @@ implementation
   var
     x, y: LongInt;
   begin
+    map.npcList := NewEntityList();
 
     for x := 0 to High(map.tiles) do
     begin
@@ -270,7 +272,7 @@ implementation
       for y := 0 to High(map.tiles) do
       begin
         // Spawn in a bunch of NPC's
-        if not (map.tiles[x, y].collidable) and (Random(1000) > 995) and (Length(map.npcs) < map.maxSpawns) then
+        if not (map.tiles[x, y].collidable) and (Random(1000) > 995) and (map.npcList.length < map.maxSpawns) then
         begin
           SpawnNPC(map, x * 32, y * 32);
         end;
@@ -293,7 +295,7 @@ implementation
       y := Random( Length(map.tiles) - 1 );
     end;
 
-    if (Random(1000) > 500) and (Length(map.npcs) < map.maxSpawns) then
+    if (Random(1000) > 500) and (map.npcList.length < map.maxSpawns) then
     begin
       SpawnNPC(map, x * 32, y * 32);
     end;
@@ -305,6 +307,7 @@ implementation
     playerPos, npcPos: Point2D;
     playerDist, updateDist: Single;
     attackRect: Rectangle;
+    iter: EntityListIterator;
   begin
     toRemove := 0;
     playerPos := PointAt( SpriteX(map.player.sprite), SpriteY(map.player.sprite) );
@@ -317,7 +320,103 @@ implementation
     //
     //  This also only updates the NPCs if they're close enough to the player
     //
-    for i := High(map.npcs) downto 0 do
+    iter := InitIterator(map.npcList);
+    i := 0;
+    WriteLn(map.npcList.length);
+    while not iter.finish do
+    begin
+      if i > map.npcList.length then
+      begin
+        break;
+      end;
+
+      npcPos := PointAt( SpriteX(iter.current^.data.sprite), SpriteY(iter.current^.data.sprite) );
+      playerDist := PointPointDistance(playerPos, npcPos);
+
+      // If NPC is still alive, do interactions
+      if ( iter.current^.data.hp > 0 ) and ( playerDist < updateDist ) then
+      begin
+        // Update NPC's less frequently if far away from player to save resources
+        iter.current^.data.nextUpdate -= 100 / playerDist;
+
+        if iter.current^.data.nextUpdate < 0 then
+        begin
+          iter.current^.data.nextUpdate := 1;
+          UpdateNPCAI(map, iter.current^.data, i, playerDist);
+        end;
+        // Check collision with the player
+        if SpriteCollision(iter.current^.data.sprite, map.player.sprite) then
+        begin
+          case map.player.dir of
+            DirUp: SpriteSetDY(map.player.sprite, 2);
+            DirRight: SpriteSetDX(map.player.sprite, -2);
+            DirDown: SpriteSetDY(map.player.sprite, -2);
+            DirLeft: SpriteSetDX(map.player.sprite, 2);
+          end;
+        end;
+        // Handle attack interaction with the player
+        if (map.player.attackTimeout > map.player.maxAttackSpeed - 3) and (playerDist <= map.tilesize) then
+        begin
+
+          //
+          //  Uses a collision rectangle placed 16px in front of whatever dir
+          //  the player is facing
+          //
+          case map.player.dir of
+            DirUp: attackRect := CreateRectangle(SpriteX(map.player.sprite), SpriteY(map.player.sprite) - 16, 28, 28);
+            DirRight: attackRect := CreateRectangle(SpriteX(map.player.sprite) + 16, SpriteY(map.player.sprite), 28, 28);
+            DirDown: attackRect := CreateRectangle(SpriteX(map.player.sprite), SpriteY(map.player.sprite) + 16, 28, 28);
+            DirLeft: attackRect := CreateRectangle(SpriteX(map.player.sprite) - 16, SpriteY(map.player.sprite), 28, 28);
+          end;
+
+          // Player is in contact with the NPC while attacking
+          if SpriteRectCollision(iter.current^.data.sprite, attackRect) then
+          begin
+            PlaySoundEffect(SoundEffectNamed('punch'), 0.2);
+            PlaySoundEffect(SoundEffectNamed('bunny'), 0.5);
+            SpriteShowLayer(iter.current^.data.sprite, 'hurt');
+            iter.current^.data.hp -= 20;
+            iter.current^.data.moveSpeed := 2;
+
+            case map.player.dir of
+              DirUp: iter.current^.data.currentGoal := PointAt(SpriteX(iter.current^.data.sprite), SpriteY(iter.current^.data.sprite) - map.size);
+              DirRight: iter.current^.data.currentGoal := PointAt(SpriteX(iter.current^.data.sprite) + map.size, SpriteY(iter.current^.data.sprite));
+              DirDown: iter.current^.data.currentGoal := PointAt(SpriteX(iter.current^.data.sprite), SpriteY(iter.current^.data.sprite) + map.size);
+              DirLeft: iter.current^.data.currentGoal := PointAt(SpriteX(iter.current^.data.sprite) - map.size, SpriteY(iter.current^.data.sprite));
+            end;
+          end
+        end
+        else if (map.player.attackTimeout = 0) then
+        begin
+          SpriteHideLayer(iter.current^.data.sprite, 'hurt');
+        end;
+      end
+      //
+      //  Otherwise, if NPC is dead, remove from NPC array and spawn new
+      //  food feature where they were
+      //
+      else if playerDist < updateDist then
+      begin
+        ListRemoveCurrent(map.npcList, iter);
+        if map.tiles[Floor(npcPos.x / 32), Floor(npcPos.y / 32)].feature = NoFeature then
+        begin
+          SetFeature(map.tiles[Floor(npcPos.x / 32), Floor(npcPos.y / 32)], Food, false);
+        end
+        else if map.tiles[Ceil(npcPos.x / 32), Ceil(npcPos.y / 32)].feature = NoFeature then
+        begin
+          SetFeature(map.tiles[Ceil(npcPos.x / 32), Ceil(npcPos.y / 32)], Food, false);
+        end
+        else
+        begin
+          PlaySoundEffect(SoundEffectNamed('pickup'), 0.5);
+          map.inventory.items[SearchInventory(map.inventory.items, 'Rabbit Leg')].count += 1;
+        end;
+      end;
+      IterateEntityList(iter);
+      i += 1;
+    end;
+
+    {for i := High(map.npcs) downto 0 do
     begin
       npcPos := PointAt( SpriteX(map.npcs[i].sprite), SpriteY(map.npcs[i].sprite) );
       playerDist := PointPointDistance(playerPos, npcPos);
@@ -401,7 +500,7 @@ implementation
           map.inventory.items[SearchInventory(map.inventory.items, 'Rabbit Leg')].count += 1;
         end;
       end;
-    end;
+    end;}
   end;
 
 end.
