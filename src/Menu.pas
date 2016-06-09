@@ -17,9 +17,7 @@ interface
 	type
 		DynamicStringArray = array of String;
 
-	//
 	//	Initializes the menu state and creates the UI elements
-	//
 	procedure MenuInit(var newState: ActiveState);
 
 	//
@@ -28,9 +26,7 @@ interface
 	//
 	procedure MenuHandleInput(var thisState: ActiveState; var inputs: InputMap);
 
-	//
 	//	Updates the menu and UI
-	//
 	procedure MenuUpdate(var thisState: ActiveState);
 
 	//
@@ -59,9 +55,7 @@ implementation
 		result := @manager^[stateIndex];
 	end;
 
-	//
 	//	Returns the index of an item searched in the players inventory
-	//
 	function ItemIndex(var itemNames: DynamicStringArray; name: String): Integer;
 	var
 		i: Integer;

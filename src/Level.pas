@@ -28,10 +28,7 @@ interface
 	//
 	procedure UpdateCamera(constref map: MapData);
 
-	//
-	//	Initializes the playing map state, using
-	//	a new active state
-	//
+	//	Initializes the playing map state, using a new active state
 	procedure LevelInit(var newState: ActiveState; var mapSettings: MapData);
 
 	//

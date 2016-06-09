@@ -233,10 +233,10 @@ implementation
 		newView: TileView;
 	begin
 		// Translate camera view to tile-based values
-		newView.x := Round(CameraPos.x / 32) - 1;
-		newView.y := Round(CameraPos.y / 32) - 1;
-		newView.right := Round( (CameraPos.x / 32) + (ScreenWidth() / 32) );
-		newView.bottom := Round( (CameraPos.y / 32) + (ScreenHeight() / 32) );
+		newView.x := Round(CameraPos.x / TILESIZE) - 1;
+		newView.y := Round(CameraPos.y / TILESIZE) - 1;
+		newView.right := Round( (CameraPos.x / TILESIZE) + (ScreenWidth() / TILESIZE) );
+		newView.bottom := Round( (CameraPos.y / TILESIZE) + (ScreenHeight() / TILESIZE) );
 
 		result := newView;
 	end;
@@ -767,8 +767,8 @@ implementation
 							begin
 								SpriteSetDX(toCheck, 0);
 								SpriteSetDY(toCheck, 0);
-								SpriteSetX(toCheck, i * 32);
-								SpriteSetY(toCheck, j * 32);
+								SpriteSetX(toCheck, i * TILESIZE);
+								SpriteSetY(toCheck, j * TILESIZE);
 							end;
 
 							// Change boat animation depending on onBoat value
@@ -860,8 +860,8 @@ implementation
 			// Draw the players position on the map
 			FillRectangle(
 					ColorRed,
-					CameraX() + ( (SpriteX(map.player.sprite) / 32) / step) + 130,
-					CameraY() + ( (SpriteY(map.player.sprite) / 32) / step) + 50,
+					CameraX() + ( (SpriteX(map.player.sprite) / TILESIZE) / step) + 130,
+					CameraY() + ( (SpriteY(map.player.sprite) / TILESIZE) / step) + 50,
 					4,
 					4
 				);
@@ -878,7 +878,7 @@ implementation
 		x, y: Integer;
 		normalizedSpawns: Integer;
 	begin
-		newMap.tilesize := 32;
+		newMap.tilesize := TILESIZE;
 		newMap.size := size;
 		newMap.onBoat := false;
 		newMap.collidableCount := 0;

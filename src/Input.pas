@@ -22,16 +22,13 @@ interface
       //
       InputMap = record
           MoveUp, MoveRight, MoveDown, MoveLeft, Attack, Sprint, Menu, Select, Action: KeyCode;
+          controlCount: Integer;
       end;
 
-    //
     //  Gets the key code of whatever key the user last pressed down
-    //
     function GetKeyCode(): KeyCode;
 
-    //
     //  Sets input map to default settings
-    //
     procedure SetDefaultInput(var inputs: InputMap);
 
     //
@@ -48,9 +45,7 @@ interface
     //
     procedure MoveEntity(var map: MapData; var toMove: Entity; dir: Direction; speed: Single; pickup: Boolean; special: Boolean = false);
 
-    //
     //  Changes the key in the input map to whatever key the user has pressed
-    //
     procedure ChangeKeyTo(var inputs: InputMap; var keyToChange: String);
 
 implementation

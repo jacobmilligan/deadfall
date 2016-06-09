@@ -14,29 +14,19 @@ unit Title;
 interface
   uses State, Game, Input, GameUI, Map;
 
-  //
   //  Initializes the title state alongside BG music
-  //
   procedure TitleInit(var newState: ActiveState);
 
-  //
   //  Handle moving between title menu screens.
-  //
   procedure TitleHandleInput(var thisState: ActiveState; var inputs: InputMap);
 
-  //
   //  Updates the titles attached UI at each game tick
-  //
   procedure TitleUpdate(var thisState: ActiveState);
 
-  //
   //  Draws the title screen and its attached UI at each tick
-  //
   procedure TitleDraw(var thisState: ActiveState);
 
-  //
   //  Initializes the title screens UIElements
-  //
   function CreateTitleUI(var map: MapData; var inputs: InputMap): UI;
 
 implementation
@@ -54,9 +44,7 @@ implementation
 		result.previousItem := 0;
 	end;
 
-  //
   //  Initializes the map UI screen with generation options
-  //
 	function CreateInitMapUI(var map: MapData; var inputs: InputMap): UI;
 	begin
 		InitUI(result, 5, 'New Map');
@@ -178,7 +166,7 @@ implementation
 		if KeyTyped(inputs.Select) and ( thisState.displayedUI.name = 'Title' ) then
 		begin
 			PlaySoundEffect(SoundEffectNamed('confirm'), 0.5);
-      // Choose the next UI element
+      // Choose the next UI element to display on confirm
 			case UISelectedID(thisState.displayedUI) of
 				'Quit': StateChange(thisState.manager^, QuitState);
 				'New Map':
@@ -195,7 +183,6 @@ implementation
 						thisState.displayedUI.nextUI := @CreateSettingsUI;
 						UINavigate(thisState.displayedUI, inputs, thisState.map);
 					end;
-				'Load Map': WriteLn('Load Map');
 			end;
 		end;
 

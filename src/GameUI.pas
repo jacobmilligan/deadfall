@@ -175,13 +175,15 @@ implementation
 	var
 		controlStr: String;
 		negCenter, posCenter: Single;
+		i: Integer;
 	begin
 		InitUI(result, 9, 'Controls');
 		// negCenter and posCenter represent left and right sides of the center of the screen
 		negCenter := HorizontalCenter('ui_blue') - (BitmapWidth(BitmapNamed('ui_blue')) / 2);
 		posCenter := HorizontalCenter('ui_blue') + (BitmapWidth(BitmapNamed('ui_blue')) / 2);
 
-		// Write the enum name directly to a string rather than using GetEnumName() because weird swingame KeyCode ordering
+		// Write the enum name directly to a string rather than using GetEnumName() because of out of order swingame KeyCode ordering in the enum. Otherwise
+		// this section would be a single loop.
 		// MoveUp
 		WriteStr(controlStr, inputs.MoveUp);
 		controlStr := StringReplace(controlStr, 'Key', ' Key' ,[rfReplaceAll]); // Isolate the name of the KeyCode
@@ -474,7 +476,7 @@ implementation
 		itemCenterX, itemCenterY, tickerOffset: Single;
 		textToDraw, marketStr: String;
 	begin
-		// This will be the ticker tape string
+		// Initialize ticker tape string
 		marketStr := '';
 
 		// Draw all the UIElements
