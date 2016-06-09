@@ -16,10 +16,7 @@ interface
 
 	type
 
-		//
-		//	Valid entity dirs on the map. Used in movement and
-		//	collision detection
-		//
+		//	Valid entity dirs on the map. Used in movement and collision detection
 		Direction = (DirUp, DirRight, DirDown, DirLeft);
 
 		//
@@ -67,72 +64,51 @@ interface
 			dollars: Single;
 		end;
 
-		//
-		//	Represents a tile on the map - has a terrain flag,
-		//	elevation and bitmap
-		//
+		//	Represents a tile on the map - has a terrain flag, elevation and bitmap
 		Tile = record
 			// terrain type
 			flag: TileType;
 
-			isOcean: Boolean;
-
 			// type of feature if any
 			feature: FeatureType;
 
-			// uses collision detection
-			collidable: Boolean;
+			// uses collision detection, has a bitmap attached
+			collidable, hasBmp: Boolean;
 
-			//
-			//	Represents the tiles elevation - zero represents sea
-			//	level.
-			//
+			//	Represents the tiles elevation - zero represents sea level.
 			elevation: Integer;
 
 			// tiles base bitmap
 			bmp: Bitmap;
-			hasBmp: Boolean;
+
 			// bitmap for whatever feature is on top of the tiles
 			featureBmp: Bitmap;
 		end;
 
-		//
 		//	Array used to hold a a tilemap
-		//
 		TileGrid = array of array of Tile;
 
-		//
-		//	Any moving, interactive, collidable entity on the map
-		//	that possesses some sort of action logic
-		//
+		//	Any moving, interactive, collidable entity on the map that possesses some sort of action logic
 		Entity = record
 			id: String;
 			stuckCounter: Integer;
 			sprite: Sprite;
 			dir: Direction;
 			currentGoal: Point2D;
-			hp: Single;
-			hpSoundTicks: Single;
-			hunger: Single;
-			nextUpdate: Single;
-			attackTimeout: Single;
-			maxAttackSpeed: Single;
+			hp, hpSoundTicks, hunger, nextUpdate, attackTimeout, maxAttackSpeed: Single;
 			moveSpeed: Integer;
 		end;
 
 		EntityCollection = array of Entity;
 
-		//
 		//	Main representation of a current level. Holds a tile grid.
-		//
 		MapData = record
 			tiles: TileGrid;
 			player: Entity;
 			inventory: InventoryCollection;
-			collidableCount: Integer;
 			npcs: EntityCollection;
 			blank, onBoat: Boolean;
-			size, smoothness, maxHeight, seed, maxSpawns, tilesize, playerIndicator: Integer;
+			size, collidableCount, smoothness, maxHeight, seed, maxSpawns, tilesize, playerIndicator: Integer;
 		end;
 
 		//
@@ -169,31 +145,25 @@ interface
 	//
 	function IsInMap(var map: MapData; x, y: Integer): Boolean;
 
-	//
 	//	Draws a given tiles bitmap and any features it contains to the screen.
-	//
 	procedure DrawTile(var currTile: Tile; x, y: Integer);
 
+	//	Draws a map overview to the screen with the players location displayed
 	procedure DrawMapCartography(var map: MapData);
 
-	//
-	//	Creates a new TileView record from the view currently within the
-	//	games camera bounds.
-	//
+	//	Creates a new TileView record from the view currently within the games camera bounds.
 	function CreateTileView(): TileView;
 
-	//
 	//	Sets up a feature on a given tile. Sets treasure or tree depending on FeatureType
-	//
 	procedure SetFeature(var tile: Tile; feature: FeatureType; collidable: Boolean);
 
-	// Initializes the inventory with default types and values
+	//	Initializes the inventory with default types and values
 	function InitInventory(): InventoryCollection;
 
-	// Restores a players stat, handles error checking
+	//	Restores a players stat, handles error checking
 	procedure RestoreStat(var stat: Single; plus: Single);
 
-	// Increases players dollars and decreases item count
+	//	Increases players dollars and decreases item count
 	procedure SellItem(var toSell: Item; var inventory: InventoryCollection);
 
 implementation
@@ -331,10 +301,7 @@ implementation
 				while y < Length(map.tiles) do
 				begin
 
-					//
-					// Sum surrounding points equidistant from the midpoint
-					// in a square shape
-					//
+					// Sum surrounding points equidistant from the midpoint in a square shape
 					midpointVal := map.tiles[x - nextStep, y - nextStep].elevation
 								 + map.tiles[x - nextStep, y + nextStep].elevation
 								 + map.tiles[x + nextStep, y - nextStep].elevation
@@ -349,15 +316,8 @@ implementation
 				y := 0;
 			end;
 
-			//
-			// Diamond step.
-			// Check surrounding points in a diamond around a given midpoint, i.e.:
-			//  	  x
-			//  	x o x
-			//   	  x
-			// The circle represents the midpoint. Checks if they're within the bounds
-			// of the map
-			//
+			// Diamond step. Check surrounding points in a diamond shape around a given midpoint
+			// Checks if they're within the bounds of the map.
 			x := 0;
 			while x < Length(map.tiles) do
 			begin
@@ -368,14 +328,8 @@ implementation
 					midpointVal := 0;
 					cornerCount := 0;
 
-					//
-					// Sum the surrounding points equidistant from the current
-					// midpoint, checking in a diamond shape, then calculating their
-					// average and adding a random amount.
-					//
-					// Ensures that the corner checking is within the bounds
-					// of the map
-					//
+					// Sum the surrounding points equidistant from the current midpoint calculate average and
+					// add a random amount. Ensures that the corners being calculated are within the map bounds
 					if ( y - nextStep >= 0 ) then
 					begin
 						midpointVal += map.tiles[x, y - nextStep].elevation;
@@ -397,10 +351,8 @@ implementation
 						cornerCount += 1;
 					end;
 
-					//
 					// If at least one corner is within the map bounds, calculate average plus
 					// a random amount less than the map size.
-					//
 					if cornerCount > 0 then
 					begin
 						// Set midpoint to the average of corner amt + Random value and multiply by smoothing factor
@@ -415,10 +367,8 @@ implementation
 
 			nextStep := Round(nextStep / 2); // Make the next space smaller
 
-			//
 			//	Increase smoothness for every iteration, allowing
 			//	less difference in height the more iterations that are completed
-			//
 			smoothness := Round(smoothness / 2);
 		end;
 	end;
@@ -459,14 +409,6 @@ implementation
 							SetTile(map.tiles[x, y], Water, 'dark water', true)
 						else
 							SetTile(map.tiles[x, y], Mountain, 'mountain', true)
-				end;
-
-				// Used for drawing the pixels to a bitmap later - if isOcean is true
-				// then the entire vertical line in the map is water and we don't need
-				// to draw pixels
-				if (map.tiles[x, y].flag <> Water) then
-				begin
-					map.tiles[x, 0].isOcean := false;
 				end;
 
 				if map.tiles[x, y].collidable then
@@ -635,7 +577,6 @@ implementation
 				tiles[x, y].elevation := 0;
 				tiles[x, y].collidable := false;
 				tiles[x, y].feature := NoFeature;
-				tiles[x, y].isOcean := true;
 				tiles[x, y].hasBmp := false;
 			end;
 		end;

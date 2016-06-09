@@ -66,14 +66,10 @@ interface
 			tickerPos: Single;
 		end;
 
-	//
 	//	Initializes a new UI screen with default values
-	//
 	procedure InitUI(var newUI: UI; numElements: Integer; name: String);
 
-	//
 	//	Creates a new UI element on the current UI screen with default values
-	//
 	function CreateUIElement(inactiveBmp, activeBmp: Bitmap; x, y: Single; id: String = ''; setFont: String = 'PrStart'): UIElement;
 
 	//
@@ -82,15 +78,10 @@ interface
 	//
 	procedure UINavigate(var currentUI: UI; var inputs: InputMap; var map: MapData);
 
-	//
 	//	Updates the current UI screens active/inactive Bitmaps
-	//
 	procedure UpdateUI(var currentUI: UI; currentItem, previousItem: Integer);
 
-	//
-	//	Updates any data items attached to a given UI element. These can be specified
-	//	via
-	//
+	//	Updates any data items attached to a given UI element.
 	procedure UpdateUIData(var inputs: InputMap; var currElement: UIElement; var map: MapData);
 
 	//
@@ -106,19 +97,13 @@ interface
 	//
 	procedure ChangeElement(var currentUI: UI; id: String);
 
-	//
 	//	Returns the ID of the currently selected UIElement
-	//
 	function UISelectedID(var currentUI: UI): String;
 
-	//
 	//	Reduces the count of the attached inventory item
-	//
 	procedure ReduceItemCount(var itemToReduce: UIElement);
 
-	//
 	//	Handles purchasing a new item on the inventory screen
-	//
 	procedure BuyItem(var itemToBuy: UIElement; var dollars: Single);
 
 	//
@@ -133,9 +118,7 @@ interface
 	//
 	function CreateSettingsUI(var map: MapData; var inputs: InputMap): UI;
 
-	//
 	// Creates the change controls UI screen
-	//
 	function CreateChangeControlsUI(var map: MapData; var inputs: InputMap): UI;
 
 	//
