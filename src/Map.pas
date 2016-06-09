@@ -122,6 +122,23 @@ interface
 
 		EntityCollection = array of Entity;
 
+		EntityListNodePtr = ^EntityListNode;
+
+		EntityListNode = record
+      data: Entity;
+      next: EntityListNodePtr;
+    end;
+
+		EntityList = record
+			first: EntityListNodePtr;
+			last: EntityListNodePtr;
+		end;
+
+		EntityListIterator = record
+			previous, current: EntityListNodePtr;
+			finish: Boolean;
+		end;
+
 		//
 		//	Main representation of a current level. Holds a tile grid.
 		//
@@ -196,11 +213,111 @@ interface
 	// Increases players dollars and decreases item count
 	procedure SellItem(var toSell: Item; var inventory: InventoryCollection);
 
+	//
+	//	Creates a new Entity linked list and initializes first and last to nil
+	//
+	function NewEntityList(): EntityList;
+
+	//
+	//	Adds a new entity to the list parameter, sets first and last if either
+	//	haven't been set yet
+	//
+	procedure EntityListAdd(var list: EntityList; toAdd: Entity);
+
+	procedure EntityListRemove(var list: EntityList; toRemove: EntityListNodePtr; previous: EntityListNodePtr);
+
+	//
+	//	Creates a new entity list iterator
+	//
+	function InitIterator(var list: EntityList): EntityListIterator;
+
+	//
+	//	Steps through the entity list to the next link and returns nil if at the end
+	//	ensuring it keeps track of its place
+	//
+	procedure IterateEntityList(var iter: EntityListIterator);
+
 implementation
 	uses SwinGame, Game, Input, Math, SysUtils;
 
 	const
 		TILESIZE = 32;
+
+	function InitIterator(var list: EntityList): EntityListIterator;
+	begin
+		result.current := list.first;
+		result.previous := nil;
+		result.finish := false;
+	end;
+
+	procedure IterateEntityList(var iter: EntityListIterator);
+	begin
+		if iter.current^.next^.next = nil then
+		begin
+			iter.finish := true;
+		end
+		else
+		begin
+			iter.previous := iter.current;
+			iter.current := iter.current^.next;
+		end;
+	end;
+
+	function NewEntityList(): EntityList;
+	begin
+		result.first := nil;
+		result.last := nil;
+	end;
+
+	procedure EntityListAdd(var list: EntityList; toAdd: Entity);
+	var
+		newNode: EntityListNode;
+	begin
+		// Initialize the new node on the heap
+		newNode.next := nil;
+		newNode.data := toAdd;
+		New(newNode.next);
+
+		// Check if the list is empty and initialize if so
+		if list.first = nil then
+		begin
+			New(list.first);
+			New(list.last);
+			list.first^ := newNode;
+		end
+		else
+		begin
+			// Not empty, assign the last elements next to the new node
+			list.last^.next^ := newNode;
+		end;
+
+		// Insert at the end of the list
+		list.last^ := newNode;
+	end;
+
+	procedure EntityListRemove(var list: EntityList; toRemove: EntityListNodePtr; previous: EntityListNodePtr);
+	begin
+		// Check if list is populated before removing
+		if list.first <> nil then
+		begin
+			// Check if the removal node is the first in the list
+			if toRemove = list.first then
+			begin
+				list.first := list.first^.next;
+			end
+			else
+			begin
+				// Remove the node
+				previous^.next := toRemove^.next;
+				// Check if the node is the last in the list and update list acccordingly
+				if toRemove = list.last then
+				begin
+					list.last := previous;
+				end;
+			end;
+			Dispose(toRemove);
+		end;
+	end;
 
 	// Adds a new item to the inventory collection with default and passed in values
 	function NewItem(name: String; hungerPlus, healthPlus, dollarValue, rarity: Single): Item;
