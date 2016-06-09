@@ -204,7 +204,7 @@ implementation
 			// Handle selling of items on the inventory screen
 			if currItem^.attachedInventory^.count > 0 then
 			begin
-				SellItem(currItem^.attachedInventory^, lastLevelState^.map.inventory);
+				SellItem(currItem^.attachedInventory^);
 				ReduceItemCount(currItem^);
 			end;
 		end

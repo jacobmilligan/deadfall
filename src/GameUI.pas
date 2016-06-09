@@ -550,6 +550,7 @@ implementation
 		begin
 			// Size of the ticker tape
 			tickerOffset := TextWidth(FontNamed('PrStartSmall'), marketStr);
+			tickerOffset += tickerOffset;
 			currentUI.tickerPos -= 2;
 
 			// Ticker tape is completely off screen, so reset its pos

@@ -164,7 +164,7 @@ interface
 	procedure RestoreStat(var stat: Single; plus: Single);
 
 	//	Increases players dollars and decreases item count
-	procedure SellItem(var toSell: Item; var inventory: InventoryCollection);
+	procedure SellItem(var toSell: Item);
 
 implementation
 	uses SwinGame, Game, Input, Math, SysUtils;
@@ -195,13 +195,16 @@ implementation
 
 		SetLength(result.items, 5);
 
-		// Add all available items to the collection
+		// Add all available items to the collection. Make rabbit legs and bandages really
+		// low rarity and cost heaps to balance the game better.
 		// name, huger, hp, $, rarity
-		result.items[0] := NewItem('Rabbit Leg', 3, 1, 50, 0.00005);
+		result.items[0] := NewItem('Rabbit Leg', 3, 2, 50, 0.00005);
+		result.items[0].adjustedDollarValue := result.items[0].dollarValue;
 		result.items[1] := NewItem('Bandage', 0, 8, 100, 0.00005);
-		result.items[2] := NewItem('Trinket', 1, -15, 30, 0.4);
+		result.items[1].adjustedDollarValue := result.items[1].dollarValue;
+		result.items[2] := NewItem('Trinket', 1, -15, 10, 0.4);
 		result.items[3] := NewItem('Silver', 1, -15, 50, 0.6);
-		result.items[4] := NewItem('Diamond', 1, -30, 150, 0.85);
+		result.items[4] := NewItem('Diamond', 1, -30, 100, 0.85);
 
 		// Sort the inventory based off ID
 		QuickSort(result.items, 0, Length(result.items) - 1);
@@ -220,7 +223,7 @@ implementation
 		end;
 	end;
 
-	procedure SellItem(var toSell: Item; var inventory: InventoryCollection);
+	procedure SellItem(var toSell: Item);
 	begin
 		PlaySoundEffect(SoundEffectNamed('sell'), 0.5);
 		toSell.listed += 1;

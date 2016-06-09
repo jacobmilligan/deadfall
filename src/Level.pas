@@ -105,7 +105,6 @@ implementation
 
 		// Generate a new map with the passed-in size
 		newState.map := GenerateNewMap(mapSettings.size, mapSettings.smoothness, mapSettings.maxHeight, mapSettings.maxSpawns, mapSettings.seed);
-		WriteLn(newState.map.maxSpawns);
 		newState.map.blank := false;
 
 		// Setup player stats
@@ -248,16 +247,26 @@ implementation
 		// Do buyer calculations for each item in the inventory
 		for i := 0 to High(items) do
 		begin
-			if Random(1000) > 997 then
+			if (Random(1000) > 997) then
 			begin
-				// Change the demand of a given item alongside its adjusted dollar values
 				deltaDollarValue := items[i].adjustedDollarValue;
-				items[i].demand := (Random() / 2) + items[i].rarity;
-				if items[i].demand > 1 then
+
+				// Adjust rabbit legs and bandages so that they're always common and expensive
+				if (items[i].name = 'Rabbit Leg') or (items[i].name = 'Bandage') then
 				begin
-					items[i].demand := 1;
+					items[i].adjustedDollarValue := items[i].dollarValue * (Random(2) + 1);
+				end
+				else
+				begin
+					// Change the demand of a given item alongside its adjusted dollar values
+					items[i].demand := (Random() / 2) + items[i].rarity;
+					if items[i].demand > 1 then
+					begin
+						items[i].demand := 1;
+					end;
+					items[i].adjustedDollarValue := items[i].dollarValue * items[i].demand;
 				end;
-				items[i].adjustedDollarValue := items[i].dollarValue * items[i].demand;
+
 				items[i].deltaDollarValue := items[i].adjustedDollarValue - deltaDollarValue;
 			end;
 
@@ -285,13 +294,20 @@ implementation
 			if ( items[i].name = newBuyer.itemToBuy.name ) and ( newBuyer.itemInterest >= 0.4 ) then
 			begin
 				// Buyers will only buy an item if random is high enough and an item is listed
-				if (items[i].listed > 0) and (Random() > 0.9) then
+				if (items[i].listed > 0) and (Random() > 0.85) then
 				begin
 					PlaySoundEffect(SoundEffectNamed('buy'), 0.5);
 					items[i].listed -= 1;
 					if items[i].listed < 0 then
 					begin
 						items[i].listed := 0;
+					end;
+					// Alter demand if items are selling as you're flooding the market
+					items[i].demand -= 0.1;
+					// Stop negatives from happening
+					if items[i].demand < 0 then
+					begin
+						items[i].demand := 0;
 					end;
 
 					// Generate a random caret and adjust price based off that
