@@ -343,7 +343,7 @@ implementation
 		UpdateSprite(thisState.map.player.sprite);
 
 		// Decreases the players hunger and hp each tick
-		thisState.map.player.hunger -= 0.01;
+		thisState.map.player.hunger -= 0.02;
 		if thisState.map.player.hunger < 0 then
 		begin
 			thisState.map.player.hunger := 0;
